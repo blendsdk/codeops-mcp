@@ -26,10 +26,13 @@ This file contains **universal agent rules** that work for any software project.
 ### Pre-Task Protocol (BOTH MODES)
 
 1. 🛑 **STOP** — Do not proceed without compliance check
-2. 📖 **READ CODE.MD** — Review relevant coding standards
-3. 📖 **READ TESTING.MD** — Review test commands and workflow
-4. 📖 **READ PROJECT DOCS** — Review any project-specific documentation or specs
-5. ✅ **VERIFY COMPLIANCE** — Ensure approach follows all applicable documents
+2. 📖 **LOAD RULES VIA CODEOPS-MCP** — If codeops-mcp tools are available, load rules:
+   - `get_rule("agents")` — Agent behavior rules **(REQUIRED FIRST)**
+   - `get_rule("code")` — Coding standards
+   - `get_rule("testing")` — Testing workflows
+   - `get_rule("git-commands")` — Git commit protocols
+3. 📖 **READ PROJECT DOCS** — Review `.clinerules/project.md` and any project-specific documentation or specs
+4. ✅ **VERIFY COMPLIANCE** — Ensure approach follows all applicable documents
 
 ### What MUST Be Checked
 

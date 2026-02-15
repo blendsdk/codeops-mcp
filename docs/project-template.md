@@ -9,6 +9,21 @@
 
 ---
 
+## 🚨 MANDATORY: Load CodeOps Rules Before Any Work
+
+**Before ANY planning or implementation, the AI agent MUST load these rules
+using the codeops-mcp tools:**
+
+1. `get_rule("agents")` — Load agent behavior rules **(REQUIRED FIRST)**
+2. `get_rule("code")` — Load coding standards
+3. `get_rule("testing")` — Load testing workflows
+4. `get_rule("git-commands")` — Load git commit protocols
+
+These rules are **mandatory** and must be consulted before every task.
+**Do NOT skip this step. Do NOT proceed without reading these documents.**
+
+---
+
 ## Project Overview
 
 - **Name:** [Project name]

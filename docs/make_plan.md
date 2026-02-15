@@ -725,6 +725,7 @@ Phase 3
 3. ✅ No warnings/errors
 4. ✅ Documentation updated
 5. ✅ Code reviewed (if applicable)
+6. ✅ **Post-completion:** Ask user to re-analyze project and update `.clinerules/project.md`
 ````
 
 ---
@@ -827,4 +828,43 @@ When creating and executing plans:
 **Session Flow:**
 ```
 exec_plan [feature] → implement tasks → update plan → verify → commit → /compact → exec_plan [feature]
+```
+
+---
+
+## **🚨 CRITICAL: Post-Plan-Completion Project Re-Analysis 🚨**
+
+**When ALL tasks in an execution plan are complete, the agent MUST perform this final step.**
+
+### Protocol
+
+After the final task is marked complete and all verification passes:
+
+1. ✅ **Ask the user:** *"The plan is complete. Would you like to re-analyze the project to update `.clinerules/project.md` with the latest project state?"*
+2. ✅ If user **confirms**:
+   - Run `analyze_project` with the project root path
+   - Save the generated output to `.clinerules/project.md`
+   - Review and preserve any manual customizations (description, naming conventions, special rules) from the existing `project.md`
+   - Commit the updated `project.md` using `gitcmp`
+3. ✅ If user **declines**: Skip — plan execution is complete
+
+### Why This Matters
+
+Implementation plans often introduce new dependencies, change project structure, add frameworks, or modify build/test commands. Re-analyzing the project ensures `.clinerules/project.md` stays accurate and up-to-date, so future AI sessions work with correct toolchain information.
+
+### Template Addition for `99-execution-plan.md`
+
+Every execution plan's **Success Criteria** section must include:
+
+```markdown
+## Success Criteria
+
+**Feature is complete when:**
+
+1. ✅ All phases completed
+2. ✅ All verification passing (project's verify command)
+3. ✅ No warnings/errors
+4. ✅ Documentation updated
+5. ✅ Code reviewed (if applicable)
+6. ✅ **Post-completion:** Ask user to re-analyze project and update `.clinerules/project.md`
 ```

@@ -427,6 +427,23 @@ function formatProjectMd(analysis: ProjectAnalysis): string {
   parts.push('---');
   parts.push('');
 
+  // Bootstrap section — forces the AI agent to load rules
+  parts.push('## 🚨 MANDATORY: Load CodeOps Rules Before Any Work');
+  parts.push('');
+  parts.push('**Before ANY planning or implementation, the AI agent MUST load these rules');
+  parts.push('using the codeops-mcp tools:**');
+  parts.push('');
+  parts.push('1. `get_rule("agents")` — Load agent behavior rules **(REQUIRED FIRST)**');
+  parts.push('2. `get_rule("code")` — Load coding standards');
+  parts.push('3. `get_rule("testing")` — Load testing workflows');
+  parts.push('4. `get_rule("git-commands")` — Load git commit protocols');
+  parts.push('');
+  parts.push('These rules are **mandatory** and must be consulted before every task.');
+  parts.push('**Do NOT skip this step. Do NOT proceed without reading these documents.**');
+  parts.push('');
+  parts.push('---');
+  parts.push('');
+
   // Project Overview
   parts.push('## Project Overview');
   parts.push('');
