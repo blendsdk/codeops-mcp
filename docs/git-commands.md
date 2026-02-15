@@ -8,6 +8,35 @@ These rules are **mandatory** and must be applied **strictly and consistently**.
 
 ---
 
+## **🚨 CRITICAL PROHIBITION: No Loose Git Commands 🚨**
+
+**NEVER execute raw git staging, committing, or pushing commands directly.**
+
+The AI agent **MUST ALWAYS** use the `gitcm` or `gitcmp` protocols defined below. Running loose git commands bypasses the required commit message format, verification steps, and workflow safeguards.
+
+### PROHIBITED (NEVER DO):
+
+```bash
+❌ git add .
+❌ git add -A
+❌ git commit -m "some message"
+❌ git commit -am "some message"
+❌ git push
+❌ git push origin main
+❌ git add . && git commit -m "message" && git push
+```
+
+### REQUIRED (ALWAYS DO):
+
+```bash
+✅ Use `gitcm`  — for staging and committing (follows the full protocol below)
+✅ Use `gitcmp` — for staging, committing, rebasing, and pushing (follows the full protocol below)
+```
+
+**There are NO exceptions.** Even for "quick" or "small" commits, the agent MUST use `gitcm` or `gitcmp`.
+
+---
+
 ## **Cline Git Commands**
 
 When the user provides these keywords, Cline should perform the following actions:

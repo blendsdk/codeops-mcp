@@ -384,6 +384,112 @@ Examples:
 
 ---
 
+### **Rule 11: Mandatory `gitcm`/`gitcmp` for All Git Operations**
+
+**🚨 NEVER execute raw git staging, committing, or pushing commands. ALWAYS use `gitcm` or `gitcmp`.**
+
+The `gitcm` and `gitcmp` protocols (defined in `git-commands.md`) are the **ONLY** permitted methods for git staging, committing, and pushing. Running loose git commands bypasses the required commit message format, verification steps, and workflow safeguards.
+
+#### PROHIBITED (NEVER DO):
+
+```bash
+❌ git add .
+❌ git add -A
+❌ git commit -m "some message"
+❌ git commit -am "some message"
+❌ git push
+❌ git push origin main
+❌ git add . && git commit -m "message" && git push
+```
+
+#### REQUIRED (ALWAYS DO):
+
+- **To stage and commit:** Use the `gitcm` protocol (see `git-commands.md`)
+- **To stage, commit, and push:** Use the `gitcmp` protocol (see `git-commands.md`)
+
+**There are NO exceptions.** Even for "quick" or "small" commits, the agent MUST use `gitcm` or `gitcmp`. These protocols ensure:
+- Proper commit message format with scope and prefix
+- Commit message written via temp file (no shell escaping issues)
+- Verification steps are followed
+- Consistent workflow across all sessions
+
+---
+
+### **Rule 12: No Complex Command Chaining — Use Script Files**
+
+**🚨 NEVER chain multiple commands using `&&` combined with pipes (`|`), redirects (`>`, `>>`, `2>&1`), or subshells. ALWAYS create a bash script file instead.**
+
+Complex command chains break the terminal connection between the AI agent and the execution environment, causing session interruptions, lost output, and workflow problems.
+
+#### PROHIBITED (NEVER DO):
+
+```bash
+❌ command1 && command2 | command3
+❌ command1 && command2 > output.txt
+❌ command1 | grep "pattern" && command2
+❌ command1 2>&1 | tee log.txt && command2
+❌ command1 && command2 | sort | uniq > result.txt
+❌ docker logs container 2>&1 | grep error && echo "found"
+```
+
+#### ALLOWED — Simple `&&` Chains (No Pipes/Redirects):
+
+```bash
+✅ clear && yarn build
+✅ clear && yarn build && yarn test
+✅ clear && git add .
+✅ clear && scripts/agent.sh start
+```
+
+Simple `&&` chains without pipes or redirects are still permitted.
+
+#### REQUIRED — Script Files for Complex Commands:
+
+When you need pipes, redirects, subshells, or complex logic:
+
+1. **Create a script file** in the `scripts/` directory:
+   ```
+   scripts/run-[description].sh
+   ```
+
+2. **Write the commands** in the script with proper error handling:
+   ```bash
+   #!/bin/bash
+   set -e
+   
+   # Description of what this script does
+   command1
+   command2 | command3
+   result=$(command4 2>&1)
+   echo "$result" > output.txt
+   ```
+
+3. **Execute the script:**
+   ```bash
+   clear && bash scripts/run-[description].sh
+   ```
+
+#### Script Naming Convention:
+
+```
+scripts/run-[action]-[target].sh
+```
+
+Examples:
+- `scripts/run-check-logs.sh`
+- `scripts/run-build-and-analyze.sh`
+- `scripts/run-test-coverage-report.sh`
+- `scripts/run-docker-health-check.sh`
+
+#### Why This Rule Exists:
+
+- Complex piped/redirected command chains break the AI agent's terminal connection
+- Lost terminal connections cause session interruptions and incomplete work
+- Script files are debuggable, reusable, and don't have shell escaping issues
+- Script files provide better error handling with `set -e`
+
+---
+
 ### **Rule 10: VS Code Settings Automation (Optional)**
 
 If the project uses `scripts/agent.sh` for VS Code settings automation:
@@ -431,7 +537,9 @@ clear && scripts/agent.sh finished
 8. 📦 **NO inline debug scripts** — ALWAYS create script files (Rule 8)
 9. 🗜️ **After task completion:** Suggest `/compact` (Rule 9)
 10. ⚙️ **Act Mode ONLY:** Execute agent.sh if available (Rule 10 — start/finish settings)
-11. 📊 **Context management:** Continue until 90%, then wrap + commit + `/compact`
+11. 🔒 **Mandatory `gitcm`/`gitcmp`** — NEVER use loose git commands (Rule 11)
+12. 📜 **No complex command chaining** — Use script files for pipes/redirects (Rule 12)
+13. 📊 **Context management:** Continue until 90%, then wrap + commit + `/compact`
 
 ---
 
