@@ -1,0 +1,64 @@
+{
+  "name": "codeops-mcp",
+  "version": "1.0.0",
+  "description": "MCP (Model Context Protocol) server providing AI coding agents with universal, language-agnostic development rules. Includes coding standards, testing workflows, git conventions, plan creation/execution protocols, and intelligent project analysis for auto-generating project configurations.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "codeops-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "yarn clean && yarn build && yarn test",
+    "ncu": "ncu -u && rm -fR node_modules yarn.lock && yarn install && yarn clean && yarn build && yarn test"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "coding-standards",
+    "ai-agent",
+    "cline",
+    "claude",
+    "llm",
+    "developer-tools",
+    "code-quality",
+    "testing",
+    "git-workflow",
+    "project-analysis",
+    "implementation-plans",
+    "best-practices"
+  ],
+  "author": "blendsdk",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blendsdk/codeops-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blendsdk/codeops-mcp/issues"
+  },
+  "homepage": "https://github.com/blendsdk/codeops-mcp#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}
