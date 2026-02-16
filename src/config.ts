@@ -28,7 +28,7 @@ const PACKAGE_ROOT = join(__dirname, '..');
 const DOCS_PATH_ENV_VAR = 'CODEOPS_DOCS_PATH';
 
 /** Package version constant */
-const PACKAGE_VERSION = '1.0.0';
+const PACKAGE_VERSION = '1.1.0';
 
 /** Server name constant */
 const SERVER_NAME = 'codeops-rules';

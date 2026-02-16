@@ -1,6 +1,6 @@
 {
   "name": "codeops-mcp",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "MCP (Model Context Protocol) server providing AI coding agents with universal, language-agnostic development rules. Includes coding standards, testing workflows, git conventions, plan creation/execution protocols, and intelligent project analysis for auto-generating project configurations.",
   "type": "module",
   "main": "dist/index.js",
