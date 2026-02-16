@@ -24,6 +24,27 @@ This file contains **universal rules** that work for any software project. For p
 
 ---
 
+## **🚨 CRITICAL: No Raw Git Commands in Plans 🚨**
+
+Generated plans must **never** contain raw git commands. All git operations must reference the `gitcm` or `gitcmp` protocol defined in `git-commands.md`.
+
+### Required
+
+- ✅ Reference `gitcm` (commit) or `gitcmp` (commit and push) protocol by name
+- ✅ Describe commit steps in prose (e.g., "commit using the `gitcmp` protocol")
+- ✅ Show commit message **format** in plain (non-`bash`) code blocks when needed
+
+### Prohibited
+
+- ❌ `git add .` or any `git add` command
+- ❌ `git commit -m "..."` or any `git commit` command
+- ❌ `git push` or any `git push` command
+- ❌ Any `bash` code block that contains git commands
+
+> This rule applies to **all** plan documents, execution plan templates, session protocols, and auto-commit instructions. See the "No Loose Git Commands" section in `git-commands.md` for the full rationale.
+
+---
+
 ## **Part 1: Creating Plans (`make_plan`)**
 
 ### **Phase 1: Information Gathering (MANDATORY)**
@@ -494,6 +515,7 @@ For each task in order:
 - ✅ **Continue implementing** — do NOT wrap the session until you reach **90% of the 200K context window**
 - ✅ If you reach 90%, wrap up the session then `/compact`
 - ✅ Use the `gitcmp` protocol to stage all changes and create a git commit before continuing in a new session
+- ❌ NEVER include raw git commands (`git add`, `git commit`, `git push`) in generated plans — always reference `gitcm`/`gitcmp` protocol
 - ❌ Do NOT stop early at 50-70% — maximize each session's output
 
 ### **File Creation Rules**
@@ -554,23 +576,23 @@ Auto-commit is **MANDATORY** when ALL of these conditions are met:
 
 Use the `gitcm` or `gitcmp` protocol from `git-commands.md`:
 
-```bash
-# 1. Run project's verify command (from .clinerules/project.md)
-# Example: clear && yarn build && yarn test
-# Example: clear && cargo build && cargo test
-# Example: clear && docker compose config && docker compose build
+1. Run the project's verify command (from `.clinerules/project.md`)
+2. If verification passes, use the `gitcm` or `gitcmp` protocol to commit
 
-# 2. If verification passes, use gitcm/gitcmp protocol to commit
-# Commit message format:
-# feat([scope]): [task description]
-#
-# - [Specific change 1]
-# - [Specific change 2]
-# - Verification: passing
-#
-# Ref: plans/[feature-name]/99-execution-plan.md
-# Task: [X.X.X]
+**Commit message format:**
+
 ```
+feat([scope]): [task description]
+
+- [Specific change 1]
+- [Specific change 2]
+- Verification: passing
+
+Ref: plans/[feature-name]/99-execution-plan.md
+Task: [X.X.X]
+```
+
+> ⚠️ **Do NOT use raw git commands.** Always use the `gitcm` or `gitcmp` protocol from `git-commands.md`.
 
 ### When NOT to Auto-Commit
 
@@ -671,27 +693,17 @@ Every generated execution plan MUST follow this template:
 
 ### Starting a Session
 
-```bash
-# 1. Start agent settings (if scripts/agent.sh exists)
-clear && scripts/agent.sh start
-
-# 2. Reference this plan
-# "Implement Phase X, Session X.X per plans/[feature-name]/99-execution-plan.md"
-```
+1. Start agent settings (if `scripts/agent.sh` exists): run `clear && scripts/agent.sh start`
+2. Reference this plan: "Implement Phase X, Session X.X per `plans/[feature-name]/99-execution-plan.md`"
 
 ### Ending a Session
 
-```bash
-# 1. Run project's verify command (from .clinerules/project.md)
+1. Run the project's verify command (from `.clinerules/project.md`)
+2. If verification passes, commit using the `gitcm` or `gitcmp` protocol (see `git-commands.md`)
+3. End agent settings (if `scripts/agent.sh` exists): run `clear && scripts/agent.sh finished`
+4. Compact the conversation with `/compact`
 
-# 2. If verification passes, commit using gitcm/gitcmp protocol
-
-# 3. End agent settings (if scripts/agent.sh exists)
-clear && scripts/agent.sh finished
-
-# 4. Compact conversation
-/compact
-```
+> ⚠️ **Do NOT use raw git commands.** Always use the `gitcm` or `gitcmp` protocol from `git-commands.md`.
 
 ### Between Sessions
 
