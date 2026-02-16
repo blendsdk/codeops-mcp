@@ -119,7 +119,10 @@ const TOOL_DEFINITIONS = [
       'Scan a project directory and auto-generate a .clinerules/project.md configuration. ' +
       'Detects language, framework, package manager, test runner, and directory structure ' +
       'from manifest files (package.json, Cargo.toml, go.mod, pyproject.toml, docker-compose.yml). ' +
-      'Returns a ready-to-use project.md that pairs with the universal CodeOps rules.',
+      'If an existing .clinerules/project.md is found, performs an incremental merge: ' +
+      'auto-detectable sections (Toolchain, Commands, Structure) are refreshed while ' +
+      'user-customized sections (Coding Conventions, Git Conventions, Special Rules) are preserved verbatim. ' +
+      'Includes a change log showing what was updated. Never overwrites user edits.',
     inputSchema: {
       type: 'object' as const,
       properties: {

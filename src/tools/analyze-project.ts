@@ -13,7 +13,13 @@
 
 import { readdir, readFile, stat } from 'fs/promises';
 import { join, basename } from 'path';
-import type { AnalyzeProjectArgs, ProjectAnalysis } from '../types/index.js';
+import type {
+  AnalyzeProjectArgs,
+  ProjectAnalysis,
+  ParsedSection,
+  SectionMergeStrategy,
+  MergeChange,
+} from '../types/index.js';
 
 /**
  * Execute the analyze_project tool.
@@ -38,10 +44,19 @@ export async function analyzeProject(args: AnalyzeProjectArgs): Promise<string> 
       return `**Error:** "${projectPath}" is not a directory.`;
     }
 
-    // Perform analysis
+    // Perform fresh analysis
     const analysis = await scanProject(projectPath);
 
-    // Generate project.md content
+    // Check for existing project.md
+    const existingContent = await readExistingProjectMd(projectPath);
+
+    if (existingContent) {
+      // Merge path: parse existing, merge with fresh analysis
+      const existingSections = parseProjectMdSections(existingContent);
+      return mergeProjectMd(existingSections, analysis);
+    }
+
+    // Fresh generation path (no existing file)
     return formatProjectMd(analysis);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -569,4 +584,426 @@ function formatProjectMd(analysis: ProjectAnalysis): string {
   parts.push('- **plans.md** — Uses task file path patterns');
 
   return parts.join('\n');
+}
+
+// ============================================================================
+// Section Parser & Classifier (Merge Engine — Phase 1)
+// ============================================================================
+
+/**
+ * Sections whose content is auto-detectable from project scanning.
+ * These are refreshed with fresh scan data during merge.
+ */
+export const AUTO_UPDATE_SECTIONS = [
+  '## Project Overview',
+  '## Toolchain',
+  '## Commands',
+  '## Project Structure',
+];
+
+/**
+ * Sections that are static boilerplate and always regenerated from template.
+ * Content is not user-customizable.
+ */
+export const STATIC_SECTIONS = [
+  '## 🚨 MANDATORY: Load CodeOps Rules Before Any Work',
+  '## Cross-References',
+];
+
+/**
+ * Parse an existing project.md into structured sections.
+ *
+ * Splits on level-2 (`##`) headers only. Content between headers
+ * (including any `###` subsections) is grouped with the parent `##`.
+ * Content before the first `##` header is captured as a preamble
+ * section with an empty header and level 0.
+ *
+ * @param content - Raw markdown content of an existing project.md
+ * @returns Array of parsed sections in document order
+ */
+export function parseProjectMdSections(content: string): ParsedSection[] {
+  const lines = content.split('\n');
+  const sections: ParsedSection[] = [];
+  let currentHeader = '';
+  let currentLevel = 0;
+  let currentLines: string[] = [];
+
+  for (const line of lines) {
+    // Match only level-2 headers (## Something)
+    const headerMatch = line.match(/^(#{2})\s+(.+)$/);
+
+    if (headerMatch) {
+      // Save previous section (preamble or previous ##)
+      if (currentHeader !== '' || currentLines.length > 0) {
+        sections.push({
+          header: currentHeader,
+          level: currentLevel,
+          content: currentLines.join('\n'),
+        });
+      }
+      currentHeader = line;
+      currentLevel = 2;
+      currentLines = [];
+    } else {
+      currentLines.push(line);
+    }
+  }
+
+  // Save the last section
+  if (currentHeader !== '' || currentLines.length > 0) {
+    sections.push({
+      header: currentHeader,
+      level: currentLevel,
+      content: currentLines.join('\n'),
+    });
+  }
+
+  return sections;
+}
+
+/**
+ * Classify a section header to determine how it should be handled during merge.
+ *
+ * - `auto-update`: Section content comes from scanning and should be refreshed
+ * - `preserve`: Section content is user-customized and must be kept verbatim
+ * - `static`: Section is boilerplate and always regenerated from template
+ *
+ * Unknown sections default to `preserve` (safe — never lose user content).
+ *
+ * @param header - The full header line (e.g., "## Toolchain")
+ * @returns The merge strategy to apply
+ */
+export function classifySection(header: string): SectionMergeStrategy {
+  const normalized = header.trim();
+
+  // Empty header = preamble, always preserve
+  if (normalized === '') {
+    return 'preserve';
+  }
+
+  for (const auto of AUTO_UPDATE_SECTIONS) {
+    if (normalized.toLowerCase().startsWith(auto.toLowerCase())) {
+      return 'auto-update';
+    }
+  }
+
+  for (const s of STATIC_SECTIONS) {
+    if (normalized.toLowerCase().startsWith(s.toLowerCase())) {
+      return 'static';
+    }
+  }
+
+  // Default: preserve — never lose user content
+  return 'preserve';
+}
+
+// ============================================================================
+// Merge Engine (Phase 2)
+// ============================================================================
+
+/**
+ * Read an existing project.md file from the project's .clinerules directory.
+ *
+ * @param projectPath - Absolute path to the project root
+ * @returns File content as string, or null if not found / unreadable
+ */
+export async function readExistingProjectMd(projectPath: string): Promise<string | null> {
+  try {
+    const filePath = join(projectPath, '.clinerules', 'project.md');
+    const content = await readFile(filePath, 'utf-8');
+    // Treat empty files as "no existing file"
+    if (content.trim().length === 0) {
+      return null;
+    }
+    return content;
+  } catch {
+    return null; // File doesn't exist or can't be read
+  }
+}
+
+/**
+ * Generate fresh section content for a specific section header from analysis.
+ *
+ * Generates the full fresh project.md, parses it into sections, and
+ * returns the content for the matching section header. This reuses
+ * `formatProjectMd` to ensure consistency.
+ *
+ * @param header - The section header to extract (e.g., "## Toolchain")
+ * @param freshSections - Pre-parsed sections from a fresh formatProjectMd() output
+ * @returns The fresh section, or null if no matching section exists
+ */
+export function generateFreshSection(
+  header: string,
+  freshSections: ParsedSection[],
+): ParsedSection | null {
+  const normalizedHeader = header.trim().toLowerCase();
+
+  for (const section of freshSections) {
+    if (section.header.trim().toLowerCase() === normalizedHeader) {
+      return section;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Merge an auto-update section with its fresh counterpart.
+ *
+ * For most auto-update sections, replaces with fresh content entirely.
+ * Special handling for "## Project Overview": preserves user-filled
+ * Description field if it's not a [TODO] placeholder.
+ *
+ * @param existing - The existing section from the user's file
+ * @param fresh - The freshly generated section from scan
+ * @param changes - Array to push change descriptions into (mutated)
+ * @returns The merged section content (header + content)
+ */
+export function mergeAutoUpdateSection(
+  existing: ParsedSection,
+  fresh: ParsedSection,
+  changes: MergeChange[],
+): string {
+  const existingFull = existing.header + '\n' + existing.content;
+  const freshFull = fresh.header + '\n' + fresh.content;
+
+  // If content is identical, no change needed
+  if (existingFull.trim() === freshFull.trim()) {
+    return existingFull;
+  }
+
+  // Special handling for Project Overview: preserve user Description
+  if (existing.header.trim().toLowerCase().startsWith('## project overview')) {
+    const merged = mergeProjectOverview(existing, fresh, changes);
+    return merged;
+  }
+
+  // For all other auto-update sections: replace with fresh content
+  changes.push({
+    section: extractSectionName(existing.header),
+    description: 'Updated with fresh scan data',
+  });
+
+  return freshFull;
+}
+
+/**
+ * Merge the Project Overview section, preserving user-filled Description.
+ *
+ * @param existing - Existing Project Overview section
+ * @param fresh - Fresh Project Overview section
+ * @param changes - Change log array (mutated)
+ * @returns Merged section string
+ */
+function mergeProjectOverview(
+  existing: ParsedSection,
+  fresh: ParsedSection,
+  changes: MergeChange[],
+): string {
+  const existingLines = existing.content.split('\n');
+  const freshLines = fresh.content.split('\n');
+
+  // Extract user description from existing (if not [TODO])
+  const userDescription = extractFieldValue(existingLines, '- **Description:**');
+  const isTodo = !userDescription || userDescription.match(/^\[TODO/i);
+
+  // Start with fresh content
+  const resultLines = [...freshLines];
+
+  // If user had a custom description, preserve it
+  if (!isTodo && userDescription) {
+    for (let i = 0; i < resultLines.length; i++) {
+      if (resultLines[i].trimStart().startsWith('- **Description:**')) {
+        resultLines[i] = `- **Description:** ${userDescription}`;
+        break;
+      }
+    }
+  }
+
+  const mergedFull = fresh.header + '\n' + resultLines.join('\n');
+
+  // Detect what changed (compare fresh with existing, ignoring description)
+  const existingWithoutDesc = removeField(existingLines, '- **Description:**').join('\n').trim();
+  const freshWithoutDesc = removeField(freshLines, '- **Description:**').join('\n').trim();
+
+  if (existingWithoutDesc !== freshWithoutDesc) {
+    changes.push({
+      section: 'Project Overview',
+      description: 'Updated name/type from fresh scan',
+    });
+  }
+
+  return mergedFull;
+}
+
+/**
+ * Extract the value after a field prefix from lines.
+ * E.g., for prefix "- **Description:**" and line "- **Description:** My app"
+ * returns "My app".
+ */
+function extractFieldValue(lines: string[], prefix: string): string | null {
+  for (const line of lines) {
+    const trimmed = line.trimStart();
+    if (trimmed.startsWith(prefix)) {
+      return trimmed.slice(prefix.length).trim();
+    }
+  }
+  return null;
+}
+
+/**
+ * Remove lines matching a field prefix from an array of lines.
+ */
+function removeField(lines: string[], prefix: string): string[] {
+  return lines.filter((line) => !line.trimStart().startsWith(prefix));
+}
+
+/**
+ * Extract a human-readable section name from a header line.
+ * E.g., "## 🚨 MANDATORY: Load CodeOps Rules" → "MANDATORY: Load CodeOps Rules"
+ * E.g., "## Toolchain" → "Toolchain"
+ */
+function extractSectionName(header: string): string {
+  // Remove ## prefix and emoji
+  return header.replace(/^#+\s*/, '').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
+}
+
+/**
+ * Normalize a section header for comparison (lowercase, trimmed).
+ */
+function normalizeHeader(header: string): string {
+  return header.trim().toLowerCase();
+}
+
+/**
+ * Orchestrate the full merge of existing project.md with fresh analysis.
+ *
+ * Walks existing sections in order, applies the appropriate strategy,
+ * detects new sections from fresh analysis, and generates a change log.
+ *
+ * @param existingSections - Parsed sections from the existing project.md
+ * @param analysis - Fresh project analysis from scanning
+ * @returns Fully merged project.md markdown string with change log header
+ */
+export function mergeProjectMd(
+  existingSections: ParsedSection[],
+  analysis: ProjectAnalysis,
+): string {
+  const changes: MergeChange[] = [];
+
+  // Generate fresh sections for comparison
+  const freshMarkdown = formatProjectMd(analysis);
+  const freshSections = parseProjectMdSections(freshMarkdown);
+
+  // Track which fresh sections have been consumed (by normalized header)
+  const consumedFreshHeaders = new Set<string>();
+
+  // Build merged output by walking existing sections in order
+  const mergedParts: string[] = [];
+
+  for (const existing of existingSections) {
+    const strategy = classifySection(existing.header);
+
+    switch (strategy) {
+      case 'auto-update': {
+        const fresh = generateFreshSection(existing.header, freshSections);
+        if (fresh) {
+          consumedFreshHeaders.add(normalizeHeader(fresh.header));
+          const merged = mergeAutoUpdateSection(existing, fresh, changes);
+          mergedParts.push(merged);
+        } else {
+          // No matching fresh section — preserve existing
+          mergedParts.push(existing.header + '\n' + existing.content);
+        }
+        break;
+      }
+
+      case 'static': {
+        const fresh = generateFreshSection(existing.header, freshSections);
+        if (fresh) {
+          consumedFreshHeaders.add(normalizeHeader(fresh.header));
+          mergedParts.push(fresh.header + '\n' + fresh.content);
+        } else {
+          mergedParts.push(existing.header + '\n' + existing.content);
+        }
+        break;
+      }
+
+      case 'preserve':
+      default: {
+        // Keep existing content verbatim
+        // Also mark as consumed if there's a matching fresh section
+        const fresh = generateFreshSection(existing.header, freshSections);
+        if (fresh) {
+          consumedFreshHeaders.add(normalizeHeader(fresh.header));
+        }
+        if (existing.header === '') {
+          // Preamble section — just content, no header
+          mergedParts.push(existing.content);
+        } else {
+          mergedParts.push(existing.header + '\n' + existing.content);
+        }
+        break;
+      }
+    }
+  }
+
+  // Append any fresh sections not present in the existing file
+  for (const fresh of freshSections) {
+    if (fresh.header === '') continue; // Skip fresh preamble
+    if (consumedFreshHeaders.has(normalizeHeader(fresh.header))) continue;
+
+    // New section from fresh analysis — append it
+    changes.push({
+      section: extractSectionName(fresh.header),
+      description: 'New section added from template',
+    });
+    mergedParts.push(fresh.header + '\n' + fresh.content);
+  }
+
+  // Build final output with change log
+  const changeLog = formatChangeLog(changes);
+  const body = mergedParts.join('\n');
+
+  // Insert change log after the first line (# title) or at top
+  const lines = body.split('\n');
+  const titleLineIndex = lines.findIndex((l) => l.startsWith('# '));
+
+  if (titleLineIndex >= 0) {
+    // Insert change log after the title line
+    lines.splice(titleLineIndex + 1, 0, '', changeLog);
+    return lines.join('\n');
+  }
+
+  // No title found — prepend change log
+  return changeLog + '\n' + body;
+}
+
+/**
+ * Format the change log header for a merged project.md.
+ *
+ * @param changes - Array of detected changes
+ * @returns Formatted change log as markdown blockquote string
+ */
+export function formatChangeLog(changes: MergeChange[]): string {
+  const date = new Date().toISOString().split('T')[0];
+
+  if (changes.length === 0) {
+    return [
+      `> **✅ Re-analyzed by \`analyze_project\`** (no changes detected)`,
+      `> **Scanned:** ${date}`,
+    ].join('\n');
+  }
+
+  const lines = [
+    `> **🔄 Updated by \`analyze_project\`** (incremental update)`,
+    `> **Scanned:** ${date}`,
+    '> **Changes detected:**',
+  ];
+
+  for (const change of changes) {
+    lines.push(`> - ${change.section}: ${change.description}`);
+  }
+
+  return lines.join('\n');
 }

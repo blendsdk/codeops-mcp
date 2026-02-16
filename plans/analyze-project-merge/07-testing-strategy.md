@@ -1,0 +1,84 @@
+# Testing Strategy: Analyze Project Merge/Augment
+
+> **Document**: 07-testing-strategy.md
+> **Parent**: [Index](00-index.md)
+
+## Testing Overview
+
+### Coverage Goals
+
+- Unit tests: 90%+ coverage for all new functions
+- Integration tests: Full workflow coverage for both merge and fresh-generation paths
+- Regression: Existing tests continue to pass unchanged
+
+## Test Categories
+
+### Unit Tests
+
+| Test                                          | Description                                                        | Priority |
+| --------------------------------------------- | ------------------------------------------------------------------ | -------- |
+| `parseProjectMdSections` — basic              | Parses a standard project.md into correct number of sections       | High     |
+| `parseProjectMdSections` — preamble           | Handles content before first `##` header                           | High     |
+| `parseProjectMdSections` — subsections        | Keeps `###` subsections within their parent `##`                   | High     |
+| `parseProjectMdSections` — empty              | Returns empty array for empty string                               | Medium   |
+| `parseProjectMdSections` — no headers         | Returns single section with all content                            | Medium   |
+| `classifySection` — auto-update               | Correctly classifies Toolchain, Commands, etc. as auto-update      | High     |
+| `classifySection` — preserve                  | Correctly classifies Coding Conventions, Special Rules as preserve | High     |
+| `classifySection` — static                    | Correctly classifies MANDATORY and Cross-References as static      | High     |
+| `classifySection` — unknown                   | Unknown sections default to preserve                               | Medium   |
+| `classifySection` — case insensitivity        | Headers with different casing are classified correctly              | Medium   |
+| `readExistingProjectMd` — file exists         | Returns file content when `.clinerules/project.md` exists          | High     |
+| `readExistingProjectMd` — file missing        | Returns null when file doesn't exist                               | High     |
+| `readExistingProjectMd` — no directory        | Returns null when `.clinerules/` doesn't exist                     | Medium   |
+| `formatChangeLog` — with changes              | Generates proper change log header                                 | Medium   |
+| `formatChangeLog` — no changes                | Generates "no changes detected" header                             | Medium   |
+
+### Integration Tests (Merge Workflow)
+
+| Test                                          | Components                       | Description                                      |
+| --------------------------------------------- | -------------------------------- | ------------------------------------------------ |
+| Fresh generation unchanged                    | analyzeProject, scanProject      | No existing file → output matches current behavior |
+| Merge preserves user sections                 | analyzeProject, parseSection, merge | Existing file with customized sections → preserved |
+| Merge updates toolchain                       | analyzeProject, merge            | New framework detected → Toolchain section updated |
+| Merge updates commands                        | analyzeProject, merge            | Package manager change → Commands section updated  |
+| Merge fills TODOs                             | analyzeProject, merge            | `[TODO]` placeholders replaced with detected values |
+| Merge preserves user-modified auto-fields     | analyzeProject, merge            | User changed build command → preserved, noted in log |
+| Merge preserves custom sections               | analyzeProject, merge            | User-added sections not in template → preserved    |
+| Merge generates change log                    | analyzeProject, merge            | Output includes accurate change summary            |
+| Merge handles empty existing file             | analyzeProject                   | Empty project.md → treated as fresh generation     |
+| Merge handles malformed existing file         | analyzeProject, parseSection     | Partially broken project.md → graceful fallback    |
+
+### Regression Tests
+
+| Scenario                                      | Steps                            | Expected Result                                  |
+| --------------------------------------------- | -------------------------------- | ------------------------------------------------ |
+| No existing file — full workflow              | Run analyzeProject on clean dir  | Output identical to current implementation       |
+| Existing tests pass                           | Run `yarn test`                  | All tests in `core-tools.test.ts` pass           |
+
+## Test Data
+
+### Fixtures Needed
+
+1. **`fixture-fresh-project.md`** — A project.md as generated by the current `analyze_project` (no user edits)
+2. **`fixture-customized-project.md`** — A project.md with user-filled TODOs, custom special rules, edited conventions
+3. **`fixture-user-modified-commands.md`** — A project.md where the user changed the build/test commands
+4. **`fixture-extra-sections.md`** — A project.md with user-added sections not in the standard template
+5. **`fixture-minimal-project.md`** — A very minimal project.md with just a couple of sections
+6. **`fixture-empty-project.md`** — An empty file
+
+These fixtures should be defined as string constants in the test file rather than external files, for portability and readability.
+
+### Mock Requirements
+
+- Mock `readFile` / `stat` for `readExistingProjectMd` tests (to simulate file existence/absence without touching disk)
+- Use `tmp` directories or in-memory mocks for integration tests that call `analyzeProject`
+- For `parseProjectMdSections` and `classifySection` and `mergeProjectMd` — no mocks needed, these are pure functions
+
+## Verification Checklist
+
+- [ ] All new unit tests pass
+- [ ] All new integration tests pass
+- [ ] All existing tests in `core-tools.test.ts` pass unchanged
+- [ ] `yarn build` succeeds without errors
+- [ ] `yarn test` reports no regressions
+- [ ] Test coverage for new code is >90%

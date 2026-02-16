@@ -136,6 +136,45 @@ export interface GetSetupGuideArgs {
 }
 
 // ============================================================================
+// Project Merge Types
+// ============================================================================
+
+/**
+ * A parsed section from an existing project.md file.
+ * Used by the merge engine to compare and merge sections.
+ */
+export interface ParsedSection {
+  /** The full header line, e.g., "## Toolchain" */
+  header: string;
+
+  /** The header level (2 for ##, 3 for ###, etc.). 0 for preamble. */
+  level: number;
+
+  /** The raw content below the header (until the next same-or-higher-level header) */
+  content: string;
+}
+
+/**
+ * Classification of how a section should be handled during merge.
+ *
+ * - `auto-update`: Content is auto-detectable and should be refreshed from scan
+ * - `preserve`: Content is user-customized and must be kept verbatim
+ * - `static`: Boilerplate content that is always regenerated from template
+ */
+export type SectionMergeStrategy = 'auto-update' | 'preserve' | 'static';
+
+/**
+ * A single change entry for the merge change log.
+ */
+export interface MergeChange {
+  /** Section where the change occurred */
+  section: string;
+
+  /** Human-readable description of the change */
+  description: string;
+}
+
+// ============================================================================
 // Project Analysis Types
 // ============================================================================
 
