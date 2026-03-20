@@ -325,9 +325,20 @@ Before calling `attempt_completion`, perform a **comprehensive final check**:
 
 ---
 
-### **Rule 8: NO Inline Debug Scripts — ALWAYS Create Script Files**
+### **Rule 8: Script-First Execution — ALL Non-Trivial Commands MUST Use Script Files**
 
-**🚨 NEVER use inline command-line debug scripts. ALWAYS create script files.**
+**🚨 NEVER use inline scripts, multi-line commands, or complex one-liners on the command line. ALWAYS create a script file first.**
+
+This rule applies to ALL non-trivial command execution — not just debugging. Any command that involves code evaluation, multi-line logic, ad-hoc testing, validation scripts, or exploration MUST be written to a script file first and then executed.
+
+#### Why This Rule Exists
+
+Inline command-line scripts fail frequently because:
+1. **Shell escaping breaks** — Quotes, backticks, special characters are corrupted
+2. **Length limits** — Long inline commands are truncated or cause errors
+3. **No reusability** — Inline commands can't be re-run or debugged
+4. **Lost output** — Complex inline commands may break the terminal connection
+5. **No error handling** — Script files support `set -e` and proper error handling
 
 #### PROHIBITED (NEVER DO):
 
@@ -336,36 +347,49 @@ Before calling `attempt_completion`, perform a **comprehensive final check**:
 ❌ node --input-type=module -e "..."
 ❌ python -c "from module import ..."
 ❌ echo "..." | node
+❌ bash -c "complex multi-line command"
+❌ Any inline code evaluation for testing or validation
+❌ Any multi-line command pasted directly into the terminal
 ```
 
 #### REQUIRED (ALWAYS DO):
 
-1. Create a script file in `scripts/`:
-   ```
-   scripts/debug-[feature]-[issue].[ext]
-   ```
+1. **Create a script file** in the `scripts/` directory
+2. **Write proper code** with imports, error handling, and comments
+3. **Run the script** using the project's runner (from `.clinerules/project.md`)
+4. **Clean up temporary scripts** after use (scripts prefixed with `tmp-`)
 
-2. Write proper code with imports:
-   ```
-   // scripts/debug-auth-token-refresh.[ext]
-   // Import from project sources
-   // Run the debugging logic
-   // Print results
-   ```
+#### Script Categories and Naming Convention:
 
-3. Run the script using the project's runner (from `.clinerules/project.md`)
+| Purpose | Prefix | Example |
+|---------|--------|---------|
+| Debugging | `debug-` | `scripts/debug-auth-token-refresh.ts` |
+| Ad-hoc testing | `test-` | `scripts/test-api-endpoint.sh` |
+| Validation/verification | `verify-` | `scripts/verify-build-output.sh` |
+| Temporary exploration | `tmp-` | `scripts/tmp-check-data-format.ts` |
+| Build/run utilities | `run-` | `scripts/run-build-and-analyze.sh` |
 
-#### Script Naming Convention:
-
+**Full naming pattern:**
 ```
-scripts/debug-[module]-[specific-issue].[ext]
+scripts/[prefix]-[module]-[specific-purpose].[ext]
 ```
 
-Examples:
+**Examples:**
 - `scripts/debug-auth-token-refresh.ts`
-- `scripts/debug-api-response-parsing.py`
-- `scripts/debug-query-builder-join.ts`
-- `scripts/debug-nginx-upstream.sh`
+- `scripts/test-api-response-format.sh`
+- `scripts/verify-migration-output.py`
+- `scripts/tmp-check-import-resolution.ts`
+- `scripts/run-coverage-report.sh`
+
+#### Cleanup Protocol for Temporary Scripts:
+
+Scripts prefixed with `tmp-` are temporary and MUST be deleted after use:
+```bash
+# After running the temporary script and getting results:
+rm scripts/tmp-check-data-format.ts
+```
+
+Temporary scripts should NOT be committed to version control. If a temporary script proves useful, rename it to use a permanent prefix (`debug-`, `test-`, `verify-`, `run-`).
 
 ---
 
@@ -387,20 +411,22 @@ Examples:
 
 ---
 
-### **Rule 11: Mandatory `gitcm`/`gitcmp` for All Git Operations**
+### **Rule 11: Mandatory `gitcm`/`gitcmp` for All Git Operations — File-Based Commits ONLY**
 
 **🚨 NEVER execute raw git staging, committing, or pushing commands. ALWAYS use `gitcm` or `gitcmp`.**
 
 The `gitcm` and `gitcmp` protocols (defined in `git-commands.md`) are the **ONLY** permitted methods for git staging, committing, and pushing. Running loose git commands bypasses the required commit message format, verification steps, and workflow safeguards.
 
+**🚨 CRITICAL: The `-m` flag is BANNED.** Commit messages MUST be written to `/tmp/git_commit_msg.txt` using `write_to_file` and committed with `git commit -F /tmp/git_commit_msg.txt`. This is because inline `-m` messages fail due to shell escaping, length limits, and multi-line formatting issues. See `git-commands.md` for the full explanation.
+
 #### PROHIBITED (NEVER DO):
 
 ```bash
-❌ git add .
-❌ git add -A
 ❌ git commit -m "some message"
+❌ git commit -m 'some message'
 ❌ git commit -am "some message"
-❌ git push
+❌ git commit -m "feat(scope): ..." -m "- detail 1" -m "- detail 2"
+❌ ANY use of the -m flag with git commit
 ❌ git push origin main
 ❌ git add . && git commit -m "message" && git push
 ```
@@ -409,10 +435,14 @@ The `gitcm` and `gitcmp` protocols (defined in `git-commands.md`) are the **ONLY
 
 - **To stage and commit:** Use the `gitcm` protocol (see `git-commands.md`)
 - **To stage, commit, and push:** Use the `gitcmp` protocol (see `git-commands.md`)
+- **ALWAYS** write the commit message to `/tmp/git_commit_msg.txt` using `write_to_file` first
+- **ALWAYS** commit using `git commit -F /tmp/git_commit_msg.txt`
+- **ALWAYS** clean up with `rm /tmp/git_commit_msg.txt` after committing
 
-**There are NO exceptions.** Even for "quick" or "small" commits, the agent MUST use `gitcm` or `gitcmp`. These protocols ensure:
+**There are NO exceptions.** Even for "quick" or "small" commits, the agent MUST use `gitcm` or `gitcmp` with the file-based approach. These protocols ensure:
 - Proper commit message format with scope and prefix
 - Commit message written via temp file (no shell escaping issues)
+- Multi-line messages with special characters work reliably
 - Verification steps are followed
 - Consistent workflow across all sessions
 
@@ -491,6 +521,8 @@ Examples:
 - Script files are debuggable, reusable, and don't have shell escaping issues
 - Script files provide better error handling with `set -e`
 
+> **See also:** Rule 8 (Script-First Execution) for the comprehensive script file policy covering all non-trivial commands, including ad-hoc tests, validation, debugging, and temporary exploration.
+
 ---
 
 ### **Rule 10: VS Code Settings Automation (Optional)**
@@ -537,7 +569,7 @@ clear && scripts/agent.sh finished
 5. 📝 Update task progress (Rule 5 — during implementation)
 6. 🔍 Final verification before completion (Rule 6 — before finishing)
 7. 🚫 **NEVER overcomplicate** — Use existing infrastructure (Rule 7)
-8. 📦 **NO inline debug scripts** — ALWAYS create script files (Rule 8)
+8. 📦 **Script-First Execution** — ALWAYS create script files for non-trivial commands (Rule 8)
 9. 🗜️ **After task completion:** Suggest `/compact` (Rule 9)
 10. ⚙️ **Act Mode ONLY:** Execute agent.sh if available (Rule 10 — start/finish settings)
 11. 🔒 **Mandatory `gitcm`/`gitcmp`** — NEVER use loose git commands (Rule 11)

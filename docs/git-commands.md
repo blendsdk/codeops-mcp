@@ -8,6 +8,31 @@ These rules are **mandatory** and must be applied **strictly and consistently**.
 
 ---
 
+## **🚨 ULTRA-CRITICAL: Commit Messages MUST Be Written to a File — NEVER Passed Inline 🚨**
+
+**This is the single most important rule in this document. Every commit message MUST be written to a temporary file using `write_to_file` and committed with `git commit -F`. NEVER use `git commit -m "..."` under ANY circumstances.**
+
+### Why This Rule Exists
+
+Using `git commit -m "message"` fails frequently because:
+
+1. **Shell escaping breaks** — Commit messages containing quotes (`'`, `"`), backticks, parentheses, dollar signs, or special characters are corrupted or cause shell syntax errors
+2. **Line length limits** — Long commit messages exceed shell argument limits and are silently truncated
+3. **Multi-line messages fail** — The `-m` flag does not reliably handle multi-line messages across different shells and OS environments
+4. **AI agents produce detailed messages** — Conventional commit messages with bullet-point details are inherently multi-line and contain special characters
+
+### The ONLY Correct Approach
+
+```
+Step 1: Write the commit message to /tmp/git_commit_msg.txt using write_to_file
+Step 2: Run: git commit -F /tmp/git_commit_msg.txt
+Step 3: Run: rm /tmp/git_commit_msg.txt
+```
+
+**There are ZERO exceptions to this rule.** Not for "short" messages. Not for "simple" commits. Not for "quick fixes". ALWAYS use a file.
+
+---
+
 ## **🚨 CRITICAL PROHIBITION: No Loose Git Commands 🚨**
 
 **NEVER execute raw git staging, committing, or pushing commands directly.**
@@ -17,13 +42,12 @@ The AI agent **MUST ALWAYS** use the `gitcm` or `gitcmp` protocols defined below
 ### PROHIBITED (NEVER DO):
 
 ```bash
-❌ git add .
-❌ git add -A
 ❌ git commit -m "some message"
+❌ git commit -m 'some message'
 ❌ git commit -am "some message"
-❌ git push
-❌ git push origin main
+❌ git commit -m "feat(scope): description" -m "- detail 1" -m "- detail 2"
 ❌ git add . && git commit -m "message" && git push
+❌ ANY use of the -m flag with git commit
 ```
 
 ### REQUIRED (ALWAYS DO):
@@ -31,9 +55,11 @@ The AI agent **MUST ALWAYS** use the `gitcm` or `gitcmp` protocols defined below
 ```bash
 ✅ Use `gitcm`  — for staging and committing (follows the full protocol below)
 ✅ Use `gitcmp` — for staging, committing, rebasing, and pushing (follows the full protocol below)
+✅ ALWAYS write commit message to /tmp/git_commit_msg.txt FIRST using write_to_file
+✅ ALWAYS commit using: git commit -F /tmp/git_commit_msg.txt
 ```
 
-**There are NO exceptions.** Even for "quick" or "small" commits, the agent MUST use `gitcm` or `gitcmp`.
+**There are NO exceptions.** Even for "quick" or "small" commits, the agent MUST use `gitcm` or `gitcmp` with the file-based approach.
 
 ---
 

@@ -37,11 +37,36 @@ Generated plans must **never** contain raw git commands. All git operations must
 ### Prohibited
 
 - ❌ `git add .` or any `git add` command
-- ❌ `git commit -m "..."` or any `git commit` command
+- ❌ `git commit -m "..."` or any `git commit` command — **the `-m` flag is BANNED**
 - ❌ `git push` or any `git push` command
 - ❌ Any `bash` code block that contains git commands
 
+### Reminder: File-Based Commit Messages Are Mandatory
+
+The `gitcm`/`gitcmp` protocols require commit messages to be **written to a file** (`/tmp/git_commit_msg.txt`) using `write_to_file` and committed with `git commit -F`. This is because inline `-m` messages fail due to shell escaping, length limits, and multi-line formatting. See `git-commands.md` for full details.
+
 > This rule applies to **all** plan documents, execution plan templates, session protocols, and auto-commit instructions. See the "No Loose Git Commands" section in `git-commands.md` for the full rationale.
+
+---
+
+## **🚨 CRITICAL: Script-First Execution During Plan Execution 🚨**
+
+During plan execution, any ad-hoc commands, tests, validation scripts, or debugging must use **script files** — never inline command-line scripts.
+
+### Required
+
+- ✅ Create script files in `scripts/` for any non-trivial commands during execution
+- ✅ Use appropriate prefixes: `test-`, `verify-`, `debug-`, `tmp-`, `run-`
+- ✅ Clean up temporary scripts (prefixed with `tmp-`) after use
+- ✅ Reference `agents.md` Rule 8 (Script-First Execution) for the full policy
+
+### Prohibited
+
+- ❌ `node -e "..."` or `python -c "..."` or any inline code evaluation
+- ❌ Complex multi-line commands pasted directly into the terminal
+- ❌ `bash -c "..."` for multi-line logic
+
+> This ensures all ad-hoc work during plan execution is debuggable, reusable, and doesn't break due to shell escaping issues. See `agents.md` Rule 8 and Rule 12 for full details.
 
 ---
 
@@ -593,6 +618,7 @@ Task: [X.X.X]
 ```
 
 > ⚠️ **Do NOT use raw git commands.** Always use the `gitcm` or `gitcmp` protocol from `git-commands.md`.
+> ⚠️ **The `-m` flag is BANNED.** Write commit messages to `/tmp/git_commit_msg.txt` using `write_to_file`, then commit with `git commit -F /tmp/git_commit_msg.txt`.
 
 ### When NOT to Auto-Commit
 
