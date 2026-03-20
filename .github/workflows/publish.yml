@@ -111,7 +111,7 @@ jobs:
 
             - name: Publish to npm
               if: ${{ github.event.inputs.dry_run == 'false' || github.event_name == 'release' }}
-              run: npm publish  --access public --verbose
+              run: npm publish --verbose
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
