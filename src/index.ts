@@ -28,7 +28,7 @@ import {
   CallToolRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
-import { resolveConfig } from './config.js';
+import { resolveConfig, getPackageVersion } from './config.js';
 import { RuleStore } from './store/rule-store.js';
 import { SearchEngine } from './store/search-engine.js';
 
@@ -282,6 +282,12 @@ async function main(): Promise<void> {
   await server.connect(transport);
 
   console.error('[codeops-mcp] Server connected via stdio. Ready for requests.');
+}
+
+// Handle --version flag: print version and exit immediately
+if (process.argv.includes('--version') || process.argv.includes('-v')) {
+  console.log(getPackageVersion());
+  process.exit(0);
 }
 
 // Run the server

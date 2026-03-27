@@ -9,7 +9,7 @@
  * @module config
  */
 
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import type { ServerConfig } from './types/index.js';
@@ -27,11 +27,33 @@ const PACKAGE_ROOT = join(__dirname, '..');
 /** Environment variable name for custom docs path override */
 const DOCS_PATH_ENV_VAR = 'CODEOPS_DOCS_PATH';
 
-/** Package version constant */
-const PACKAGE_VERSION = '1.1.0';
-
 /** Server name constant */
 const SERVER_NAME = 'codeops-rules';
+
+/**
+ * Read the package version from package.json at the package root.
+ * Falls back to 'unknown' if the file cannot be read.
+ */
+function readPackageVersion(): string {
+  try {
+    const pkgPath = join(PACKAGE_ROOT, 'package.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    return pkg.version ?? 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
+/** Package version, read once from package.json */
+const PACKAGE_VERSION = readPackageVersion();
+
+/**
+ * Get the resolved package version string.
+ * Useful for CLI `--version` flag handling.
+ */
+export function getPackageVersion(): string {
+  return PACKAGE_VERSION;
+}
 
 /**
  * Resolves the complete server configuration.
