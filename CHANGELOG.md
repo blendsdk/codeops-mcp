@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/blendsdk/codeops-mcp/compare/v1.2.0...v1.3.0) (2026-03-27)
+
+
+### Features
+
+* **agents:** add sleep 3 delay after clear in shell command prefix ([2e0b4d9](https://github.com/blendsdk/codeops-mcp/commit/2e0b4d95f29267d8582f67509894bf1acf93bb47))
+
 # [1.2.0](https://github.com/blendsdk/codeops-mcp/compare/v1.1.1...v1.2.0) (2026-03-27)
 
 
