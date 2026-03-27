@@ -4,9 +4,17 @@
 
 When the user types "make_plan", execute the comprehensive workflow below to create a detailed, multi-document implementation plan for any software development feature or task.
 
-## **TRIGGER KEYWORD: `exec_plan [feature-name]`**
+## **TRIGGER KEYWORD: `exec_plan [feature-name] [--ask-commit | --no-commit | --auto-commit]`**
 
 When the user types "exec_plan [feature-name]", execute the implementation plan at `plans/[feature-name]/99-execution-plan.md`.
+
+**Commit mode flags** (optional — see "Commit Behavior During Plan Execution" section for full details):
+
+| Flag | Behavior |
+|------|----------|
+| *(no flag)* / `--ask-commit` | **Default.** Ask the user after each verified task whether to commit. |
+| `--no-commit` | Never commit, never ask. Pure implementation only. |
+| `--auto-commit` | Automatically commit and push after each verified task. |
 
 ---
 
@@ -67,6 +75,82 @@ During plan execution, any ad-hoc commands, tests, validation scripts, or debugg
 - ❌ `bash -c "..."` for multi-line logic
 
 > This ensures all ad-hoc work during plan execution is debuggable, reusable, and doesn't break due to shell escaping issues. See `agents.md` Rule 8 and Rule 12 for full details.
+
+---
+
+## **🚨 CRITICAL: Commit Behavior During Plan Execution 🚨**
+
+**By default, the agent NEVER automatically commits or pushes code.** The user must always have the opportunity to review changes before they are committed to the git repository.
+
+### Commit Modes
+
+The `exec_plan` command supports three commit modes:
+
+| Mode | Flag | Behavior |
+|------|------|----------|
+| **Ask (default)** | *(no flag)* or `--ask-commit` | After each verified task, present the user with commit options via `ask_followup_question`. The user chooses what to do. |
+| **No-commit** | `--no-commit` | Never commit, never ask. Pure implementation only. The user handles all git operations themselves. |
+| **Auto-commit** | `--auto-commit` | Automatically commit and push via `gitcmp` after each verified task. No prompts. (Previous default behavior.) |
+
+### Ask-Commit Mode (Default) — Prompt Protocol
+
+After each task completes and verification passes, the agent **MUST** use `ask_followup_question` with the following selectable options:
+
+**Prompt:**
+> *"Task X.X.X complete, verification passing. How would you like to proceed?"*
+
+**Options (provided via `ask_followup_question`):**
+
+1. **"Commit and push"** — Commit and push via `gitcmp` protocol, then continue to next task
+2. **"Commit only (no push)"** — Commit via `gitcm` protocol, then continue to next task
+3. **"Skip, continue to next task"** — No commit, continue implementing. Ask again after the next task.
+4. **"Skip all, commit at the end"** — No commit, **stop asking** for the remainder of the plan. At plan completion, present the final commit prompt (see below).
+
+If the user selects option 4, the agent remembers this preference and does not prompt again until the plan is fully complete.
+
+### End-of-Plan Commit Reminder
+
+When all tasks are complete and there are uncommitted changes, the agent **MUST** present a final commit prompt using `ask_followup_question`:
+
+**Prompt:**
+> *"All tasks complete. You have uncommitted changes. How would you like to proceed?"*
+
+**Options:**
+
+1. **"Commit and push"** — Commit and push all changes via `gitcmp`
+2. **"Commit only (no push)"** — Commit all changes via `gitcm`
+3. **"Don't commit"** — Leave changes uncommitted. User will handle git manually.
+
+### No-Commit Mode
+
+When `--no-commit` is specified:
+
+- ✅ Agent implements tasks, runs verification, updates the execution plan — everything as normal
+- ✅ No git operations whatsoever (no staging, no commits, no pushes)
+- ✅ No prompts asking about commits
+- ✅ Session summaries note `Commit mode: no-commit — no commits made`
+- ✅ At plan completion, a single informational note: *"Plan complete. Commit mode was no-commit — changes are uncommitted."*
+
+### Auto-Commit Mode
+
+When `--auto-commit` is specified:
+
+- ✅ After each verified task, automatically commit and push via `gitcmp` protocol
+- ✅ No prompts — fully automated
+- ✅ This was the previous default behavior
+- ✅ Follow the commit message format defined in the "Commit Protocol" section below
+
+### Context Window at 90% — Commit Behavior
+
+When context reaches 90% and the agent needs to wrap up and `/compact`:
+
+| Commit Mode | Behavior at 90% Context |
+|-------------|------------------------|
+| **Ask (default)** | Present the commit prompt with options before `/compact` |
+| **No-commit** | Do NOT commit. Note uncommitted changes in session summary, then `/compact` |
+| **Auto-commit** | Commit via `gitcmp`, then `/compact` |
+
+Files are always saved to disk regardless of commit mode — no work is lost.
 
 ---
 
@@ -526,7 +610,10 @@ For each task in order:
 1. ✅ Complete current task before stopping
 2. ✅ Update execution plan with all completed tasks
 3. ✅ Run project's verify command (see `.clinerules/project.md`)
-4. ✅ Auto-commit if verification passes (use `gitcmp` protocol from `git-commands.md`)
+4. ✅ Handle commit based on the active **commit mode** (see "Commit Behavior During Plan Execution" section):
+   - **Ask (default):** Present commit options to the user via `ask_followup_question`
+   - **No-commit:** Skip — no commit, no prompt
+   - **Auto-commit:** Commit and push via `gitcmp` protocol
 5. ✅ Report session summary
 
 ---
@@ -539,7 +626,10 @@ For each task in order:
 
 - ✅ **Continue implementing** — do NOT wrap the session until you reach **90% of the 200K context window**
 - ✅ If you reach 90%, wrap up the session then `/compact`
-- ✅ Use the `gitcmp` protocol to stage all changes and create a git commit before continuing in a new session
+- ✅ Before `/compact`, handle commit based on the active **commit mode** (see "Commit Behavior During Plan Execution"):
+  - **Ask (default):** Present commit options to the user
+  - **No-commit:** Skip — note uncommitted changes in session summary
+  - **Auto-commit:** Commit and push via `gitcmp`
 - ❌ NEVER include raw git commands (`git add`, `git commit`, `git push`) in generated plans — always reference `gitcm`/`gitcmp` protocol
 - ❌ Do NOT stop early at 50-70% — maximize each session's output
 
@@ -557,7 +647,7 @@ For each task in order:
 | 0-70% | Continue implementing tasks normally |
 | 70-80% | Continue, but assess if current task can be completed |
 | 80-90% | Complete current task, then wrap up |
-| 90%+ | STOP — wrap session, commit, `/compact` |
+| 90%+ | STOP — wrap session, handle commit per active commit mode, `/compact` |
 
 ---
 
@@ -587,19 +677,27 @@ For each task in order:
 
 ---
 
-## **🚨 CRITICAL: Auto-Commit on Successful Task Completion 🚨**
+## **🚨 CRITICAL: Commit on Successful Task Completion 🚨**
 
-### When to Auto-Commit
+### When to Commit
 
-Auto-commit is **MANDATORY** when ALL of these conditions are met:
+Committing is governed by the active **commit mode** (see "Commit Behavior During Plan Execution" section). The commit step is triggered when ALL of these conditions are met:
 
 1. ✅ Task or session is successfully complete
 2. ✅ All verification passes (project's verify command)
 3. ✅ Execution plan has been updated
 
+**What happens next depends on the commit mode:**
+
+| Commit Mode | Action After Verified Task |
+|-------------|---------------------------|
+| **Ask (default)** | Present commit options to user via `ask_followup_question` (see prompt protocol above) |
+| **No-commit** | Skip — no commit, no prompt |
+| **Auto-commit** | Automatically commit and push via `gitcmp` |
+
 ### Commit Protocol
 
-Use the `gitcm` or `gitcmp` protocol from `git-commands.md`:
+When the user approves a commit (ask mode) or auto-commit is active, use the `gitcm` or `gitcmp` protocol from `git-commands.md`:
 
 1. Run the project's verify command (from `.clinerules/project.md`)
 2. If verification passes, use the `gitcm` or `gitcmp` protocol to commit
@@ -620,11 +718,12 @@ Task: [X.X.X]
 > ⚠️ **Do NOT use raw git commands.** Always use the `gitcm` or `gitcmp` protocol from `git-commands.md`.
 > ⚠️ **The `-m` flag is BANNED.** Write commit messages to `/tmp/git_commit_msg.txt` using `write_to_file`, then commit with `git commit -F /tmp/git_commit_msg.txt`.
 
-### When NOT to Auto-Commit
+### When NOT to Commit (Any Mode)
 
 - ❌ Verification is failing (tests, build, lint errors)
 - ❌ Task is only partially complete
 - ❌ Context limit reached mid-task (commit only after completing the current task)
+- ❌ Commit mode is `--no-commit`
 
 ---
 
@@ -666,7 +765,8 @@ Every generated execution plan MUST follow this template:
 
 **⚠️ Session Execution Rules:**
 - Continue implementing until 90% of the 200K context window is reached.
-- If 90% reached: wrap up, commit via `gitcmp`, then `/compact`.
+- If 90% reached: wrap up, handle commit per active commit mode, then `/compact`.
+- Commit mode is determined by `exec_plan` flags: `--ask-commit` (default), `--no-commit`, `--auto-commit`.
 - Split large files into smaller, logically grouped files.
 - Max AI output: 60K tokens. Max AI input: 200K tokens.
 
@@ -695,7 +795,8 @@ Every generated execution plan MUST follow this template:
 
 **⚠️ Session Execution Rules:**
 - Continue implementing until 90% of the 200K context window is reached.
-- If 90% reached: wrap up, commit via `gitcmp`, then `/compact`.
+- If 90% reached: wrap up, handle commit per active commit mode, then `/compact`.
+- Commit mode is determined by `exec_plan` flags: `--ask-commit` (default), `--no-commit`, `--auto-commit`.
 - Split large files into smaller, logically grouped files.
 - Max AI output: 60K tokens. Max AI input: 200K tokens.
 
@@ -725,11 +826,15 @@ Every generated execution plan MUST follow this template:
 ### Ending a Session
 
 1. Run the project's verify command (from `.clinerules/project.md`)
-2. If verification passes, commit using the `gitcm` or `gitcmp` protocol (see `git-commands.md`)
+2. Handle commit based on the active **commit mode**:
+   - **Ask (default):** Present commit options to the user via `ask_followup_question`
+   - **No-commit:** Skip — no commit, no prompt
+   - **Auto-commit:** If verification passes, commit and push via `gitcmp` protocol
 3. End agent settings (if `scripts/agent.sh` exists): run `clear && scripts/agent.sh finished`
 4. Compact the conversation with `/compact`
 
 > ⚠️ **Do NOT use raw git commands.** Always use the `gitcm` or `gitcmp` protocol from `git-commands.md`.
+> ⚠️ Commit mode is set via `exec_plan` flags: `--ask-commit` (default), `--no-commit`, `--auto-commit`.
 
 ### Between Sessions
 
@@ -787,7 +892,8 @@ At the end of each execution session, provide:
 - [ ] Phase Y: [phase description]
 
 **Verification:** [Status — e.g., "All tests passing", "Build successful"]
-**Commit:** [hash] or "Committed successfully"
+**Commit Mode:** [ask-commit | no-commit | auto-commit]
+**Commit:** [hash] or "Committed successfully" or "Uncommitted — user deferred" or "No-commit mode"
 **Context Used:** ~XX%
 
 **To Continue:**
@@ -815,7 +921,7 @@ Run `exec_plan [feature-name]` in a new session after `/compact`
 1. ⚠️ Save progress so far
 2. Add clear notes about partial completion
 3. Mark task as `[~]` (partial) with explanation
-4. Commit completed work, then `/compact`
+4. Handle commit per active commit mode (ask/no-commit/auto-commit), then `/compact`
 
 ---
 
@@ -858,14 +964,27 @@ When creating and executing plans:
 | Trigger | Action |
 |---------|--------|
 | `make_plan` | Create implementation plan in `plans/[feature]/` |
-| `exec_plan [feature]` | Execute `plans/[feature]/99-execution-plan.md` |
+| `exec_plan [feature]` | Execute plan — default: ask before committing |
+| `exec_plan [feature] --ask-commit` | Execute plan — ask before committing (same as default) |
+| `exec_plan [feature] --no-commit` | Execute plan — never commit, never ask |
+| `exec_plan [feature] --auto-commit` | Execute plan — auto-commit and push after each task |
 | `/compact` | Compact context after session ends |
 | `gitcm` | Commit after successful verification |
 | `gitcmp` | Commit and push after successful verification |
 
-**Session Flow:**
+**Session Flow (default — ask-commit):**
 ```
-exec_plan [feature] → implement tasks → update plan → verify → commit → /compact → exec_plan [feature]
+exec_plan [feature] → implement tasks → update plan → verify → ask user about commit → /compact → exec_plan [feature]
+```
+
+**Session Flow (auto-commit):**
+```
+exec_plan [feature] --auto-commit → implement tasks → update plan → verify → auto-commit → /compact → exec_plan [feature]
+```
+
+**Session Flow (no-commit):**
+```
+exec_plan [feature] --no-commit → implement tasks → update plan → verify → /compact → exec_plan [feature]
 ```
 
 ---
@@ -878,13 +997,17 @@ exec_plan [feature] → implement tasks → update plan → verify → commit �
 
 After the final task is marked complete and all verification passes:
 
-1. ✅ **Ask the user:** *"The plan is complete. Would you like to re-analyze the project to update `.clinerules/project.md` with the latest project state?"*
-2. ✅ If user **confirms**:
+1. ✅ **Handle end-of-plan commit** per the active commit mode (see "Commit Behavior During Plan Execution"):
+   - **Ask (default):** Present the end-of-plan commit prompt with options
+   - **No-commit:** Note that changes are uncommitted
+   - **Auto-commit:** Already committed per-task — no additional action needed
+2. ✅ **Ask the user:** *"The plan is complete. Would you like to re-analyze the project to update `.clinerules/project.md` with the latest project state?"*
+3. ✅ If user **confirms**:
    - Run `analyze_project` with the project root path
    - Save the generated output to `.clinerules/project.md`
    - Review and preserve any manual customizations (description, naming conventions, special rules) from the existing `project.md`
-   - Commit the updated `project.md` using `gitcmp`
-3. ✅ If user **declines**: Skip — plan execution is complete
+   - Commit the updated `project.md` using `gitcmp` (ask user first if in ask-commit or no-commit mode)
+4. ✅ If user **declines**: Skip — plan execution is complete
 
 ### Why This Matters
 
