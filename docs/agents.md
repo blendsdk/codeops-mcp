@@ -233,9 +233,10 @@ This file contains **universal agent rules** that work for any software project.
 
 ### **Rule 1: Shell Commands & Package Management**
 
-1. **✅ Always prefix shell commands with `clear &&`**
-   - Every `execute_command` must start with `clear &&`
-   - This ensures a clean terminal for each command
+1. **✅ Always prefix shell commands with `clear && sleep 3 &&`**
+   - Every `execute_command` must start with `clear && sleep 3 &&`
+   - The `clear` ensures a clean terminal; the `sleep 3` gives VS Code time to initialize the terminal before the command runs
+   - The delay (default: 3 seconds) can be customized per project in `.clinerules/project.md` (e.g., `sleep 5` for slower environments, `sleep 1` for fast machines)
 
 2. **✅ Use the project's designated package manager exclusively**
    - Check `.clinerules/project.md` for the correct package manager
@@ -468,10 +469,10 @@ Complex command chains break the terminal connection between the AI agent and th
 #### ALLOWED — Simple `&&` Chains (No Pipes/Redirects):
 
 ```bash
-✅ clear && yarn build
-✅ clear && yarn build && yarn test
-✅ clear && git add .
-✅ clear && scripts/agent.sh start
+✅ clear && sleep 3 && yarn build
+✅ clear && sleep 3 && yarn build && yarn test
+✅ clear && sleep 3 && git add .
+✅ clear && sleep 3 && scripts/agent.sh start
 ```
 
 Simple `&&` chains without pipes or redirects are still permitted.
@@ -499,7 +500,7 @@ When you need pipes, redirects, subshells, or complex logic:
 
 3. **Execute the script:**
    ```bash
-   clear && bash scripts/run-[description].sh
+   clear && sleep 3 && bash scripts/run-[description].sh
    ```
 
 #### Script Naming Convention:
@@ -531,22 +532,22 @@ If the project uses `scripts/agent.sh` for VS Code settings automation:
 
 **Act Mode Requirements:**
 
-1. **✅ Execute `clear && scripts/agent.sh start` as THE FIRST COMMAND of any Act Mode task**
+1. **✅ Execute `clear && sleep 3 && scripts/agent.sh start` as THE FIRST COMMAND of any Act Mode task**
    - Switches VS Code to development mode
 
-2. **✅ Execute `clear && scripts/agent.sh finished` as THE LAST COMMAND of any Act Mode task**
+2. **✅ Execute `clear && sleep 3 && scripts/agent.sh finished` as THE LAST COMMAND of any Act Mode task**
    - Switches VS Code to completion mode (full linting, formatting, cleanup)
 
 **Workflow Pattern:**
 
 ```bash
 # FIRST COMMAND - Start of any Act Mode task
-clear && scripts/agent.sh start
+clear && sleep 3 && scripts/agent.sh start
 
 # ... perform all task implementation work ...
 
 # LAST COMMAND - End of any Act Mode task
-clear && scripts/agent.sh finished
+clear && sleep 3 && scripts/agent.sh finished
 ```
 
 **When NOT to Apply:**
@@ -562,7 +563,7 @@ clear && scripts/agent.sh finished
 **Every Single Time You Respond:**
 
 0. 📖 **MANDATORY FIRST:** Consult code.md + testing.md + project docs (BOTH Plan AND Act Mode)
-1. 🔧 Follow shell command rules (Rule 1 — `clear &&` and project's package manager)
+1. 🔧 Follow shell command rules (Rule 1 — `clear && sleep 3 &&` and project's package manager)
 2. 🧠 Perform internal self-check (Rule 2)
 3. 💡 Enhance requirements if unclear (Rule 3 — Plan Mode)
 4. ✅ Verify previous work is complete (Rule 4 — before new tasks)
