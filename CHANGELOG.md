@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/blendsdk/codeops-mcp/compare/v1.4.1...v1.4.2) (2026-04-03)
+
+
+### Bug Fixes
+
+* **docs:** resolve consistency issues across all 6 rule documents ([17178d9](https://github.com/blendsdk/codeops-mcp/commit/17178d90a350d46dc1ecaa5f23977d3e709e89cc))
+
 ## [1.4.1](https://github.com/blendsdk/codeops-mcp/compare/v1.4.0...v1.4.1) (2026-04-03)
 
 
