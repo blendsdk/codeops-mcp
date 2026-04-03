@@ -65,7 +65,7 @@ These rules are **mandatory** and must be consulted before every task.
 ## Project Overview
 
 - **Name:** my-app
-- **Description:** [TODO: Add project description]
+- **Description:** [TODO: Add 1-2 sentences — what it does, who uses it, how it's consumed]
 - **Type:** library
 
 ## Toolchain
@@ -79,26 +79,33 @@ These rules are **mandatory** and must be consulted before every task.
 
 ## Commands
 
-All commands assume execution from the project root. Prefix all shell commands with \`clear &&\`.
+All commands assume execution from the project root. Prefix all shell commands with \`clear && sleep [delay] &&\` (see Terminal Delay below).
+
+### Terminal Delay
+
+- **Delay (seconds):** 3
+- The \`clear\` ensures a clean terminal; the \`sleep\` gives VS Code time to initialize the terminal before the command runs.
+- Adjust the delay for your environment: \`1\` for fast machines, \`3\` (default) for normal, \`5\` for slower environments.
+- All command examples below use \`sleep 3\` — replace \`3\` with your configured delay.
 
 ### Build
 
 \`\`\`bash
-clear && yarn build
+clear && sleep 3 && yarn build
 \`\`\`
 
 ### Test
 
 \`\`\`bash
 # Run all tests
-clear && yarn test
+clear && sleep 3 && yarn test
 \`\`\`
 
 ### Verify (before commit)
 
 \`\`\`bash
 # Full verification — run this before any git commit
-clear && yarn build && yarn test
+clear && sleep 3 && yarn build && yarn test
 \`\`\`
 
 ## Project Structure
@@ -154,7 +161,7 @@ The generic rule files that read this \`project.md\`:
 
 /** A project.md with user-customized description */
 const FIXTURE_WITH_CUSTOM_DESCRIPTION = FIXTURE_FULL_PROJECT_MD.replace(
-  '- **Description:** [TODO: Add project description]',
+  "- **Description:** [TODO: Add 1-2 sentences — what it does, who uses it, how it's consumed]",
   '- **Description:** A powerful MCP server for coding standards',
 );
 
@@ -184,9 +191,9 @@ const SAMPLE_ANALYSIS: ProjectAnalysis = {
   frameworks: ['MCP SDK'],
   packageManager: 'yarn',
   testFramework: 'Vitest',
-  buildCommand: 'clear && yarn build',
-  testCommand: 'clear && yarn test',
-  verifyCommand: 'clear && yarn build && yarn test',
+  buildCommand: 'clear && sleep 3 && yarn build',
+  testCommand: 'clear && sleep 3 && yarn test',
+  verifyCommand: 'clear && sleep 3 && yarn build && yarn test',
   isMonorepo: false,
   structure: ['src', 'docs'],
   manifestFiles: ['package.json', 'tsconfig.json'],

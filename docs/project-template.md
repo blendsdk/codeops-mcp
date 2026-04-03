@@ -27,7 +27,7 @@ These rules are **mandatory** and must be consulted before every task.
 ## Project Overview
 
 - **Name:** [Project name]
-- **Description:** [Brief description of what this project does]
+- **Description:** [Brief description — 1-2 sentences covering: what it does, who uses it, and how it's consumed (e.g., "REST API for managing user accounts, consumed by the mobile app and admin dashboard" or "CLI tool for generating database migration scripts from schema definitions")]
 - **Type:** [web-app | api | library | cli | mobile | compiler | microservices | infrastructure]
 
 ---
@@ -45,53 +45,60 @@ These rules are **mandatory** and must be consulted before every task.
 
 ## Commands
 
-All commands assume execution from the project root. Prefix all shell commands with `clear &&`.
+All commands assume execution from the project root. Prefix all shell commands with `clear && sleep [delay] &&` (see Terminal Delay below).
+
+### Terminal Delay
+
+- **Delay (seconds):** [default: 3]
+- The `clear` ensures a clean terminal; the `sleep` gives VS Code time to initialize the terminal before the command runs.
+- Adjust the delay for your environment: `1` for fast machines, `3` (default) for normal, `5` for slower environments.
+- All command examples below use `sleep 3` — replace `3` with your configured delay.
 
 ### Build
 
 ```bash
 # Build the project
-clear && [build command]
+clear && sleep 3 && [build command]
 
-# Example: clear && yarn build
-# Example: clear && cargo build
-# Example: clear && go build ./...
+# Example: clear && sleep 3 && yarn build
+# Example: clear && sleep 3 && cargo build
+# Example: clear && sleep 3 && go build ./...
 ```
 
 ### Test
 
 ```bash
 # Run all tests
-clear && [test command]
+clear && sleep 3 && [test command]
 
 # Run tests for a specific module/package (if applicable)
-clear && [targeted test command]
+clear && sleep 3 && [targeted test command]
 
-# Example (monorepo): clear && yarn workspace @myorg/<pkg> test
-# Example (single repo): clear && yarn test
-# Example (Rust): clear && cargo test
-# Example (Go): clear && go test ./...
+# Example (monorepo): clear && sleep 3 && yarn workspace @myorg/<pkg> test
+# Example (single repo): clear && sleep 3 && yarn test
+# Example (Rust): clear && sleep 3 && cargo test
+# Example (Go): clear && sleep 3 && go test ./...
 ```
 
 ### Verify (before commit)
 
 ```bash
 # Full verification — run this before any git commit
-clear && [verify command]
+clear && sleep 3 && [verify command]
 
-# Example: clear && yarn build && yarn test
-# Example: clear && cargo build && cargo test
-# Example: clear && docker compose config && docker compose build
+# Example: clear && sleep 3 && yarn build && yarn test
+# Example: clear && sleep 3 && cargo build && cargo test
+# Example: clear && sleep 3 && docker compose config && docker compose build
 ```
 
 ### Clean
 
 ```bash
 # Clean build artifacts and rebuild from scratch
-clear && [clean command]
+clear && sleep 3 && [clean command]
 
-# Example: clear && yarn clean && yarn build && yarn test
-# Example: clear && cargo clean && cargo build && cargo test
+# Example: clear && sleep 3 && yarn clean && yarn build && yarn test
+# Example: clear && sleep 3 && cargo clean && cargo build && cargo test
 ```
 
 ---
@@ -284,10 +291,10 @@ If this project uses `scripts/agent.sh` for VS Code settings automation:
 
 ```bash
 # Start of Act Mode task:
-clear && scripts/agent.sh start
+clear && sleep 3 && scripts/agent.sh start
 
 # End of Act Mode task:
-clear && scripts/agent.sh finished
+clear && sleep 3 && scripts/agent.sh finished
 ```
 
 If not applicable, remove this section.

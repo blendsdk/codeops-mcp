@@ -102,9 +102,8 @@ function formatSetupGuide(store: RuleStore, projectType?: string): string {
     parts.push('- **code** — Coding standards');
     parts.push('- **testing** — Testing workflows');
     parts.push('- **git-commands** — Git commit protocols');
-    parts.push('- **agents** — AI agent behavior rules');
-    parts.push('- **plans** — Implementation plan formatting');
     parts.push('- **make_plan** — Plan creation/execution protocol');
+    parts.push('- **agents** — AI agent behavior rules');
     parts.push('- **project-template** — Project configuration template');
   }
 

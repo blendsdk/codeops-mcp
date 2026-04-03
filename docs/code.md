@@ -114,6 +114,7 @@ These rules are **mandatory** and must be applied **strictly and consistently** 
     - Methods and properties must be either:
       - `public`, or
       - `protected` (used instead of `private`)
+    - **Override:** If `private` is idiomatic for your language/framework (e.g., Java, C#, Kotlin), this convention can be overridden in `.clinerules/project.md` under "Special Rules".
 
 13. **Encapsulation Through Convention**
     - `protected` members are considered internal and must not be accessed outside subclasses.
@@ -391,4 +392,4 @@ These rules are **mandatory** and must be applied **strictly and consistently** 
 - See **agents.md** for verification procedures and task completion criteria
 - See **testing.md** for test commands and AI testing workflow
 - See **git-commands.md** for git workflow instructions
-- See **agents.md Rule 8** for debugging rules (NO inline debug scripts — ALWAYS create script files)
+- See **agents.md** — Script-First Execution rule for debugging rules (NO inline debug scripts — ALWAYS create script files)

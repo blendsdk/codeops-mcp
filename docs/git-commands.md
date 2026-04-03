@@ -162,19 +162,60 @@ git push
 
 ---
 
+## **Conflict Resolution Protocol**
+
+When `git pull --rebase` encounters conflicts during `gitcmp`:
+
+1. **🛑 STOP** — Do not attempt automatic conflict resolution
+2. **📋 Report** — List the conflicting files and the nature of the conflict
+3. **❓ Ask the user** — Present the situation and ask how to proceed:
+   - **Option 1:** "Abort rebase and keep local commit" (`git rebase --abort`)
+   - **Option 2:** "I'll resolve manually — show me the conflicts"
+   - **Option 3:** "Abort and discard my commit" (rarely wanted)
+4. **⏳ Wait** — Do not proceed until the user responds
+5. **✅ After resolution** — Run the project's verify command before pushing
+
+**The agent MUST NOT:**
+- ❌ Automatically resolve merge conflicts
+- ❌ Accept "theirs" or "ours" without user approval
+- ❌ Force-push to bypass conflicts
+- ❌ Delete or reset commits without explicit user instruction
+
+---
+
+## **Push Failure Recovery**
+
+If `git push` fails after a successful commit:
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Authentication error | SSH key or token issue | Report to user — cannot fix programmatically |
+| Remote rejection | Branch protection rules | Report to user — may need PR workflow |
+| Non-fast-forward | Remote has new commits | Run `git pull --rebase`, resolve conflicts if any, then retry push |
+| Network error | Connectivity issue | Wait briefly, retry once. If still failing, report to user |
+
+**In all cases:**
+- ✅ The local commit is safe — no work is lost
+- ✅ Report the error clearly to the user
+- ✅ Suggest the most likely fix
+- ❌ Do NOT retry more than once without user approval
+- ❌ Do NOT force-push (`git push --force`) unless explicitly instructed
+
+---
+
 ## **Important Notes**
 
 1. **Always perform `gitcmp` or `gitcm` in a new Cline task with context** when possible — this creates a clean task boundary for git operations while maintaining previous context.
 
 2. **Always run the project's verify command before committing:**
    ```bash
-   # Use the verify command from .clinerules/project.md
-   # Examples:
-   #   clear && yarn build && yarn test
-   #   clear && cargo build && cargo test
-   #   clear && docker compose config && docker compose build
-   #   clear && pytest
-   ```
+    # Use the verify command from .clinerules/project.md
+    # Examples:
+    #   clear && sleep 3 && yarn build && yarn test
+    #   clear && sleep 3 && cargo build && cargo test
+    #   clear && sleep 3 && docker compose config && docker compose build
+    #   clear && sleep 3 && pytest
+    ```
    Only commit if verification passes.
 
 3. **Never force-push** unless explicitly asked by the user.

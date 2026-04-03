@@ -34,47 +34,13 @@ This file contains **universal rules** that work for any software project. For p
 
 ## **🚨 CRITICAL: No Raw Git Commands in Plans 🚨**
 
-Generated plans must **never** contain raw git commands. All git operations must reference the `gitcm` or `gitcmp` protocol defined in `git-commands.md`.
-
-### Required
-
-- ✅ Reference `gitcm` (commit) or `gitcmp` (commit and push) protocol by name
-- ✅ Describe commit steps in prose (e.g., "commit using the `gitcmp` protocol")
-- ✅ Show commit message **format** in plain (non-`bash`) code blocks when needed
-
-### Prohibited
-
-- ❌ `git add .` or any `git add` command
-- ❌ `git commit -m "..."` or any `git commit` command — **the `-m` flag is BANNED**
-- ❌ `git push` or any `git push` command
-- ❌ Any `bash` code block that contains git commands
-
-### Reminder: File-Based Commit Messages Are Mandatory
-
-The `gitcm`/`gitcmp` protocols require commit messages to be **written to a file** (`/tmp/git_commit_msg.txt`) using `write_to_file` and committed with `git commit -F`. This is because inline `-m` messages fail due to shell escaping, length limits, and multi-line formatting. See `git-commands.md` for full details.
-
-> This rule applies to **all** plan documents, execution plan templates, session protocols, and auto-commit instructions. See the "No Loose Git Commands" section in `git-commands.md` for the full rationale.
+Generated plans must **never** contain raw git commands. All git operations must reference the `gitcm` or `gitcmp` protocol from `git-commands.md`. Plan documents must not include `git add`, `git commit`, `git push`, or any `bash` code blocks containing git commands. The `-m` flag is **BANNED** — see `git-commands.md` for the full protocol and rationale.
 
 ---
 
 ## **🚨 CRITICAL: Script-First Execution During Plan Execution 🚨**
 
-During plan execution, any ad-hoc commands, tests, validation scripts, or debugging must use **script files** — never inline command-line scripts.
-
-### Required
-
-- ✅ Create script files in `scripts/` for any non-trivial commands during execution
-- ✅ Use appropriate prefixes: `test-`, `verify-`, `debug-`, `tmp-`, `run-`
-- ✅ Clean up temporary scripts (prefixed with `tmp-`) after use
-- ✅ Reference `agents.md` Rule 8 (Script-First Execution) for the full policy
-
-### Prohibited
-
-- ❌ `node -e "..."` or `python -c "..."` or any inline code evaluation
-- ❌ Complex multi-line commands pasted directly into the terminal
-- ❌ `bash -c "..."` for multi-line logic
-
-> This ensures all ad-hoc work during plan execution is debuggable, reusable, and doesn't break due to shell escaping issues. See `agents.md` Rule 8 and Rule 12 for full details.
+During plan execution, any ad-hoc commands, tests, validation scripts, or debugging must use **script files** — never inline command-line scripts. See `agents.md` — Script-First Execution rule (Rule 8) and No Complex Command Chaining rule (Rule 12) for the full policy, naming conventions, and cleanup protocol.
 
 ---
 
@@ -614,7 +580,15 @@ Run `exec_plan [feature-name]` to start executing the plan.
 3. ✅ Read supporting technical specs in `plans/[feature-name]/`
 4. ✅ Determine starting point: first incomplete phase/session/task
 
-If the execution plan doesn't exist → **STOP**, suggest running `make_plan` first.
+If the execution plan doesn't exist → **STOP** and handle as follows:
+
+| Condition | Action |
+|-----------|--------|
+| `plans/` directory doesn't exist | STOP — suggest running `make_plan` first |
+| `plans/[feature-name]/` doesn't exist | STOP — suggest running `make_plan` first, or check for typos in the feature name |
+| `plans/[feature-name]/` exists but `99-execution-plan.md` is missing | STOP — the plan is incomplete. Suggest recreating it with `make_plan` |
+| `99-execution-plan.md` exists but has no tasks | STOP — the plan is empty. Suggest recreating it with `make_plan` |
+| All tasks are already marked `[x]` | Report: "All tasks are already complete." Suggest re-analyzing the project |
 
 #### Step 2: Execute Tasks
 
@@ -640,34 +614,17 @@ For each task in order:
 
 ## **🚨 CRITICAL: Session Execution Rules (AUTO-INCLUDED IN EVERY PHASE) 🚨**
 
-**These rules are AUTOMATICALLY APPLIED to every execution session. They do NOT need to be manually injected.**
+**These rules are AUTOMATICALLY APPLIED to every execution session. They do NOT need to be manually injected into plan templates.**
 
-### **Context Window Management**
+The canonical context window, file creation, and threshold rules are defined in `agents.md` — **Context Window Management** section. Key points for plan execution:
 
-- ✅ **Continue implementing** — do NOT wrap the session until you reach **90% of the 200K context window**
-- ✅ If you reach 90%, wrap up the session then `/compact`
-- ✅ Before `/compact`, handle commit based on the active **commit mode** (see "Commit Behavior During Plan Execution"):
-  - **Ask (default):** Present commit options to the user
-  - **No-commit:** Skip — note uncommitted changes in session summary
-  - **Auto-commit:** Commit and push via `gitcmp`
-- ❌ NEVER include raw git commands (`git add`, `git commit`, `git push`) in generated plans — always reference `gitcm`/`gitcmp` protocol
-- ❌ Do NOT stop early at 50-70% — maximize each session's output
+- ✅ **Continue implementing** until **90%** of the 200K context window — do NOT stop early
+- ✅ At 90%, wrap up, handle commit per active **commit mode** (see above), then `/compact`
+- ✅ Split large files (>500 lines) per `code.md` architecture rules
+- ✅ Max AI output: **60K tokens**. Max AI input: **200K tokens**. No single file >30K tokens.
+- ❌ NEVER include raw git commands in plans — always reference `gitcm`/`gitcmp`
 
-### **File Creation Rules**
-
-- ✅ Split files into smaller, logically grouped files to prevent AI context limits
-- ✅ If creating a large class (>500 lines), split using inheritance chains or composition patterns (see `code.md`)
-- ✅ Maximum AI output limit: **60K tokens**. Maximum AI input limit: **200K tokens**
-- ✅ Plan file sizes accordingly — no single file should require >30K tokens to write
-
-### **Context Threshold Protocol**
-
-| Context Usage | Action |
-|---------------|--------|
-| 0-70% | Continue implementing tasks normally |
-| 70-80% | Continue, but assess if current task can be completed |
-| 80-90% | Complete current task, then wrap up |
-| 90%+ | STOP — wrap session, handle commit per active commit mode, `/compact` |
+> **📖 See `agents.md`** for the full Context Threshold Protocol table and File Creation Rules.
 
 ---
 
@@ -783,13 +740,6 @@ Every generated execution plan MUST follow this template:
 
 ### Session 1.1: [Session Objective]
 
-**⚠️ Session Execution Rules:**
-- Continue implementing until 90% of the 200K context window is reached.
-- If 90% reached: wrap up, handle commit per active commit mode, then `/compact`.
-- Commit mode is determined by `exec_plan` flags: `--ask-commit` (default), `--no-commit`, `--auto-commit`.
-- Split large files into smaller, logically grouped files.
-- Max AI output: 60K tokens. Max AI input: 200K tokens.
-
 **Reference**: [Link to technical doc]
 **Objective**: [What this session achieves]
 
@@ -813,13 +763,6 @@ Every generated execution plan MUST follow this template:
 
 ### Session 2.1: [Session Objective]
 
-**⚠️ Session Execution Rules:**
-- Continue implementing until 90% of the 200K context window is reached.
-- If 90% reached: wrap up, handle commit per active commit mode, then `/compact`.
-- Commit mode is determined by `exec_plan` flags: `--ask-commit` (default), `--no-commit`, `--auto-commit`.
-- Split large files into smaller, logically grouped files.
-- Max AI output: 60K tokens. Max AI input: 200K tokens.
-
 ...
 
 ---
@@ -840,21 +783,15 @@ Every generated execution plan MUST follow this template:
 
 ### Starting a Session
 
-1. Start agent settings (if `scripts/agent.sh` exists): run `clear && scripts/agent.sh start`
+1. Start agent settings (if `scripts/agent.sh` exists): run `clear && sleep 3 && scripts/agent.sh start`
 2. Reference this plan: "Implement Phase X, Session X.X per `plans/[feature-name]/99-execution-plan.md`"
 
 ### Ending a Session
 
 1. Run the project's verify command (from `.clinerules/project.md`)
-2. Handle commit based on the active **commit mode**:
-   - **Ask (default):** Present commit options to the user via `ask_followup_question`
-   - **No-commit:** Skip — no commit, no prompt
-   - **Auto-commit:** If verification passes, commit and push via `gitcmp` protocol
-3. End agent settings (if `scripts/agent.sh` exists): run `clear && scripts/agent.sh finished`
+2. Handle commit per the active **commit mode** (see "Commit Behavior During Plan Execution" in `make_plan.md`)
+3. End agent settings (if `scripts/agent.sh` exists): run `clear && sleep 3 && scripts/agent.sh finished`
 4. Compact the conversation with `/compact`
-
-> ⚠️ **Do NOT use raw git commands.** Always use the `gitcm` or `gitcmp` protocol from `git-commands.md`.
-> ⚠️ Commit mode is set via `exec_plan` flags: `--ask-commit` (default), `--no-commit`, `--auto-commit`.
 
 ### Between Sessions
 
@@ -966,7 +903,7 @@ The AI should adapt document structure based on the project type:
 
 ---
 
-## **Integration with Other Rules**
+## **Cross-References**
 
 When creating and executing plans:
 

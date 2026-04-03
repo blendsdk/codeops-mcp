@@ -4,7 +4,7 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 
 ## What It Does
 
-**codeops-mcp** bundles 7 curated rule documents that teach AI agents how to code, test, plan, commit, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
+**codeops-mcp** bundles 6 curated rule documents that teach AI agents how to code, test, plan, commit, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
 
 ### Rule Documents
 
@@ -14,7 +14,6 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 | **testing**          | Test commands, workflows, coverage requirements, debugging strategies                |
 | **git-commands**     | Git commit protocols (`gitcm`/`gitcmp`), message format, push workflow               |
 | **make_plan**        | Complete protocol for creating and executing multi-document implementation plans     |
-| **plans**            | 10 rules for structuring plans: phases, tasks, dependencies, architecture            |
 | **agents**           | Mandatory AI agent behavior: compliance, context management, multi-session execution |
 | **project-template** | Template for `.clinerules/project.md` — project-specific toolchain configuration     |
 

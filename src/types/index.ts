@@ -285,6 +285,8 @@ export const RULE_ALIASES: Record<string, string> = {
   'plan-creation': 'make_plan',
   'exec-plan': 'make_plan',
   'exec_plan': 'make_plan',
+  'exec': 'make_plan',
+  'execution': 'make_plan',
 
   // plans.md aliases (redirected to make_plan after merge)
   'plans': 'make_plan',

@@ -49,13 +49,13 @@ All test commands are defined in `.clinerules/project.md`. Common patterns:
 
 | Ecosystem | Run All Tests | Targeted Tests | Verify |
 |-----------|--------------|----------------|--------|
-| Node.js (Yarn) | `clear && yarn test` | `clear && yarn workspace @org/<pkg> test` | `clear && yarn build && yarn test` |
-| Node.js (npm) | `clear && npm test` | `clear && npm test -- --filter=<module>` | `clear && npm run build && npm test` |
-| Rust | `clear && cargo test` | `clear && cargo test -p <crate>` | `clear && cargo build && cargo test` |
-| Go | `clear && go test ./...` | `clear && go test ./pkg/<module>/...` | `clear && go build ./... && go test ./...` |
-| Python | `clear && pytest` | `clear && pytest tests/<module>/` | `clear && pytest` |
-| Infrastructure | `clear && docker compose config` | N/A | `clear && docker compose config && docker compose build` |
-| Custom script | `clear && ./run-tests` | `clear && ./run-tests <component>` | `clear && ./run-tests` |
+| Node.js (Yarn) | `clear && sleep 3 && yarn test` | `clear && sleep 3 && yarn workspace @org/<pkg> test` | `clear && sleep 3 && yarn build && yarn test` |
+| Node.js (npm) | `clear && sleep 3 && npm test` | `clear && sleep 3 && npm test -- --filter=<module>` | `clear && sleep 3 && npm run build && npm test` |
+| Rust | `clear && sleep 3 && cargo test` | `clear && sleep 3 && cargo test -p <crate>` | `clear && sleep 3 && cargo build && cargo test` |
+| Go | `clear && sleep 3 && go test ./...` | `clear && sleep 3 && go test ./pkg/<module>/...` | `clear && sleep 3 && go build ./... && go test ./...` |
+| Python | `clear && sleep 3 && pytest` | `clear && sleep 3 && pytest tests/<module>/` | `clear && sleep 3 && pytest` |
+| Infrastructure | `clear && sleep 3 && docker compose config` | N/A | `clear && sleep 3 && docker compose config && docker compose build` |
+| Custom script | `clear && sleep 3 && ./run-tests` | `clear && sleep 3 && ./run-tests <component>` | `clear && sleep 3 && ./run-tests` |
 
 ---
 
@@ -89,6 +89,24 @@ The test framework, configuration, and file conventions are defined in `.clineru
 - Test files should be clearly identifiable by name or location.
 - Follow the project's existing test file naming pattern (e.g., `*.test.ts`, `*_test.go`, `test_*.py`).
 - Tests can live in a dedicated `tests/` directory or alongside source files — follow the project's convention.
+
+### Test Description Naming Convention
+
+Write test descriptions that clearly state the expected behavior and condition:
+
+```
+Pattern: "should [expected behavior] when [condition]"
+
+Examples:
+  ✅ "should return empty array when input is null"
+  ✅ "should throw ValidationError when email is invalid"
+  ✅ "should cache result when called multiple times"
+  ❌ "test null input"          (too vague)
+  ❌ "works correctly"          (meaningless)
+  ❌ "handles edge case"        (which edge case?)
+```
+
+Group related tests in `describe()` blocks named after the unit under test (function, method, class, or feature).
 
 ### Writing Tests (Universal Pattern)
 
@@ -165,13 +183,13 @@ When implementing new features:
 | UI components | 80%+ |
 | Integration/E2E | 60%+ |
 
-Refer to `code.md` Rules 4–8 for detailed testing standards.
+Refer to `code.md` — Section 2 (Testing Requirements) for detailed testing standards.
 
 ---
 
 ## **Rule 6: Test-Driven Development Workflow**
 
-**Recommended workflow for AI agents:**
+**Required workflow for AI agents** — following this order ensures tests validate behavior before implementation, catching design issues early:
 
 1. **Understand** the change needed
 2. **Write/update tests first** (if adding new functionality)
@@ -252,13 +270,13 @@ For infrastructure, configuration, or DevOps projects where traditional unit tes
 | Config/infra changes | Run appropriate validation commands |
 | External services unavailable | Run unit tests only, document skipped tests |
 
-**Remember:** Always use the project's designated package manager. Always prefix commands with `clear &&`. Check `.clinerules/project.md` for all specific commands.
+**Remember:** Always use the project's designated package manager. Always prefix commands with `clear && sleep 3 &&` (see `agents.md` — Shell Commands rule for configurable delay). Check `.clinerules/project.md` for all specific commands.
 
 ---
 
 ## **Cross-References**
 
 - See **`.clinerules/project.md`** for project-specific test commands, framework, and structure
-- See **code.md** for testing standards (Rules 4–8) and test integrity (Rules 28–29)
+- See **code.md** — Section 2 (Testing Requirements) and Section 9 (Testing Integrity) for testing standards
 - See **agents.md** for shell command rules and task completion criteria
 - See **git-commands.md** for git workflow instructions

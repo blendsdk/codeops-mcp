@@ -375,48 +375,52 @@ function inferProjectType(analysis: ProjectAnalysis): void {
 function inferCommands(analysis: ProjectAnalysis): void {
   const pm = analysis.packageManager;
 
+  // Note: Commands use "clear && sleep 3 &&" prefix as per agents.md Rule 1.
+  // The sleep delay (default: 3s) is configurable per project in project.md.
+  const prefix = 'clear && sleep 3 &&';
+
   // Node.js projects
   if (pm === 'yarn' || pm === 'npm' || pm === 'pnpm') {
     const run = pm === 'npm' ? 'npm run' : pm;
-    analysis.buildCommand = `clear && ${pm === 'npm' ? 'npm run' : pm} build`;
-    analysis.testCommand = `clear && ${pm} test`;
+    analysis.buildCommand = `${prefix} ${pm === 'npm' ? 'npm run' : pm} build`;
+    analysis.testCommand = `${prefix} ${pm} test`;
 
     if (analysis.languages.includes('TypeScript')) {
-      analysis.verifyCommand = `clear && ${run} build && ${pm} test`;
+      analysis.verifyCommand = `${prefix} ${run} build && ${pm} test`;
     } else {
-      analysis.verifyCommand = `clear && ${pm} test`;
+      analysis.verifyCommand = `${prefix} ${pm} test`;
     }
     return;
   }
 
   // Rust
   if (pm === 'cargo') {
-    analysis.buildCommand = 'clear && cargo build';
-    analysis.testCommand = 'clear && cargo test';
-    analysis.verifyCommand = 'clear && cargo build && cargo test';
+    analysis.buildCommand = `${prefix} cargo build`;
+    analysis.testCommand = `${prefix} cargo test`;
+    analysis.verifyCommand = `${prefix} cargo build && cargo test`;
     return;
   }
 
   // Go
   if (pm === 'go') {
-    analysis.buildCommand = 'clear && go build ./...';
-    analysis.testCommand = 'clear && go test ./...';
-    analysis.verifyCommand = 'clear && go build ./... && go test ./...';
+    analysis.buildCommand = `${prefix} go build ./...`;
+    analysis.testCommand = `${prefix} go test ./...`;
+    analysis.verifyCommand = `${prefix} go build ./... && go test ./...`;
     return;
   }
 
   // Python
   if (pm === 'pip' || pm === 'poetry' || pm === 'pdm') {
-    analysis.testCommand = 'clear && pytest';
-    analysis.verifyCommand = 'clear && pytest';
+    analysis.testCommand = `${prefix} pytest`;
+    analysis.verifyCommand = `${prefix} pytest`;
     return;
   }
 
   // Infrastructure/Docker
   if (analysis.manifestFiles.includes('docker-compose.yml') || analysis.manifestFiles.includes('docker-compose.yaml')) {
-    analysis.buildCommand = 'clear && docker compose build';
-    analysis.testCommand = 'clear && docker compose config';
-    analysis.verifyCommand = 'clear && docker compose config && docker compose build';
+    analysis.buildCommand = `${prefix} docker compose build`;
+    analysis.testCommand = `${prefix} docker compose config`;
+    analysis.verifyCommand = `${prefix} docker compose config && docker compose build`;
     return;
   }
 }
@@ -463,7 +467,7 @@ function formatProjectMd(analysis: ProjectAnalysis): string {
   parts.push('## Project Overview');
   parts.push('');
   parts.push(`- **Name:** ${analysis.name}`);
-  parts.push(`- **Description:** [TODO: Add project description]`);
+  parts.push(`- **Description:** [TODO: Add 1-2 sentences — what it does, who uses it, how it's consumed]`);
   parts.push(`- **Type:** ${analysis.type}`);
   parts.push('');
 
@@ -486,7 +490,14 @@ function formatProjectMd(analysis: ProjectAnalysis): string {
   // Commands
   parts.push('## Commands');
   parts.push('');
-  parts.push('All commands assume execution from the project root. Prefix all shell commands with `clear &&`.');
+  parts.push('All commands assume execution from the project root. Prefix all shell commands with `clear && sleep [delay] &&` (see Terminal Delay below).');
+  parts.push('');
+  parts.push('### Terminal Delay');
+  parts.push('');
+  parts.push('- **Delay (seconds):** 3');
+  parts.push('- The `clear` ensures a clean terminal; the `sleep` gives VS Code time to initialize the terminal before the command runs.');
+  parts.push('- Adjust the delay for your environment: `1` for fast machines, `3` (default) for normal, `5` for slower environments.');
+  parts.push('- All command examples below use `sleep 3` — replace `3` with your configured delay.');
   parts.push('');
 
   parts.push('### Build');
@@ -576,12 +587,11 @@ function formatProjectMd(analysis: ProjectAnalysis): string {
   parts.push('');
   parts.push('The generic rule files that read this `project.md`:');
   parts.push('');
-  parts.push('- **make_plan.md** — Uses verify command, file paths, commit scope');
+  parts.push('- **make_plan.md** — Uses verify command, file paths, commit scope, task file path patterns');
   parts.push('- **code.md** — Uses language conventions, architecture rules');
   parts.push('- **testing.md** — Uses test commands, test locations, test framework');
   parts.push('- **git-commands.md** — Uses commit scope, verify command');
   parts.push('- **agents.md** — Uses shell commands, verify command');
-  parts.push('- **plans.md** — Uses task file path patterns');
 
   return parts.join('\n');
 }

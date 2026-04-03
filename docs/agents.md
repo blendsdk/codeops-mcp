@@ -19,6 +19,20 @@ This file contains **universal agent rules** that work for any software project.
 
 ---
 
+## **Quick Reference Card**
+
+> **The 5 most critical rules at a glance — read the full sections below for details.**
+
+| # | Rule | Key Point |
+|---|------|-----------|
+| 🔒 | **Mandatory Compliance** | Load `code.md` + `testing.md` before ANY work. All tests must pass. |
+| 📊 | **Context Window** | Continue until 90% of 200K input. Max 60K output per response. |
+| 📦 | **Script-First** | NEVER use inline scripts (`node -e`, `python -c`). Create files in `scripts/`. |
+| 🔒 | **Git Protocol** | NEVER use `git commit -m`. Always `gitcm`/`gitcmp` with file-based messages. |
+| 📜 | **No Complex Chains** | No `&&` + pipes/redirects combos. Use script files instead. |
+
+---
+
 ## **🚨 ULTRA-CRITICAL: MANDATORY COMPLIANCE WITH CODING STANDARDS 🚨**
 
 **Before ANY planning or implementation, you MUST consult `code.md` and `testing.md`.**
@@ -392,6 +406,19 @@ rm scripts/tmp-check-data-format.ts
 
 Temporary scripts should NOT be committed to version control. If a temporary script proves useful, rename it to use a permanent prefix (`debug-`, `test-`, `verify-`, `run-`).
 
+#### Git Tracking Recommendations for Generated Directories
+
+| Directory | Recommendation | Rationale |
+|-----------|---------------|-----------|
+| `plans/` | ✅ **Commit** — these are project documentation | Plans are valuable context for future sessions and team members |
+| `scripts/tmp-*` | ❌ **Do NOT commit** — clean up after use | Temporary exploration scripts have no lasting value |
+| `scripts/debug-*`, `scripts/run-*`, etc. | ✅ **Commit if reusable** | Permanent utility scripts are project infrastructure |
+
+Consider adding to your project's `.gitignore`:
+```
+scripts/tmp-*
+```
+
 ---
 
 ### **Rule 9: Compact Conversation After Task Completion**
@@ -412,40 +439,45 @@ Temporary scripts should NOT be committed to version control. If a temporary scr
 
 ---
 
+### **Rule 10: VS Code Settings Automation (Optional)**
+
+If the project uses `scripts/agent.sh` for VS Code settings automation:
+
+**Act Mode Requirements:**
+
+1. **✅ Execute `clear && sleep 3 && scripts/agent.sh start` as THE FIRST COMMAND of any Act Mode task**
+   - Switches VS Code to development mode
+
+2. **✅ Execute `clear && sleep 3 && scripts/agent.sh finished` as THE LAST COMMAND of any Act Mode task**
+   - Switches VS Code to completion mode (full linting, formatting, cleanup)
+
+**Workflow Pattern:**
+
+```bash
+# FIRST COMMAND - Start of any Act Mode task
+clear && sleep 3 && scripts/agent.sh start
+
+# ... perform all task implementation work ...
+
+# LAST COMMAND - End of any Act Mode task
+clear && sleep 3 && scripts/agent.sh finished
+```
+
+**When NOT to Apply:**
+
+- ❌ Do not use in Plan Mode
+- ❌ Do not use if `scripts/agent.sh` does not exist in the project
+- ❌ Do not use if already in the middle of a task (only at start/end boundaries)
+
+---
+
 ### **Rule 11: Mandatory `gitcm`/`gitcmp` for All Git Operations — File-Based Commits ONLY**
 
 **🚨 NEVER execute raw git staging, committing, or pushing commands. ALWAYS use `gitcm` or `gitcmp`.**
 
-The `gitcm` and `gitcmp` protocols (defined in `git-commands.md`) are the **ONLY** permitted methods for git staging, committing, and pushing. Running loose git commands bypasses the required commit message format, verification steps, and workflow safeguards.
+All git operations MUST use the `gitcm`/`gitcmp` protocol defined in `git-commands.md`. **The `-m` flag is BANNED** — commit messages MUST be written to `/tmp/git_commit_msg.txt` via `write_to_file`, then committed with `git commit -F`. There are **NO exceptions**, even for "quick" or "small" commits.
 
-**🚨 CRITICAL: The `-m` flag is BANNED.** Commit messages MUST be written to `/tmp/git_commit_msg.txt` using `write_to_file` and committed with `git commit -F /tmp/git_commit_msg.txt`. This is because inline `-m` messages fail due to shell escaping, length limits, and multi-line formatting issues. See `git-commands.md` for the full explanation.
-
-#### PROHIBITED (NEVER DO):
-
-```bash
-❌ git commit -m "some message"
-❌ git commit -m 'some message'
-❌ git commit -am "some message"
-❌ git commit -m "feat(scope): ..." -m "- detail 1" -m "- detail 2"
-❌ ANY use of the -m flag with git commit
-❌ git push origin main
-❌ git add . && git commit -m "message" && git push
-```
-
-#### REQUIRED (ALWAYS DO):
-
-- **To stage and commit:** Use the `gitcm` protocol (see `git-commands.md`)
-- **To stage, commit, and push:** Use the `gitcmp` protocol (see `git-commands.md`)
-- **ALWAYS** write the commit message to `/tmp/git_commit_msg.txt` using `write_to_file` first
-- **ALWAYS** commit using `git commit -F /tmp/git_commit_msg.txt`
-- **ALWAYS** clean up with `rm /tmp/git_commit_msg.txt` after committing
-
-**There are NO exceptions.** Even for "quick" or "small" commits, the agent MUST use `gitcm` or `gitcmp` with the file-based approach. These protocols ensure:
-- Proper commit message format with scope and prefix
-- Commit message written via temp file (no shell escaping issues)
-- Multi-line messages with special characters work reliably
-- Verification steps are followed
-- Consistent workflow across all sessions
+> **📖 See `git-commands.md` for the full protocol**, including step-by-step instructions, commit message format, scope conventions, prohibited commands, and the rationale for file-based commits.
 
 ---
 
@@ -523,38 +555,6 @@ Examples:
 - Script files provide better error handling with `set -e`
 
 > **See also:** Rule 8 (Script-First Execution) for the comprehensive script file policy covering all non-trivial commands, including ad-hoc tests, validation, debugging, and temporary exploration.
-
----
-
-### **Rule 10: VS Code Settings Automation (Optional)**
-
-If the project uses `scripts/agent.sh` for VS Code settings automation:
-
-**Act Mode Requirements:**
-
-1. **✅ Execute `clear && sleep 3 && scripts/agent.sh start` as THE FIRST COMMAND of any Act Mode task**
-   - Switches VS Code to development mode
-
-2. **✅ Execute `clear && sleep 3 && scripts/agent.sh finished` as THE LAST COMMAND of any Act Mode task**
-   - Switches VS Code to completion mode (full linting, formatting, cleanup)
-
-**Workflow Pattern:**
-
-```bash
-# FIRST COMMAND - Start of any Act Mode task
-clear && sleep 3 && scripts/agent.sh start
-
-# ... perform all task implementation work ...
-
-# LAST COMMAND - End of any Act Mode task
-clear && sleep 3 && scripts/agent.sh finished
-```
-
-**When NOT to Apply:**
-
-- ❌ Do not use in Plan Mode
-- ❌ Do not use if `scripts/agent.sh` does not exist in the project
-- ❌ Do not use if already in the middle of a task (only at start/end boundaries)
 
 ---
 
