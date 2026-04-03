@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/blendsdk/codeops-mcp/compare/v1.4.0...v1.4.1) (2026-04-03)
+
+
+### Bug Fixes
+
+* **dox:** formatted README ([04cf049](https://github.com/blendsdk/codeops-mcp/commit/04cf04933075f3c9ee4872e9f3fa6af9724578a2))
+
 # [1.4.0](https://github.com/blendsdk/codeops-mcp/compare/v1.3.0...v1.4.0) (2026-04-03)
 
 
