@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/blendsdk/codeops-mcp/compare/v1.3.0...v1.4.0) (2026-04-03)
+
+
+### Features
+
+* **docs:** merge plans.md into make_plan.md, consolidate to 6 rule documents ([b69f8a1](https://github.com/blendsdk/codeops-mcp/commit/b69f8a10c90fe328319c3e4691b9e475c2285e0b))
+
 # [1.3.0](https://github.com/blendsdk/codeops-mcp/compare/v1.2.0...v1.3.0) (2026-03-27)
 
 
