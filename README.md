@@ -8,25 +8,25 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 
 ### Rule Documents
 
-| Rule | Description |
-|------|-------------|
-| **code** | 30 coding standards: DRY, testing, documentation, architecture, type safety |
-| **testing** | Test commands, workflows, coverage requirements, debugging strategies |
-| **git-commands** | Git commit protocols (`gitcm`/`gitcmp`), message format, push workflow |
-| **make_plan** | Complete protocol for creating and executing multi-document implementation plans |
-| **plans** | 10 rules for structuring plans: phases, tasks, dependencies, architecture |
-| **agents** | Mandatory AI agent behavior: compliance, context management, multi-session execution |
-| **project-template** | Template for `.clinerules/project.md` — project-specific toolchain configuration |
+| Rule                 | Description                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| **code**             | 30 coding standards: DRY, testing, documentation, architecture, type safety          |
+| **testing**          | Test commands, workflows, coverage requirements, debugging strategies                |
+| **git-commands**     | Git commit protocols (`gitcm`/`gitcmp`), message format, push workflow               |
+| **make_plan**        | Complete protocol for creating and executing multi-document implementation plans     |
+| **plans**            | 10 rules for structuring plans: phases, tasks, dependencies, architecture            |
+| **agents**           | Mandatory AI agent behavior: compliance, context management, multi-session execution |
+| **project-template** | Template for `.clinerules/project.md` — project-specific toolchain configuration     |
 
 ### MCP Tools
 
-| Tool | Description |
-|------|-------------|
-| `get_rule` | Get any rule document by name (supports aliases like "git", "test") |
-| `list_rules` | List all available rules grouped by category |
-| `search_rules` | Full-text search across all rules with TF-IDF ranking |
+| Tool              | Description                                                                  |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `get_rule`        | Get any rule document by name (supports aliases like "git", "test")          |
+| `list_rules`      | List all available rules grouped by category                                 |
+| `search_rules`    | Full-text search across all rules with TF-IDF ranking                        |
 | `analyze_project` | **Killer feature** — Scan a project directory and auto-generate `project.md` |
-| `get_setup_guide` | Step-by-step guide for setting up CodeOps in a project |
+| `get_setup_guide` | Step-by-step guide for setting up CodeOps in a project                       |
 
 ## Installation
 
@@ -44,11 +44,11 @@ Add to your MCP client configuration (e.g., Cline, Claude Desktop):
 
 ```json
 {
-  "mcpServers": {
-    "codeops": {
-      "command": "codeops-mcp"
+    "mcpServers": {
+        "codeops": {
+            "command": "codeops-mcp"
+        }
     }
-  }
 }
 ```
 
@@ -56,12 +56,12 @@ Add to your MCP client configuration (e.g., Cline, Claude Desktop):
 
 ```json
 {
-  "mcpServers": {
-    "codeops": {
-      "command": "codeops-mcp",
-      "args": ["/path/to/custom/docs"]
+    "mcpServers": {
+        "codeops": {
+            "command": "codeops-mcp",
+            "args": ["/path/to/custom/docs"]
+        }
     }
-  }
 }
 ```
 
@@ -69,14 +69,14 @@ Or via environment variable:
 
 ```json
 {
-  "mcpServers": {
-    "codeops": {
-      "command": "codeops-mcp",
-      "env": {
-        "CODEOPS_DOCS_PATH": "/path/to/custom/docs"
-      }
+    "mcpServers": {
+        "codeops": {
+            "command": "codeops-mcp",
+            "env": {
+                "CODEOPS_DOCS_PATH": "/path/to/custom/docs"
+            }
+        }
     }
-  }
 }
 ```
 
