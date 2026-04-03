@@ -38,7 +38,7 @@ All test commands are defined in `.clinerules/project.md`. Common patterns:
 
 ### Important Notes
 
-- **Always prefix commands with `clear &&`** for clean terminal output.
+- **Always prefix commands with `clear && sleep 3 &&`** for clean terminal output (the `sleep 3` gives VS Code time to initialize the terminal; the delay is configurable in `.clinerules/project.md`).
 - **Use the project's designated package manager exclusively** — never mix package managers.
 - **Build before testing** when you've changed source files (if the project requires a build step).
 - Use the project's caching/clean mechanism for fully clean runs when needed.

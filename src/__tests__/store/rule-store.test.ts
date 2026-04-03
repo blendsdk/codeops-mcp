@@ -20,8 +20,8 @@ beforeAll(async () => {
 });
 
 describe('RuleStore loading', () => {
-  it('should load all 7 rule documents', () => {
-    expect(store.size).toBe(7);
+  it('should load all 6 rule documents', () => {
+    expect(store.size).toBe(6);
   });
 
   it('should load code.md', () => {
@@ -48,9 +48,10 @@ describe('RuleStore loading', () => {
     expect(doc!.title).toContain('Agent');
   });
 
-  it('should load plans.md', () => {
-    const doc = store.getById('plans');
+  it('should resolve "plans" alias to make_plan', () => {
+    const doc = store.findByName('plans');
     expect(doc).toBeDefined();
+    expect(doc!.id).toBe('make_plan');
   });
 
   it('should load make_plan.md', () => {
@@ -142,7 +143,6 @@ describe('RuleStore metadata extraction', () => {
     expect(store.getById('testing')!.category).toBe('standards');
     expect(store.getById('git-commands')!.category).toBe('workflow');
     expect(store.getById('make_plan')!.category).toBe('workflow');
-    expect(store.getById('plans')!.category).toBe('planning');
     expect(store.getById('agents')!.category).toBe('behavior');
     expect(store.getById('project-template')!.category).toBe('setup');
   });

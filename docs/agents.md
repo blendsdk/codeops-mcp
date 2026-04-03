@@ -583,7 +583,6 @@ clear && sleep 3 && scripts/agent.sh finished
 
 - See **code.md** for coding standards, testing requirements, and quality guidelines
 - See **testing.md** for test commands and workflow
-- See **plans.md** for detailed guidance on creating implementation plans
-- See **make_plan.md** for plan creation/execution triggers and session rules
+- See **make_plan.md** for plan creation/execution triggers, session rules, and implementation plan formatting
 - See **git-commands.md** for git workflow instructions (`gitcm`, `gitcmp`)
 - See **`.clinerules/project.md`** for project-specific commands, toolchain, and conventions

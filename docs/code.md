@@ -68,7 +68,7 @@ These rules are **mandatory** and must be applied **strictly and consistently** 
    - Write granular, focused tests that test one thing at a time.
    - Each test should have a clear purpose and failure message.
    - Small, specific tests are easier to debug when they fail.
-   - See also: `plans.md` Rule 8 for task-level testing requirements.
+   - See also: `make_plan.md` Phase 1B for pre-implementation re-evaluation and testing requirements.
 
 ---
 
@@ -387,7 +387,7 @@ These rules are **mandatory** and must be applied **strictly and consistently** 
 ## **Cross-References**
 
 - See **`.clinerules/project.md`** for project-specific language, toolchain, and naming conventions
-- See **plans.md** for task-level testing breakdowns and implementation planning
+- See **make_plan.md** for task-level testing breakdowns and implementation planning
 - See **agents.md** for verification procedures and task completion criteria
 - See **testing.md** for test commands and AI testing workflow
 - See **git-commands.md** for git workflow instructions

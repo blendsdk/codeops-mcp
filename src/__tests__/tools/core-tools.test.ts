@@ -79,7 +79,7 @@ describe('getRule', () => {
 
   it('should return plans rules', () => {
     const result = getRule(store, { name: 'plans' });
-    expect(result).toContain('Implementation Plans');
+    expect(result).toContain('Implementation Plan Creation');
   });
 
   it('should return project-template', () => {
@@ -109,13 +109,12 @@ describe('listRules', () => {
     expect(result).toContain('Total rules');
   });
 
-  it('should show all 7 rule documents', () => {
+  it('should show all 6 rule documents', () => {
     const result = listRules(store);
     expect(result).toContain('code');
     expect(result).toContain('testing');
     expect(result).toContain('git-commands');
     expect(result).toContain('make_plan');
-    expect(result).toContain('plans');
     expect(result).toContain('agents');
     expect(result).toContain('project-template');
   });
@@ -124,7 +123,6 @@ describe('listRules', () => {
     const result = listRules(store);
     expect(result).toContain('Standards');
     expect(result).toContain('Workflow');
-    expect(result).toContain('Planning');
     expect(result).toContain('Agent Behavior');
     expect(result).toContain('Project Setup');
   });

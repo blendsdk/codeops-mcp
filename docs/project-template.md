@@ -4,7 +4,7 @@
 >
 > This file is read by AI coding agents (Cline, Copilot, Cursor, etc.) to understand
 > your project's toolchain, structure, and conventions. The generic rule files
-> (`make_plan.md`, `code.md`, `testing.md`, `agents.md`, `git-commands.md`, `plans.md`)
+> (`make_plan.md`, `code.md`, `testing.md`, `agents.md`, `git-commands.md`)
 > reference this file for project-specific settings.
 
 ---
@@ -298,9 +298,8 @@ If not applicable, remove this section.
 
 The generic rule files that read this `project.md`:
 
-- **make_plan.md** — Uses verify command, file paths, commit scope
+- **make_plan.md** — Uses verify command, file paths, commit scope, task file path patterns
 - **code.md** — Uses language conventions, architecture rules
 - **testing.md** — Uses test commands, test locations, test framework
 - **git-commands.md** — Uses commit scope, verify command
 - **agents.md** — Uses shell commands, verify command
-- **plans.md** — Uses task file path patterns

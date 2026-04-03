@@ -220,6 +220,26 @@ Please confirm or adjust before I create the plan.
 
 ---
 
+### **Phase 1B: Pre-Implementation Re-evaluation**
+
+**IMPORTANT:** Before creating plan documents, and again before starting each phase during execution, re-evaluate to ensure nothing was missed:
+
+1. **✅ Completeness** — Are all requirements covered? Any missing edge cases?
+2. **✅ Context & Reasoning** — Can you explain WHY each phase exists and what problem it solves?
+3. **✅ Task Granularity** — Are tasks small enough (2-4 hours)? Can each be tested independently?
+4. **✅ Dependencies** — Are all dependencies documented? No circular dependencies?
+5. **✅ Testing** — Does every task have testing/validation requirements?
+6. **✅ Architecture** — Will any implementation exceed 500 lines? Is splitting planned?
+7. **✅ Scope Boundaries** — Are changes properly scoped? Do new files follow existing patterns?
+
+**When to Re-evaluate:**
+- ✅ Before creating plan documents (now)
+- ✅ After completing each phase (before starting next)
+- ✅ When requirements change
+- ✅ When discovering new technical constraints
+
+---
+
 ### **Phase 2: Create Plan Documents**
 
 #### 2.1 Folder Structure
@@ -953,7 +973,6 @@ When creating and executing plans:
 - ✅ Follow **code.md** for coding standards and quality requirements
 - ✅ Follow **testing.md** for test commands and workflow
 - ✅ Follow **git-commands.md** for `gitcm`/`gitcmp` commit protocol
-- ✅ Follow **plans.md** for task granularity and formatting rules
 - ✅ Follow **agents.md** for general AI agent behavior rules
 - ✅ Read **`.clinerules/project.md`** for project-specific commands and conventions
 

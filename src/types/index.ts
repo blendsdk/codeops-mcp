@@ -48,7 +48,6 @@ export interface RuleDocument {
 export type RuleCategory =
   | 'standards'    // code.md, testing.md
   | 'workflow'     // git-commands.md, make_plan.md
-  | 'planning'     // plans.md
   | 'behavior'     // agents.md
   | 'setup';       // project-template.md
 
@@ -249,11 +248,6 @@ export const RULE_METADATA: Record<string, { title: string; category: RuleCatego
     category: 'workflow',
     description: 'Complete protocol for creating and executing multi-document implementation plans.',
   },
-  'plans': {
-    title: 'Implementation Plan Rules',
-    category: 'planning',
-    description: 'Rules for structuring plans: phases, tasks, dependencies, testing, architecture.',
-  },
   'agents': {
     title: 'AI Agent Instructions',
     category: 'behavior',
@@ -292,9 +286,10 @@ export const RULE_ALIASES: Record<string, string> = {
   'exec-plan': 'make_plan',
   'exec_plan': 'make_plan',
 
-  // plans.md aliases
-  'planning': 'plans',
-  'plan-rules': 'plans',
+  // plans.md aliases (redirected to make_plan after merge)
+  'plans': 'make_plan',
+  'planning': 'make_plan',
+  'plan-rules': 'make_plan',
 
   // agents.md aliases
   'agent': 'agents',
@@ -323,10 +318,6 @@ export const CATEGORY_INFO: Record<RuleCategory, { label: string; description: s
   'workflow': {
     label: 'Workflow',
     description: 'Git operations and plan creation/execution protocols',
-  },
-  'planning': {
-    label: 'Planning',
-    description: 'Implementation plan structure and formatting rules',
   },
   'behavior': {
     label: 'Agent Behavior',

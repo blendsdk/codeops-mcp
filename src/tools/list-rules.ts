@@ -51,7 +51,7 @@ function formatRulesOverview(store: RuleStore): string {
   parts.push('---');
 
   // Group documents by category
-  const categories: RuleCategory[] = ['standards', 'workflow', 'planning', 'behavior', 'setup'];
+  const categories: RuleCategory[] = ['standards', 'workflow', 'behavior', 'setup'];
 
   for (const category of categories) {
     const docs = store.getByCategory(category);

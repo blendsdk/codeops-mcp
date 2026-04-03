@@ -83,7 +83,7 @@ When the user provides these keywords, Cline should perform the following action
 
 ```bash
 # Stage changes
-clear && git add .
+clear && sleep 3 && git add .
 
 # Create commit message file
 # (write the message using write_to_file tool to /tmp/git_commit_msg.txt)
@@ -144,7 +144,7 @@ Use the module name, package name, service name, or directory as the scope. Chec
 
 ```bash
 # Stage changes
-clear && git add .
+clear && sleep 3 && git add .
 
 # Create commit message file
 # (write the message using write_to_file tool to /tmp/git_commit_msg.txt)
