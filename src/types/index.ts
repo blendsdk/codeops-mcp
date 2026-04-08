@@ -258,6 +258,11 @@ export const RULE_METADATA: Record<string, { title: string; category: RuleCatego
     category: 'setup',
     description: 'Template for .clinerules/project.md — project-specific toolchain and conventions.',
   },
+  'requirements': {
+    title: 'Requirements Gathering & Documentation',
+    category: 'workflow',
+    description: 'Protocol for discovering, structuring, and documenting project requirements (make_requirements).',
+  },
 };
 
 /**
@@ -303,6 +308,17 @@ export const RULE_ALIASES: Record<string, string> = {
   'template': 'project-template',
   'setup': 'project-template',
   'project-config': 'project-template',
+
+  // requirements.md aliases
+  'reqs': 'requirements',
+  'req': 'requirements',
+  'make_requirements': 'requirements',
+  'make-requirements': 'requirements',
+  'makerequirements': 'requirements',
+  'add_requirement': 'requirements',
+  'add-requirement': 'requirements',
+  'review_requirements': 'requirements',
+  'review-requirements': 'requirements',
 };
 
 /** Default number of search results to return */

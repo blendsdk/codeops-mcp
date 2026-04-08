@@ -584,5 +584,6 @@ Examples:
 - See **code.md** for coding standards, testing requirements, and quality guidelines
 - See **testing.md** for test commands and workflow
 - See **make_plan.md** for plan creation/execution triggers, session rules, and implementation plan formatting
+- See **requirements.md** for requirements gathering and documentation protocol (`make_requirements`, `add_requirement`, `review_requirements`)
 - See **git-commands.md** for git workflow instructions (`gitcm`, `gitcmp`)
 - See **`.clinerules/project.md`** for project-specific commands, toolchain, and conventions

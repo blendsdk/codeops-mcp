@@ -109,7 +109,7 @@ describe('listRules', () => {
     expect(result).toContain('Total rules');
   });
 
-  it('should show all 6 rule documents', () => {
+  it('should show all 7 rule documents', () => {
     const result = listRules(store);
     expect(result).toContain('code');
     expect(result).toContain('testing');
@@ -117,6 +117,7 @@ describe('listRules', () => {
     expect(result).toContain('make_plan');
     expect(result).toContain('agents');
     expect(result).toContain('project-template');
+    expect(result).toContain('requirements');
   });
 
   it('should group rules by category', () => {

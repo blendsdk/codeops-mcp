@@ -389,6 +389,7 @@ These rules are **mandatory** and must be applied **strictly and consistently** 
 
 - See **`.clinerules/project.md`** for project-specific language, toolchain, and naming conventions
 - See **make_plan.md** for task-level testing breakdowns and implementation planning
+- See **requirements.md** for how requirements map to technical specifications and acceptance criteria
 - See **agents.md** for verification procedures and task completion criteria
 - See **testing.md** for test commands and AI testing workflow
 - See **git-commands.md** for git workflow instructions

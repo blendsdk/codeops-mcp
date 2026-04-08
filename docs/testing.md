@@ -278,5 +278,6 @@ For infrastructure, configuration, or DevOps projects where traditional unit tes
 
 - See **`.clinerules/project.md`** for project-specific test commands, framework, and structure
 - See **code.md** — Section 2 (Testing Requirements) and Section 9 (Testing Integrity) for testing standards
+- See **requirements.md** for how acceptance criteria in requirement documents map to test strategies
 - See **agents.md** for shell command rules and task completion criteria
 - See **git-commands.md** for git workflow instructions

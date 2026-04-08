@@ -20,8 +20,8 @@ beforeAll(async () => {
 });
 
 describe('RuleStore loading', () => {
-  it('should load all 6 rule documents', () => {
-    expect(store.size).toBe(6);
+  it('should load all 7 rule documents', () => {
+    expect(store.size).toBe(7);
   });
 
   it('should load code.md', () => {
@@ -62,6 +62,12 @@ describe('RuleStore loading', () => {
   it('should load project-template.md', () => {
     const doc = store.getById('project-template');
     expect(doc).toBeDefined();
+  });
+
+  it('should load requirements.md', () => {
+    const doc = store.getById('requirements');
+    expect(doc).toBeDefined();
+    expect(doc!.title).toContain('Requirements');
   });
 });
 
@@ -145,6 +151,7 @@ describe('RuleStore metadata extraction', () => {
     expect(store.getById('make_plan')!.category).toBe('workflow');
     expect(store.getById('agents')!.category).toBe('behavior');
     expect(store.getById('project-template')!.category).toBe('setup');
+    expect(store.getById('requirements')!.category).toBe('workflow');
   });
 
   it('should have descriptions for all documents', () => {

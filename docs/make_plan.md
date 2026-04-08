@@ -120,6 +120,43 @@ Files are always saved to disk regardless of commit mode — no work is lost.
 
 ---
 
+## **Integration with Requirements Documents**
+
+When a `requirements/` directory exists in the project and contains RD documents (created by `make_requirements` from `requirements.md`), `make_plan` can use them as input:
+
+### How It Works
+
+1. **Detection**: When `make_plan` starts, check if `requirements/` exists with `RD-XX-*.md` files
+2. **Offer**: If RDs exist, ask the user: *"I found requirement documents in `requirements/`. Would you like to base this plan on a specific RD?"*
+3. **If user selects an RD**: Read the RD document and use it as the primary input. Phase 1 (Information Gathering) is simplified — the agent reads the RD instead of full ad-hoc Q&A, but still analyzes the current codebase state (Phase 1.2)
+4. **If user declines**: Proceed with standard Phase 1 information gathering as usual
+
+### What Changes When an RD Is Provided
+
+| Phase 1 Step | Without RD (standard) | With RD |
+|---|---|---|
+| 1.1 Ask Clarifying Questions | Full interview | Minimal — RD already answers most questions |
+| 1.2 Analyze Current Implementation | Full analysis | Same — always needed |
+| 1.3 Confirm Scope | Present findings for confirmation | Present RD summary + current state for confirmation |
+
+### What Stays the Same
+
+- All plan document templates (00-index through 99-execution-plan)
+- Phase 2 (Create Plan Documents) — unchanged
+- Phase 3 (Quality Checklist) — unchanged
+- Plan execution (`exec_plan`) — completely unchanged
+- `make_plan` continues to work perfectly without any requirements documents
+
+### Plan Document Cross-Reference
+
+When a plan is based on an RD, the `01-requirements.md` plan document should reference the source:
+
+```markdown
+> **Source**: [RD-XX](../../requirements/RD-XX-feature-name.md)
+```
+
+---
+
 ## **Part 1: Creating Plans (`make_plan`)**
 
 ### **Phase 1: Information Gathering (MANDATORY)**
