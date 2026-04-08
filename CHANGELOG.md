@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/blendsdk/codeops-mcp/compare/v1.5.0...v1.5.1) (2026-04-08)
+
+
+### Bug Fixes
+
+* **config:** add docs/refactor/style as semantic-release patch triggers ([1e00187](https://github.com/blendsdk/codeops-mcp/commit/1e00187f05a39af0b5b5ba57c0008450a400a321))
+
 # [1.5.0](https://github.com/blendsdk/codeops-mcp/compare/v1.4.2...v1.5.0) (2026-04-08)
 
 
