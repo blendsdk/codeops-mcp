@@ -311,3 +311,4 @@ The generic rule files that read this `project.md`:
 - **git-commands.md** — Uses commit scope, verify command
 - **agents.md** — Uses shell commands, verify command
 - **requirements.md** — Uses project type, tech stack, and conventions for requirements discovery
+- **retro_requirements.md** — Uses project type, tech stack for codebase analysis adaptation

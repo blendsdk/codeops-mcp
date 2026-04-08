@@ -47,7 +47,7 @@ export interface RuleDocument {
  */
 export type RuleCategory =
   | 'standards'    // code.md, testing.md
-  | 'workflow'     // git-commands.md, make_plan.md
+  | 'workflow'     // git-commands.md, make_plan.md, requirements.md, retro_requirements.md
   | 'behavior'     // agents.md
   | 'setup';       // project-template.md
 
@@ -263,6 +263,11 @@ export const RULE_METADATA: Record<string, { title: string; category: RuleCatego
     category: 'workflow',
     description: 'Protocol for discovering, structuring, and documenting project requirements (make_requirements).',
   },
+  'retro_requirements': {
+    title: 'Reverse Requirements Engineering',
+    category: 'workflow',
+    description: 'Protocol for reverse-engineering an existing codebase into structured requirements (retro_requirements).',
+  },
 };
 
 /**
@@ -319,6 +324,18 @@ export const RULE_ALIASES: Record<string, string> = {
   'add-requirement': 'requirements',
   'review_requirements': 'requirements',
   'review-requirements': 'requirements',
+
+  // retro_requirements.md aliases
+  'retro': 'retro_requirements',
+  'retro-requirements': 'retro_requirements',
+  'retrorequirements': 'retro_requirements',
+  'retro-reqs': 'retro_requirements',
+  'reverse-requirements': 'retro_requirements',
+  'reverse_requirements': 'retro_requirements',
+  'reverse-reqs': 'retro_requirements',
+  'archaeology': 'retro_requirements',
+  'reconstruct': 'retro_requirements',
+  'reconstruction': 'retro_requirements',
 };
 
 /** Default number of search results to return */
@@ -335,7 +352,7 @@ export const CATEGORY_INFO: Record<RuleCategory, { label: string; description: s
   },
   'workflow': {
     label: 'Workflow',
-    description: 'Git operations and plan creation/execution protocols',
+    description: 'Git operations, plan creation/execution, and requirements engineering protocols',
   },
   'behavior': {
     label: 'Agent Behavior',

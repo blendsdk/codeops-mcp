@@ -390,7 +390,6 @@ These rules are **mandatory** and must be applied **strictly and consistently** 
 - See **`.clinerules/project.md`** for project-specific language, toolchain, and naming conventions
 - See **make_plan.md** for task-level testing breakdowns and implementation planning
 - See **requirements.md** for how requirements map to technical specifications and acceptance criteria
-- See **agents.md** for verification procedures and task completion criteria
+- See **agents.md** for verification procedures, task completion criteria, and Script-First Execution rule
 - See **testing.md** for test commands and AI testing workflow
 - See **git-commands.md** for git workflow instructions
-- See **agents.md** — Script-First Execution rule for debugging rules (NO inline debug scripts — ALWAYS create script files)

@@ -147,6 +147,8 @@ When a `requirements/` directory exists in the project and contains RD documents
 - Plan execution (`exec_plan`) — completely unchanged
 - `make_plan` continues to work perfectly without any requirements documents
 
+> **Note:** Requirements documents may originate from `make_requirements` (forward engineering) or from `retro_requirements` → `make_requirements` (reverse engineering). `make_plan` treats them identically.
+
 ### Plan Document Cross-Reference
 
 When a plan is based on an RD, the `01-requirements.md` plan document should reference the source:

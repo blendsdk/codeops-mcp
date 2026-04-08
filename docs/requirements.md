@@ -20,6 +20,7 @@ This protocol is **independent from and upstream of** `make_plan`. The two proto
 
 | Workflow | When to Use |
 |----------|-------------|
+| `retro_requirements` → `make_requirements` → `make_plan` | Reverse-engineering an existing system for documentation, migration, or rebuild. |
 | `make_requirements` → `make_plan` → `exec_plan` | Building a new system from scratch. Requirements first, then plan per requirement. |
 | `make_plan` → `exec_plan` | Adding a feature to an existing codebase. Ad-hoc information gathering is sufficient. |
 | `make_requirements` only | Designing a system without implementing yet. Requirements as documentation. |
@@ -667,6 +668,7 @@ When gathering and documenting requirements:
 - ✅ Reference **make_plan.md** for how RDs feed into implementation plans
 - ✅ Reference **testing.md** for acceptance criteria that map to test strategies
 - ✅ Follow **agents.md** for context window management during long discovery sessions
+- ✅ Reference **retro_requirements.md** for reverse-engineering an existing codebase into requirements (`retro_requirements`)
 - ✅ Read **`.clinerules/project.md`** for project-specific constraints (if it exists)
 
 ---

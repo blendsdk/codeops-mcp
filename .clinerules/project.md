@@ -96,12 +96,14 @@ clear && yarn ncu
 ### Directory Layout
 
 ```
-docs/                    # Rule markdown documents (6 files, shipped with npm package)
+docs/                    # Rule markdown documents (8 files, shipped with npm package)
   agents.md              #   AI agent behavior rules
   code.md                #   Coding standards (DRY, architecture, type safety)
   git-commands.md        #   Git commit protocols (gitcm/gitcmp)
   make_plan.md           #   Plan creation, execution protocol & implementation plan formatting
   project-template.md    #   Project configuration template
+  requirements.md        #   Requirements gathering & documentation (make_requirements)
+  retro_requirements.md  #   Reverse requirements engineering (retro_requirements)
   testing.md             #   Testing standards & workflows
 src/                     # TypeScript source code
   index.ts               #   Main entry point — MCP server bootstrap
@@ -238,7 +240,7 @@ dist/                    # Compiled output (git-ignored)
 6. Import paths MUST include .js extension (e.g., './config.js', '../types/index.js')
    because of Node16 module resolution with ESM.
 
-7. The 6 rule document IDs are hardcoded in RULE_METADATA and RULE_ALIASES in types/index.ts.
+7. The 8 rule document IDs are hardcoded in RULE_METADATA and RULE_ALIASES in types/index.ts.
    Adding a new rule document requires updating both maps.
 
 8. All test files live under src/__tests__/ mirroring the src/ structure.
@@ -248,9 +250,9 @@ dist/                    # Compiled output (git-ignored)
 ## Test Structure
 
 ```
-4 test files, 106 total tests:
+4 test files, 107 total tests:
 
-src/__tests__/store/rule-store.test.ts        — 21 tests (loading, lookup, fuzzy matching, categories, metadata)
+src/__tests__/store/rule-store.test.ts        — 22 tests (loading, lookup, fuzzy matching, categories, metadata)
 src/__tests__/store/search-engine.test.ts     — 12 tests (indexing, search, scoring, filtering, excerpts)
 src/__tests__/tools/core-tools.test.ts        — 28 tests (get_rule, list_rules, search_rules, get_setup_guide)
 src/__tests__/tools/analyze-project-merge.test.ts — 45 tests (parser, classifier, merge engine, integration)
@@ -271,3 +273,5 @@ The generic rule files that read this `project.md`:
 - **testing.md** — Uses test commands, test locations, test framework
 - **git-commands.md** — Uses commit scope, verify command
 - **agents.md** — Uses shell commands, verify command
+- **requirements.md** — Uses project type, tech stack, and conventions for requirements discovery
+- **retro_requirements.md** — Uses project type, tech stack for codebase analysis adaptation

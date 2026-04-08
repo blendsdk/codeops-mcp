@@ -231,6 +231,7 @@ If `git push` fails after a successful commit:
 ## **Cross-References**
 
 - See **`.clinerules/project.md`** for project-specific commit scope and verify commands
+- See **code.md** for coding standards that must be met before committing
 - See **testing.md** for test/validation commands to run before committing
 - See **agents.md** for task completion and verification rules
 - See **make_plan.md** for auto-commit rules during plan execution

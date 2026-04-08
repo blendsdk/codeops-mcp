@@ -281,3 +281,4 @@ For infrastructure, configuration, or DevOps projects where traditional unit tes
 - See **requirements.md** for how acceptance criteria in requirement documents map to test strategies
 - See **agents.md** for shell command rules and task completion criteria
 - See **git-commands.md** for git workflow instructions
+- See **make_plan.md** for testing strategy templates and pre-implementation testing re-evaluation
