@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/blendsdk/codeops-mcp/compare/v1.4.2...v1.5.0) (2026-04-08)
+
+
+### Features
+
+* **docs:** add requirements gathering protocol (make_requirements) ([52df7c5](https://github.com/blendsdk/codeops-mcp/commit/52df7c5232f580d96dec19bb166dcfddfe9f19e4))
+
 ## [1.4.2](https://github.com/blendsdk/codeops-mcp/compare/v1.4.1...v1.4.2) (2026-04-03)
 
 
