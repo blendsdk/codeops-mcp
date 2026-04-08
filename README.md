@@ -4,24 +4,26 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 
 ## What It Does
 
-**codeops-mcp** bundles 6 curated rule documents that teach AI agents how to code, test, plan, commit, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
+**codeops-mcp** bundles 8 curated rule documents that teach AI agents how to code, test, plan, commit, gather requirements, reverse-engineer codebases, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
 
 ### Rule Documents
 
-| Rule                 | Description                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------ |
-| **code**             | 30 coding standards: DRY, testing, documentation, architecture, type safety          |
-| **testing**          | Test commands, workflows, coverage requirements, debugging strategies                |
-| **git-commands**     | Git commit protocols (`gitcm`/`gitcmp`), message format, push workflow               |
-| **make_plan**        | Complete protocol for creating and executing multi-document implementation plans     |
-| **agents**           | Mandatory AI agent behavior: compliance, context management, multi-session execution |
-| **project-template** | Template for `.clinerules/project.md` — project-specific toolchain configuration     |
+| Rule                     | Description                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------ |
+| **code**                 | 30 coding standards: DRY, testing, documentation, architecture, type safety          |
+| **testing**              | Test commands, workflows, coverage requirements, debugging strategies                |
+| **git-commands**         | Git commit protocols (`gitcm`/`gitcmp`), message format, push workflow               |
+| **make_plan**            | Complete protocol for creating and executing multi-document implementation plans      |
+| **requirements**         | Requirements gathering & documentation protocol (`make_requirements`)                |
+| **retro_requirements**   | Reverse-engineer an existing codebase into structured requirements                   |
+| **agents**               | Mandatory AI agent behavior: compliance, context management, multi-session execution |
+| **project-template**     | Template for `.clinerules/project.md` — project-specific toolchain configuration     |
 
 ### MCP Tools
 
 | Tool              | Description                                                                  |
 | ----------------- | ---------------------------------------------------------------------------- |
-| `get_rule`        | Get any rule document by name (supports aliases like "git", "test")          |
+| `get_rule`        | Get any rule document by name (supports aliases like "git", "test", "retro") |
 | `list_rules`      | List all available rules grouped by category                                 |
 | `search_rules`    | Full-text search across all rules with TF-IDF ranking                        |
 | `analyze_project` | **Killer feature** — Scan a project directory and auto-generate `project.md` |
@@ -83,7 +85,7 @@ Or via environment variable:
 
 The two-layer architecture:
 
-1. **Layer 1: Universal rules** (bundled in this package) — Language-agnostic standards
+1. **Layer 1: Universal rules** (bundled in this package) — Language-agnostic standards for coding, testing, git, planning, and requirements
 2. **Layer 2: Project-specific config** (`.clinerules/project.md` in your project) — Toolchain, commands, conventions
 
 All generic rules reference `project.md` for project-specific settings like build commands, test commands, package manager, etc.
@@ -94,6 +96,249 @@ All generic rules reference `project.md` for project-specific settings like buil
 2. Save the output to `.clinerules/project.md` in your project
 3. The AI agent automatically applies universal rules using your project's settings
 
+---
+
+## Usage Guide
+
+### Trigger Keywords
+
+codeops-mcp defines **trigger keywords** — when you type these phrases, the AI agent executes sophisticated multi-step protocols:
+
+| Keyword | What It Does |
+|---------|-------------|
+| `make_plan` | Creates a detailed multi-document implementation plan for a feature |
+| `exec_plan [name]` | Executes an existing plan step by step |
+| `make_requirements` | Discovers, structures, and documents project requirements |
+| `add_requirement` | Adds a new requirement to an existing requirements set |
+| `review_requirements` | Health-checks existing requirements for gaps and inconsistencies |
+| `retro_requirements` | Reverse-engineers an existing codebase into structured requirements |
+| `gitcm` | Stages all changes and commits with a detailed conventional commit message |
+| `gitcmp` | Same as `gitcm` plus rebase and push |
+
+### Workflow Overview
+
+The protocols form a complete development pipeline:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  REVERSE PATH (existing codebase → requirements → rebuild)       │
+│                                                                  │
+│  retro_requirements → make_requirements → make_plan → exec_plan  │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│  FORWARD PATH (new project → requirements → implementation)      │
+│                                                                  │
+│  make_requirements → make_plan → exec_plan                       │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│  QUICK PATH (add a feature to existing codebase)                 │
+│                                                                  │
+│  make_plan → exec_plan                                           │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+You can use any part of the pipeline independently — they're designed to work together but none requires the others.
+
+---
+
+### Coding Standards & Testing
+
+The agent automatically loads coding standards and testing rules at the start of every task. These enforce:
+
+- **30 coding rules**: DRY, single responsibility, documentation, type safety, 500-line file limit
+- **Testing workflow**: Write tests first, run verification before every commit
+- **Test coverage**: Unit, integration, and end-to-end tests required
+
+You don't need to do anything — just have codeops-mcp installed and the agent follows these rules automatically.
+
+---
+
+### Planning & Execution (`make_plan` / `exec_plan`)
+
+Create and execute structured implementation plans for features of any size.
+
+**Creating a plan:**
+
+```
+User: make_plan
+
+Agent: What feature would you like to plan?
+
+User: Add JWT authentication to our API
+
+Agent: [Asks clarifying questions, analyzes codebase, then creates:]
+  plans/jwt-auth/
+  ├── 00-index.md
+  ├── 01-requirements.md
+  ├── 02-current-state.md
+  ├── 03-auth-middleware.md
+  ├── 04-token-service.md
+  ├── 07-testing-strategy.md
+  └── 99-execution-plan.md
+```
+
+**Executing a plan:**
+
+```
+User: exec_plan jwt-auth
+
+Agent: [Reads the execution plan, implements tasks one by one,
+        runs verification after each task, updates progress,
+        asks about commits after each verified task]
+```
+
+**Commit modes for `exec_plan`:**
+
+| Flag | Behavior |
+|------|----------|
+| *(default)* | Ask before each commit |
+| `--no-commit` | Never commit — you handle git yourself |
+| `--auto-commit` | Automatically commit and push after each task |
+
+---
+
+### Requirements Engineering (`make_requirements`)
+
+Transform a rough project idea into formal requirement documents through guided discovery.
+
+**Example:**
+
+```
+User: I want to build a university lab management SaaS. Researchers book lab rooms,
+ethics committee approves studies, participants sign up on a public page.
+Built with Node, TypeScript, PostgreSQL.
+
+make_requirements
+
+Agent: [Conducts multi-turn discovery interview]
+  - Maps stakeholders and user types
+  - Analyzes comparable systems (suggests features you haven't thought of)
+  - Walks through user journeys to find hidden requirements
+  - Explores "what happens when..." edge cases
+  - Produces formal requirement documents:
+
+  requirements/
+  ├── README.md              # Index, glossary, dependency graph
+  ├── RD-01-scaffolding.md   # Project setup
+  ├── RD-02-data-model.md    # Database schema
+  ├── RD-03-auth.md          # Authentication & RBAC
+  ├── RD-04-lab-booking.md   # Core booking functionality
+  ├── ...
+  └── RD-12-deployment.md    # Production deployment
+```
+
+Each RD document can then be fed into `make_plan` for implementation:
+
+```
+User: make_plan
+Agent: I found requirement documents. Which RD would you like to implement?
+User: RD-04-lab-booking.md
+Agent: [Creates implementation plan based on the requirement document]
+```
+
+**Additional keywords:**
+- `add_requirement` — Add a new RD to an existing set
+- `review_requirements` — Run a health check on all requirements (gaps, inconsistencies, scope creep)
+
+---
+
+### Reverse Requirements Engineering (`retro_requirements`)
+
+Analyze an existing codebase and produce a reconstruction brief — detailed enough to rebuild the entire application.
+
+**Example:**
+
+```
+User: retro_requirements
+
+Agent: [Systematically analyzes the codebase in 10 phases:]
+  Phase 0: Reconnaissance — manifests, directory structure, tech stack
+  Phase 1: Structural Analysis — layers, modules, entry points, patterns
+  Phase 2: Data Model — entities, relationships, constraints
+  Phase 3: API Surface — endpoints, CLI commands, public interfaces
+  Phase 4: Behavior Catalog — features translated to requirement statements
+  Phase 5: Business Rules — validation, authorization, domain logic
+  Phase 6: Cross-Cutting — auth, errors, logging, caching
+  Phase 7: Integrations — external APIs, databases, services
+  Phase 8: Gaps & Debt — TODOs, missing tests, security gaps
+  Phase 9: Synthesis — produces the reconstruction brief
+
+Output:
+  requirements/_retro/
+  ├── 00-project-profile.md
+  ├── 01-architecture-analysis.md
+  ├── ...
+  ├── 08-gaps-and-debt.md
+  └── 09-reconstruction-brief.md   ← Feed this to make_requirements
+```
+
+**Scope control for large codebases:**
+
+```
+retro_requirements --scope src/auth          # Analyze only the auth module
+retro_requirements --continue                # Resume an interrupted session
+```
+
+The reconstruction brief is designed as input for `make_requirements`, completing the full reverse → forward pipeline.
+
+---
+
+### Git Workflow (`gitcm` / `gitcmp`)
+
+Safe, structured git commits with detailed conventional commit messages.
+
+```
+User: gitcm
+
+Agent: [Stages all changes, writes a detailed commit message to a temp file,
+        commits using git commit -F, cleans up]
+
+Result:
+  feat(auth): add JWT token refresh endpoint
+
+  - Add POST /api/auth/refresh endpoint
+  - Implement token rotation with refresh token family tracking
+  - Add rate limiting (5 refreshes per minute per user)
+  - Tests added for all edge cases
+```
+
+```
+User: gitcmp
+
+Agent: [Same as gitcm, plus rebase and push. Reports conflicts if any.]
+```
+
+**Key safety rules:**
+- Commit messages are ALWAYS written to a file (never inline `-m` flag)
+- Verification (build + test) runs before every commit
+- Conflicts are reported to the user — never auto-resolved
+
+---
+
+### Project Configuration (`analyze_project`)
+
+Auto-detect your project's toolchain and generate a configuration file:
+
+```
+User: analyze_project /path/to/my/project
+
+Agent: [Reads package.json/Cargo.toml/go.mod/pyproject.toml, scans directory
+        structure, detects language, framework, test runner, build tools]
+
+Output: A complete .clinerules/project.md with:
+  - Build, test, and verify commands
+  - Directory layout
+  - Coding conventions
+  - Git conventions
+  - Cross-references to all rule documents
+```
+
+**Incremental updates:** If `.clinerules/project.md` already exists, `analyze_project` merges the fresh scan with your existing file — auto-detectable sections are refreshed while user-customized sections (coding conventions, special rules) are preserved verbatim.
+
+---
+
 ## Development
 
 ```bash
@@ -103,7 +348,7 @@ yarn install
 # Build
 yarn build
 
-# Run tests
+# Run tests (107 tests across 4 test files)
 yarn test
 
 # Watch mode
@@ -130,7 +375,7 @@ src/
 └── __tests__/
     ├── store/            # Store & search engine tests
     └── tools/            # Tool integration tests
-docs/                     # Bundled rule markdown files
+docs/                     # 8 bundled rule markdown files
 ```
 
 ## License
