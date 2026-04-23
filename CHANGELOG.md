@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/blendsdk/codeops-mcp/compare/v1.5.1...v1.6.0) (2026-04-23)
+
+
+### Features
+
+* **docs:** add no-dead-code rule and security-first development rules ([b9b99b3](https://github.com/blendsdk/codeops-mcp/commit/b9b99b3ce570734faa9c9a8d21c245f40788eead))
+
 ## [1.5.1](https://github.com/blendsdk/codeops-mcp/compare/v1.5.0...v1.5.1) (2026-04-08)
 
 
