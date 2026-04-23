@@ -236,6 +236,8 @@ Please confirm or adjust before I create the plan.
 5. **✅ Testing** — Does every task have testing/validation requirements?
 6. **✅ Architecture** — Will any implementation exceed 500 lines? Is splitting planned?
 7. **✅ Scope Boundaries** — Are changes properly scoped? Do new files follow existing patterns?
+8. **✅ No Dead Code** — Will the implementation leave any unused parameters, functions, classes, or modules? Plan for cleanup. (See `code.md` rule 4)
+9. **✅ Security** — Has every user input path been identified? Are injection prevention, authentication, authorization, rate limiting, and data protection addressed? (See `code.md` rules 32-34)
 
 **When to Re-evaluate:**
 - ✅ Before creating plan documents (now)
@@ -572,6 +574,23 @@ Before finalizing plan documents, run this checklist:
 - [ ] E2E tests planned
 - [ ] Test coverage goals defined
 
+**✅ No Dead Code (per `code.md` rule 4)**
+- [ ] No unused parameters (except interface contracts, overrides, and framework-required signatures)
+- [ ] No unused functions, classes, or modules
+- [ ] No unreachable code or commented-out blocks
+- [ ] Language-specific dead code tooling enabled (if available)
+
+**✅ Security-First (per `code.md` rules 32-34) — 🚨 NON-NEGOTIABLE**
+- [ ] All user input validated and sanitized server-side
+- [ ] Injection prevention addressed (SQL, XSS, command injection, path traversal)
+- [ ] Authentication & authorization properly designed
+- [ ] Rate limiting planned for public and authentication endpoints
+- [ ] No hardcoded secrets or credentials — secrets management strategy defined
+- [ ] Sensitive data encrypted at rest and in transit
+- [ ] Error responses expose no internal details (no stack traces, no DB schemas)
+- [ ] Infrastructure hardened (non-root containers, minimal base images, no secrets in images/CI)
+- [ ] Security test cases included in testing strategy
+
 **✅ Format**
 - [ ] All documents follow templates
 - [ ] Tables are properly formatted
@@ -862,9 +881,11 @@ Phase 3
 1. ✅ All phases completed
 2. ✅ All verification passing (project's verify command)
 3. ✅ No warnings/errors
-4. ✅ Documentation updated
-5. ✅ Code reviewed (if applicable)
-6. ✅ **Post-completion:** Ask user to re-analyze project and update `.clinerules/project.md`
+4. ✅ No dead code — no unused parameters, functions, classes, or modules (per `code.md` rule 4)
+5. ✅ Security hardened — input validation, injection prevention, auth, rate limiting, data protection (per `code.md` rules 32-34)
+6. ✅ Documentation updated
+7. ✅ Code reviewed (if applicable)
+8. ✅ **Post-completion:** Ask user to re-analyze project and update `.clinerules/project.md`
 ````
 
 ---
@@ -1020,7 +1041,9 @@ Every execution plan's **Success Criteria** section must include:
 1. ✅ All phases completed
 2. ✅ All verification passing (project's verify command)
 3. ✅ No warnings/errors
-4. ✅ Documentation updated
-5. ✅ Code reviewed (if applicable)
-6. ✅ **Post-completion:** Ask user to re-analyze project and update `.clinerules/project.md`
+4. ✅ No dead code — no unused parameters, functions, classes, or modules (per `code.md` rule 4)
+5. ✅ Security hardened — input validation, injection prevention, auth, rate limiting, data protection (per `code.md` rules 32-34)
+6. ✅ Documentation updated
+7. ✅ Code reviewed (if applicable)
+8. ✅ **Post-completion:** Ask user to re-analyze project and update `.clinerules/project.md`
 ```

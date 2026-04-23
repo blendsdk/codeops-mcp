@@ -454,11 +454,26 @@ Include tables for structured information (env vars, config keys, API endpoints)
 
 ---
 
+## Security Considerations
+
+> **🚨 This section is MANDATORY for every RD.** See `code.md` rules 32-34.
+
+- **Data sensitivity**: [What sensitive data does this feature handle? PII, credentials, tokens, financial data?]
+- **Input validation**: [What user inputs exist? How are they validated and sanitized?]
+- **Authentication & authorization**: [Who can access this feature? What permissions are required?]
+- **Injection risks**: [Are there SQL queries, HTML rendering, shell commands, or file operations involving user input?]
+- **Encryption needs**: [Does data need encryption at rest or in transit?]
+- **Rate limiting**: [Are there endpoints susceptible to brute force or abuse?]
+- **Infrastructure**: [Container hardening, secrets management, network exposure considerations?]
+
+---
+
 ## Acceptance Criteria
 
 1. [ ] [Testable criterion]
 2. [ ] [Testable criterion]
 3. [ ] [Testable criterion]
+4. [ ] Security requirements verified (input validation, injection prevention, auth, encryption)
 ````
 
 ### 3.4 RD Authoring Guidelines
@@ -526,7 +541,17 @@ Before finalizing, run through commonly forgotten requirements:
 | 23 | Admin / super-admin capabilities | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
 | 24 | User onboarding / first-time experience | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
 | 25 | Configuration management (feature flags, settings) | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
+| 26 | **🚨 Input validation & sanitization (server-side)** | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
+| 27 | **🚨 Injection prevention (SQL, XSS, command, path traversal)** | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
+| 28 | **🚨 Authentication & authorization model** | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
+| 29 | **🚨 Rate limiting (auth endpoints, public APIs)** | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
+| 30 | **🚨 Secrets management (no hardcoded credentials)** | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
+| 31 | **🚨 Data encryption (at rest and in transit)** | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
+| 32 | **🚨 Infrastructure hardening (non-root containers, minimal images, CI secrets)** | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
+| 33 | **🚨 Security testing (injection tests, auth bypass, privilege escalation)** | ☐ Yes / ☐ No / ☐ N/A | RD-XX |
 ```
+
+> **🚨 Items 26-33 are NON-NEGOTIABLE** — they must be addressed in every project. See `code.md` rules 32-34 for the full security standard.
 
 ### 4.3 Final Output Summary
 

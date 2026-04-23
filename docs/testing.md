@@ -258,6 +258,65 @@ For infrastructure, configuration, or DevOps projects where traditional unit tes
 
 ---
 
+## **Rule 9: Security Testing (🚨 NON-NEGOTIABLE)**
+
+When building any system — especially public-facing applications — security test cases are **mandatory**. These tests verify that the application is hardened against common attack vectors. See `code.md` rules 32-34 for the full security coding standard.
+
+### Mandatory Security Tests
+
+Every project that accepts user input, exposes endpoints, or handles sensitive data MUST include tests for:
+
+| Category | What to Test | Example |
+|----------|-------------|---------|
+| **Input validation** | Reject malformed, oversized, and malicious input | Send SQL payloads, XSS strings, oversized bodies — expect rejection |
+| **SQL injection** | Parameterized queries block injection | `' OR 1=1 --`, `'; DROP TABLE users; --` in all input fields |
+| **XSS prevention** | User-provided data is escaped in HTML output | `<script>alert('xss')</script>` in text fields — expect escaped output |
+| **Command injection** | User input never reaches shell/exec | `; rm -rf /`, `$(whoami)` in inputs — expect rejection or safe handling |
+| **Path traversal** | File paths are validated and canonicalized | `../../etc/passwd`, `%2e%2e%2f` in file params — expect rejection |
+| **Authentication** | Auth bypass attempts are blocked | Access protected endpoints without token, with expired token, with forged token |
+| **Authorization** | Users cannot access other users' data | User A tries to access User B's resources — expect 403 |
+| **Privilege escalation** | Role boundaries are enforced | Regular user tries admin endpoints — expect 403 |
+| **Rate limiting** | Brute force is blocked | Rapid-fire login attempts — expect 429 after threshold |
+| **Error exposure** | No internal details leak in errors | Trigger errors — expect generic messages, no stack traces or DB schemas |
+| **Secrets in code** | No hardcoded credentials | Scan source files for API keys, passwords, tokens — expect none |
+| **Dependency vulnerabilities** | No known CVEs in dependencies | Run `npm audit` / `cargo audit` / `pip-audit` — expect clean or documented exceptions |
+
+### Infrastructure Security Tests
+
+For projects with Docker, CI/CD, or deployment configurations:
+
+| Category | What to Test | Example |
+|----------|-------------|---------|
+| **Container user** | Containers run as non-root | Inspect container user — expect non-root UID |
+| **Base image** | Minimal base image used | Check Dockerfile — expect Alpine, distroless, or scratch |
+| **Secrets in images** | No secrets embedded in layers | Scan image layers — expect no credentials, tokens, or keys |
+| **Open ports** | Only necessary ports exposed | Inspect container network config — expect only required ports |
+| **CI/CD secrets** | Secrets not logged in CI output | Review CI pipeline logs — expect no credential exposure |
+
+### Security Test Organization
+
+Security tests should be organized in dedicated test files:
+
+```
+tests/
+├── security/
+│   ├── security.injection.test.[ext]       # SQL, XSS, command injection tests
+│   ├── security.auth.test.[ext]            # Authentication & authorization tests
+│   ├── security.rate-limit.test.[ext]      # Rate limiting tests
+│   ├── security.input-validation.test.[ext] # Input validation tests
+│   └── security.infrastructure.test.[ext]  # Docker & deployment security tests
+```
+
+### When Security Tests Are Not Applicable
+
+- ✅ **Libraries/SDKs** with no network endpoints — focus on input validation tests only
+- ✅ **CLI tools** with no network exposure — focus on input validation and path traversal tests
+- ✅ **Pure compute/algorithm projects** — security tests may be N/A, but document the decision
+
+> **📖 See `code.md` Section 10 (Security-First Development)** for the full security coding standard that these tests verify.
+
+---
+
 ## **Summary**
 
 | Situation | Action |
