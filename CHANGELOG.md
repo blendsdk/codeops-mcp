@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/blendsdk/codeops-mcp/compare/v1.8.1...v1.8.2) (2026-04-24)
+
+
+### Bug Fixes
+
+* **agent:** enforced the completion checklist flow ([3c90dd5](https://github.com/blendsdk/codeops-mcp/commit/3c90dd56ad9f3f53d5faeebc869383108c55c0b0))
+
 ## [1.8.1](https://github.com/blendsdk/codeops-mcp/compare/v1.8.0...v1.8.1) (2026-04-24)
 
 # [1.8.0](https://github.com/blendsdk/codeops-mcp/compare/v1.7.0...v1.8.0) (2026-04-24)
