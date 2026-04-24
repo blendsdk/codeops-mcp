@@ -671,21 +671,21 @@ This is a **suggestion only** — the user can choose to proceed without upgradi
 For each task in order:
 
 1. Implement the task following technical specifications
-2. Run verification (project's verify command from `project.md`)
-3. Update `99-execution-plan.md` — mark task complete with `[x]`
+2. **🚨 IMMEDIATELY update `99-execution-plan.md`** — mark task complete with `[x]` and timestamp (see "Real-Time Progress Updates" below). This happens BEFORE verification, BEFORE commit, BEFORE anything else. If the agent crashes after this point, progress is preserved.
+3. Run verification (project's verify command from `project.md`)
 4. **Techdocs check (after each phase):** If `docs/index.md` exists with `techdocs: true` frontmatter and the just-completed phase introduced architectural changes (new components, data entities, API endpoints, integrations, or infrastructure), perform an incremental techdocs update (see `techdocs.md` Phase 6.1)
 5. Continue until all tasks complete OR context window reaches 90%
 
 #### Step 3: Session Wrap-Up
 
 1. ✅ Complete current task before stopping
-2. ✅ Update execution plan with all completed tasks
+2. ✅ **🚨 FIRST: Update `99-execution-plan.md`** with ALL completed tasks (this MUST happen before anything else — see "Real-Time Execution Plan Updates" section)
 3. ✅ Run project's verify command (see `.clinerules/project.md`)
 4. ✅ Handle commit based on the active **commit mode** (see "Commit Behavior During Plan Execution" section):
    - **Ask (default):** Present commit options to the user via `ask_followup_question`
    - **No-commit:** Skip — no commit, no prompt
    - **Auto-commit:** Commit and push via `gitcmp` protocol
-5. ✅ Report session summary
+5. ✅ Report session summary (must include "Execution Plan Updated: ✅")
 
 ---
 
@@ -705,15 +705,46 @@ The canonical context window, file creation, and threshold rules are defined in 
 
 ---
 
-## **🚨 CRITICAL: Real-Time Progress Updates 🚨**
+## **🚨 ULTRA-CRITICAL: Real-Time Execution Plan Updates — MANDATORY 🚨**
 
-**You MUST update `99-execution-plan.md` after completing EACH task. This is NON-NEGOTIABLE.**
+**The execution plan (`99-execution-plan.md`) is the SINGLE SOURCE OF TRUTH for progress. It is the user's primary way to track what's done, what's next, and where things stand. You MUST update it after completing EACH task. This is NON-NEGOTIABLE and has ZERO exceptions.**
 
-### Update Protocol
+### Why This Rule Exists — Crash Resilience
 
-1. ✅ Update IMMEDIATELY after each task completion — do not batch updates
-2. ✅ Use `replace_in_file` to change `[ ]` to `[x]` with timestamp
-3. ✅ Update "Last Updated" and "Progress" in document header
+AI agent sessions can crash, hit context limits, or be interrupted at any moment. When that happens:
+
+- The user opens `99-execution-plan.md` to see what was accomplished
+- If the checklist was not updated, the user sees all `[ ]` and has NO IDEA what was done
+- The user must manually inspect the codebase, diff files, and guess at progress
+- This is **unacceptable** — the execution plan MUST always reflect reality
+
+**The execution plan is the user's lifeline.** It must be accurate at all times, even if the session ends unexpectedly.
+
+### Update-First Protocol — The Correct Order
+
+The execution plan update happens **IMMEDIATELY** after task implementation — BEFORE verification, BEFORE commit, BEFORE moving to the next task:
+
+```
+Implement task → 🚨 UPDATE EXECUTION PLAN → verify → commit → next task
+```
+
+**NOT:**
+
+```
+❌ Implement task → verify → commit → maybe update plan → maybe forget
+❌ Implement task → next task → batch-update later
+❌ Implement all tasks → update plan at the end
+```
+
+**Rationale:** If the agent crashes during verification or commit, the execution plan already reflects the completed work. The user can always pick up where things left off.
+
+### Update Procedure
+
+For each completed task:
+
+1. ✅ Use `replace_in_file` on `99-execution-plan.md` to change `[ ]` to `[x]` with timestamp
+2. ✅ Update the "Progress" counter in the document header (e.g., `3/12 tasks (25%)`)
+3. ✅ Update the "Last Updated" timestamp
 
 ### Task Completion Format
 
@@ -721,13 +752,26 @@ The canonical context window, file creation, and threshold rules are defined in 
 - [x] 1.1.1 Task description ✅ (completed: YYYY-MM-DD HH:MM)
 ```
 
-### Enforcement
+### Enforcement — Hard Gates
 
-**Before proceeding to the NEXT task, you MUST have:**
+**🚫 PROHIBITED — The agent MUST NOT do any of the following without first updating the execution plan:**
 
-1. ✅ Marked the current task complete in `99-execution-plan.md`
-2. ✅ Updated the progress counter
+- ❌ Proceed to the next task
+- ❌ Run verification
+- ❌ Commit code
+- ❌ Call `attempt_completion`
+- ❌ End a session or suggest `/compact`
+- ❌ Present a session summary
+
+**✅ REQUIRED — Before ANY of the above actions, the agent MUST have:**
+
+1. ✅ Marked the current task complete with `[x]` and timestamp in `99-execution-plan.md`
+2. ✅ Updated the progress counter in the document header
 3. ✅ Updated the "Last Updated" timestamp
+
+**🚫 SPECIFICALLY: `attempt_completion` is BLOCKED until the execution plan is current.** The agent must verify that `99-execution-plan.md` reflects ALL completed work before calling `attempt_completion`. This is enforced in both this document and `agents.md` Rule 6.
+
+> **📖 See also:** `agents.md` — Rule 5 (Update Task Plan Documents) and Rule 6 (Final Verification Before Completion) for the universal enforcement of this rule across all agent actions.
 
 ---
 
@@ -928,6 +972,7 @@ At the end of each execution session, provide:
 - [ ] Phase X, Task X.X.X: [description]
 - [ ] Phase Y: [phase description]
 
+**Execution Plan Updated:** ✅ `99-execution-plan.md` reflects all completed work
 **Verification:** [Status — e.g., "All tests passing", "Build successful"]
 **Commit Mode:** [ask-commit | no-commit | auto-commit]
 **Commit:** [hash] or "Committed successfully" or "Uncommitted — user deferred" or "No-commit mode"

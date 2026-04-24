@@ -294,14 +294,58 @@ Before starting any new task:
 
 ---
 
-### **Rule 5: Update Task Plan Documents**
+### **Rule 5: 🚨 MANDATORY — Update Execution Plan Before ANY Next Action**
 
-Track progress by updating task plan documents:
+**The execution plan (`99-execution-plan.md`) is the SINGLE SOURCE OF TRUTH for progress. It is the user's primary way to know what's done and what's next. Updating it is NOT optional — it is a hard prerequisite for every subsequent action.**
 
-1. Locate the plan document (usually in `plans/` directory)
-2. Find the relevant task
-3. Update completion status: `- [x] Task ✅ (completed: YYYY-MM-DD HH:MM)`
-4. Update the `task_progress` parameter in tool calls
+#### Why This Rule Exists
+
+AI agent sessions can crash, hit context limits, or be interrupted at any moment. When that happens, the user opens `99-execution-plan.md` to see what was accomplished. If the checklist was not updated, the user sees all `[ ]` and has **no way to know what was done** — they must manually inspect the codebase, diff files, and guess at progress. This is unacceptable.
+
+**The execution plan is the user's lifeline across sessions and crashes. It must be accurate at ALL times.**
+
+#### Update-First Protocol
+
+The execution plan update happens **IMMEDIATELY** after task implementation — BEFORE verification, BEFORE commit, BEFORE moving to the next task:
+
+```
+Implement task → 🚨 UPDATE EXECUTION PLAN → verify → commit → next task
+```
+
+If the agent crashes during verification or commit, the execution plan already reflects the completed work.
+
+#### Update Procedure
+
+1. Use `replace_in_file` on `99-execution-plan.md` to change `[ ]` to `[x]` with timestamp
+2. Update the "Progress" counter in the document header (e.g., `3/12 tasks (25%)`)
+3. Update the "Last Updated" timestamp
+4. Update the `task_progress` parameter in tool calls (in-memory tracking)
+
+**Task completion format:**
+```markdown
+- [x] 1.1.1 Task description ✅ (completed: YYYY-MM-DD HH:MM)
+```
+
+#### 🚫 PROHIBITED — Do NOT Do Any of These Without First Updating the Execution Plan:
+
+```
+❌ Proceed to the next task
+❌ Run verification
+❌ Commit code (gitcm/gitcmp)
+❌ Call attempt_completion
+❌ End a session or suggest /compact
+❌ Present a session summary
+```
+
+#### ✅ REQUIRED — Before ANY of the Above Actions:
+
+```
+✅ Mark current task [x] with timestamp in 99-execution-plan.md
+✅ Update progress counter in document header
+✅ Update "Last Updated" timestamp
+```
+
+> **📖 See `make_plan.md`** — "ULTRA-CRITICAL: Real-Time Execution Plan Updates" section for the full protocol, rationale, and enforcement details.
 
 ---
 
@@ -315,6 +359,7 @@ Before calling `attempt_completion`, perform a **comprehensive final check**:
 4. **✅ Edge Cases** — Boundary conditions, error scenarios handled
 5. **✅ Documentation** — Comments, doc comments, README updates
 6. **✅ Completeness** — No TODO comments for current task, no partial implementations
+7. **✅ 🚨 Execution Plan Updated** — If executing a plan (`exec_plan`), verify that `99-execution-plan.md` reflects ALL completed tasks with `[x]` marks, timestamps, updated progress counter, and updated "Last Updated" timestamp. **`attempt_completion` is BLOCKED until this is confirmed.** (See Rule 5)
 
 **If ANY item fails → Do NOT call attempt_completion. Fix first.**
 
@@ -567,7 +612,7 @@ Examples:
 2. 🧠 Perform internal self-check (Rule 2)
 3. 💡 Enhance requirements if unclear (Rule 3 — Plan Mode)
 4. ✅ Verify previous work is complete (Rule 4 — before new tasks)
-5. 📝 Update task progress (Rule 5 — during implementation)
+5. 📝 **🚨 Update execution plan IMMEDIATELY after each task** (Rule 5 — BEFORE verify/commit/next task)
 6. 🔍 Final verification before completion (Rule 6 — before finishing)
 7. 🚫 **NEVER overcomplicate** — Use existing infrastructure (Rule 7)
 8. 📦 **Script-First Execution** — ALWAYS create script files for non-trivial commands (Rule 8)
