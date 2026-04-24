@@ -4,7 +4,7 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 
 ## What It Does
 
-**codeops-mcp** bundles 8 curated rule documents that teach AI agents how to code, test, plan, commit, gather requirements, reverse-engineer codebases, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
+**codeops-mcp** bundles 10 curated rule documents that teach AI agents how to code, test, plan, commit, gather requirements, reverse-engineer codebases, create technical documentation, upgrade outdated artifacts, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
 
 ### Rule Documents
 
@@ -16,6 +16,8 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 | **make_plan**            | Complete protocol for creating and executing multi-document implementation plans      |
 | **requirements**         | Requirements gathering & documentation protocol (`make_requirements`)                |
 | **retro_requirements**   | Reverse-engineer an existing codebase into structured requirements                   |
+| **techdocs**             | Technical architecture documentation protocol (`make_techdocs`)                      |
+| **upgrade_plan**         | Upgrade outdated plans and requirements to current standards                          |
 | **agents**               | Mandatory AI agent behavior: compliance, context management, multi-session execution |
 | **project-template**     | Template for `.clinerules/project.md` — project-specific toolchain configuration     |
 
@@ -112,6 +114,10 @@ codeops-mcp defines **trigger keywords** — when you type these phrases, the AI
 | `add_requirement` | Adds a new requirement to an existing requirements set |
 | `review_requirements` | Health-checks existing requirements for gaps and inconsistencies |
 | `retro_requirements` | Reverse-engineers an existing codebase into structured requirements |
+| `make_techdocs` | Creates VitePress-compatible technical architecture documentation |
+| `review_techdocs` | Reviews and updates existing technical documentation |
+| `upgrade_plan [name]` | Upgrades an outdated plan to current CodeOps standards |
+| `upgrade_requirements` | Upgrades outdated requirements to current CodeOps standards |
 | `gitcm` | Stages all changes and commits with a detailed conventional commit message |
 | `gitcmp` | Same as `gitcm` plus rebase and push |
 
@@ -136,6 +142,12 @@ The protocols form a complete development pipeline:
 │  QUICK PATH (add a feature to existing codebase)                 │
 │                                                                  │
 │  make_plan → exec_plan                                           │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│  UPGRADE PATH (bring outdated artifacts to current standards)     │
+│                                                                  │
+│  upgrade_plan [feature] / upgrade_requirements                    │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -285,6 +297,67 @@ The reconstruction brief is designed as input for `make_requirements`, completin
 
 ---
 
+### Version Stamping & Upgrade Protocol (`upgrade_plan` / `upgrade_requirements`)
+
+Plans and requirements created with codeops-mcp are automatically stamped with the CodeOps version. When rules evolve, previously created plans may become outdated. The upgrade protocol brings them up to current standards.
+
+**How it works:**
+
+- Plans created with `make_plan` include a `> **CodeOps Version**: X.Y.Z` stamp
+- When you run `exec_plan`, the agent detects outdated or pre-versioning plans and suggests upgrading
+- The upgrade is non-destructive — all user-authored content (technical specs, scope decisions, task states) is preserved
+
+**Upgrading a plan:**
+
+```
+User: upgrade_plan jwt-auth
+
+Agent: [Reads all plan documents, compares against current templates]
+
+  Upgrade Report: jwt-auth
+  Current Version: 1.5.0 (or "none — pre-versioning")
+  Target Version: 1.7.0
+
+  Will Be Added: commit mode flags, security checklist, techdocs step
+  Will Be Updated: session protocol, success criteria
+  Will Be Preserved: all technical specs, task states, scope decisions
+
+  Proceed with upgrade?
+```
+
+**Upgrading requirements:**
+
+```
+User: upgrade_requirements
+
+Agent: [Reads all RD documents, compares against current templates,
+        adds missing sections like security considerations]
+```
+
+---
+
+### Technical Architecture Documentation (`make_techdocs`)
+
+Generate and maintain VitePress-compatible technical architecture documentation from your codebase.
+
+```
+User: make_techdocs
+
+Agent: [Analyzes codebase architecture and produces:]
+  docs/
+  ├── index.md                  # Home page with techdocs: true frontmatter
+  ├── architecture/
+  │   ├── overview.md           # System overview and diagrams
+  │   ├── data-model.md         # Entity relationships
+  │   └── api-design.md         # API surface documentation
+  └── decisions/
+      └── ADR-001-*.md          # Architecture Decision Records
+```
+
+Documentation is automatically maintained during plan execution — the agent checks for architectural changes after each phase and updates docs accordingly.
+
+---
+
 ### Git Workflow (`gitcm` / `gitcmp`)
 
 Safe, structured git commits with detailed conventional commit messages.
@@ -375,7 +448,7 @@ src/
 └── __tests__/
     ├── store/            # Store & search engine tests
     └── tools/            # Tool integration tests
-docs/                     # 8 bundled rule markdown files
+docs/                     # 10 bundled rule markdown files
 ```
 
 ## License
