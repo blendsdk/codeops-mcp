@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/blendsdk/codeops-mcp/compare/v1.6.0...v1.7.0) (2026-04-24)
+
+
+### Features
+
+* **docs:** add technical architecture documentation rule (make_techdocs) ([bb88e41](https://github.com/blendsdk/codeops-mcp/commit/bb88e414df28b35278630839bed8abe7b54dac09))
+
 # [1.6.0](https://github.com/blendsdk/codeops-mcp/compare/v1.5.1...v1.6.0) (2026-04-23)
 
 
