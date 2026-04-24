@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/blendsdk/codeops-mcp/compare/v1.7.0...v1.8.0) (2026-04-24)
+
+
+### Features
+
+* **docs:** add upgrade_plan protocol with version stamping ([4076bcd](https://github.com/blendsdk/codeops-mcp/commit/4076bcd0f486c76bfcb3a7a8914afae8aa654e9d))
+
 # [1.7.0](https://github.com/blendsdk/codeops-mcp/compare/v1.6.0...v1.7.0) (2026-04-24)
 
 
