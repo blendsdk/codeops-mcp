@@ -96,7 +96,7 @@ clear && yarn ncu
 ### Directory Layout
 
 ```
-docs/                    # Rule markdown documents (8 files, shipped with npm package)
+docs/                    # Rule markdown documents (10 files, shipped with npm package)
   agents.md              #   AI agent behavior rules
   code.md                #   Coding standards (DRY, architecture, type safety)
   git-commands.md        #   Git commit protocols (gitcm/gitcmp)
@@ -104,7 +104,9 @@ docs/                    # Rule markdown documents (8 files, shipped with npm pa
   project-template.md    #   Project configuration template
   requirements.md        #   Requirements gathering & documentation (make_requirements)
   retro_requirements.md  #   Reverse requirements engineering (retro_requirements)
+  techdocs.md            #   Technical architecture documentation (make_techdocs)
   testing.md             #   Testing standards & workflows
+  upgrade_plan.md        #   Plan & requirements upgrade protocol (upgrade_plan, upgrade_requirements)
 src/                     # TypeScript source code
   index.ts               #   Main entry point — MCP server bootstrap
   config.ts              #   Configuration resolution (CLI/env/defaults)
@@ -240,7 +242,7 @@ dist/                    # Compiled output (git-ignored)
 6. Import paths MUST include .js extension (e.g., './config.js', '../types/index.js')
    because of Node16 module resolution with ESM.
 
-7. The 8 rule document IDs are hardcoded in RULE_METADATA and RULE_ALIASES in types/index.ts.
+7. The 10 rule document IDs are hardcoded in RULE_METADATA and RULE_ALIASES in types/index.ts.
    Adding a new rule document requires updating both maps.
 
 8. All test files live under src/__tests__/ mirroring the src/ structure.

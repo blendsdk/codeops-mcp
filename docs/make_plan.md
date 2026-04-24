@@ -279,6 +279,7 @@ plans/
 > **Feature**: [Brief description]
 > **Status**: Planning Complete
 > **Created**: [Date]
+> **CodeOps Version**: [Current codeops-mcp version from package.json]
 
 ## Overview
 
@@ -649,6 +650,22 @@ If the execution plan doesn't exist → **STOP** and handle as follows:
 | `99-execution-plan.md` exists but has no tasks | STOP — the plan is empty. Suggest recreating it with `make_plan` |
 | All tasks are already marked `[x]` | Report: "All tasks are already complete." Suggest re-analyzing the project |
 
+#### Version Check (Auto-Suggest)
+
+After successfully loading the plan, check the version stamp:
+
+1. Read `00-index.md` or `99-execution-plan.md`
+2. Look for `> **CodeOps Version**: X.Y.Z`
+3. Compare against the current codeops-mcp version
+
+| Condition | Action |
+|-----------|--------|
+| Version stamp matches current version | Proceed normally — plan is current |
+| Version stamp is older than current version | **Suggest:** "This plan was created with CodeOps vX.Y.Z (current: vA.B.C). Consider running `upgrade_plan [feature-name]` to upgrade to current standards. Proceed anyway?" |
+| No version stamp found | **Suggest:** "This plan has no version stamp (created before versioning was introduced). Consider running `upgrade_plan [feature-name]` to upgrade to current standards. Proceed anyway?" |
+
+This is a **suggestion only** — the user can choose to proceed without upgrading.
+
 #### Step 2: Execute Tasks
 
 For each task in order:
@@ -775,6 +792,7 @@ Every generated execution plan MUST follow this template:
 > **Parent**: [Index](00-index.md)
 > **Last Updated**: [YYYY-MM-DD HH:MM]
 > **Progress**: 0/X tasks (0%)
+> **CodeOps Version**: [Current codeops-mcp version from package.json]
 
 ## Overview
 
@@ -974,6 +992,7 @@ When creating and executing plans:
 - ✅ Follow **git-commands.md** for `gitcm`/`gitcmp` commit protocol
 - ✅ Follow **agents.md** for general AI agent behavior rules
 - ✅ Follow **techdocs.md** for technical architecture documentation updates after phases and plans
+- ✅ Follow **upgrade_plan.md** for upgrading outdated plans and requirements
 - ✅ Read **`.clinerules/project.md`** for project-specific commands and conventions
 
 ---
@@ -990,6 +1009,8 @@ When creating and executing plans:
 | `/compact` | Compact context after session ends |
 | `gitcm` | Commit after successful verification |
 | `gitcmp` | Commit and push after successful verification |
+| `upgrade_plan [feature]` | Upgrade an outdated plan to current standards |
+| `upgrade_requirements` | Upgrade outdated requirements to current standards |
 
 **Session Flow (default — ask-commit):**
 ```

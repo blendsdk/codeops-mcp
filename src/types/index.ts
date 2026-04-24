@@ -273,6 +273,11 @@ export const RULE_METADATA: Record<string, { title: string; category: RuleCatego
     category: 'workflow',
     description: 'Protocol for creating and maintaining VitePress-compatible technical architecture documentation (make_techdocs).',
   },
+  'upgrade_plan': {
+    title: 'Plan & Requirements Upgrade Protocol',
+    category: 'workflow',
+    description: 'Protocol for upgrading outdated plans and requirements to current standards (upgrade_plan, upgrade_requirements).',
+  },
 };
 
 /**
@@ -355,6 +360,16 @@ export const RULE_ALIASES: Record<string, string> = {
   'review-techdocs': 'techdocs',
   'vitepress': 'techdocs',
   'adr': 'techdocs',
+
+  // upgrade_plan.md aliases
+  'upgrade-plan': 'upgrade_plan',
+  'upgradeplan': 'upgrade_plan',
+  'upgrade': 'upgrade_plan',
+  'upgrade-requirements': 'upgrade_plan',
+  'upgrade_requirements': 'upgrade_plan',
+  'upgraderequirements': 'upgrade_plan',
+  'plan-upgrade': 'upgrade_plan',
+  'requirements-upgrade': 'upgrade_plan',
 };
 
 /** Default number of search results to return */

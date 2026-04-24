@@ -339,6 +339,7 @@ requirements/
 > **Status**: [Draft | Review | Complete]
 > **Created**: [Date]
 > **Architecture**: [Tech stack summary]
+> **CodeOps Version**: [Current codeops-mcp version from package.json]
 
 ---
 
@@ -399,6 +400,7 @@ Every requirement document follows this structure:
 > **Created**: [Date]
 > **Project**: [Project Name]
 > **Depends On**: [List of RD dependencies, or "—" if none]
+> **CodeOps Version**: [Current codeops-mcp version from package.json]
 
 ---
 
@@ -702,6 +704,7 @@ When gathering and documenting requirements:
 - ✅ Follow **agents.md** for context window management during long discovery sessions
 - ✅ Reference **retro_requirements.md** for reverse-engineering an existing codebase into requirements (`retro_requirements`)
 - ✅ Reference **techdocs.md** for updating technical architecture documentation with design decisions from requirements
+- ✅ See **upgrade_plan.md** for upgrading outdated requirements (`upgrade_requirements`)
 - ✅ Read **`.clinerules/project.md`** for project-specific constraints (if it exists)
 
 ---
