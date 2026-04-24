@@ -553,7 +553,14 @@ Before finalizing, run through commonly forgotten requirements:
 
 > **🚨 Items 26-33 are NON-NEGOTIABLE** — they must be addressed in every project. See `code.md` rules 32-34 for the full security standard.
 
-### 4.3 Final Output Summary
+### 4.3 Techdocs Update
+
+After all RDs are finalized and validated, check for technical architecture documentation:
+
+- **If `docs/index.md` exists with `techdocs: true` frontmatter:** Perform an incremental techdocs update — extract design decisions from the requirements documents, create ADRs for significant technology/architecture choices, and update architecture sections if the requirements imply architectural changes (see `techdocs.md` Phase 6.3).
+- **If techdocs do NOT exist:** Ask the user: *"Would you like to create technical architecture documentation for this project?"* — if yes, run `make_techdocs` using the freshly created requirements as input.
+
+### 4.4 Final Output Summary
 
 After all validation, present the complete requirements set:
 
@@ -694,6 +701,7 @@ When gathering and documenting requirements:
 - ✅ Reference **testing.md** for acceptance criteria that map to test strategies
 - ✅ Follow **agents.md** for context window management during long discovery sessions
 - ✅ Reference **retro_requirements.md** for reverse-engineering an existing codebase into requirements (`retro_requirements`)
+- ✅ Reference **techdocs.md** for updating technical architecture documentation with design decisions from requirements
 - ✅ Read **`.clinerules/project.md`** for project-specific constraints (if it exists)
 
 ---

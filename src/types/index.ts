@@ -268,6 +268,11 @@ export const RULE_METADATA: Record<string, { title: string; category: RuleCatego
     category: 'workflow',
     description: 'Protocol for reverse-engineering an existing codebase into structured requirements (retro_requirements).',
   },
+  'techdocs': {
+    title: 'Technical Architecture Documentation',
+    category: 'workflow',
+    description: 'Protocol for creating and maintaining VitePress-compatible technical architecture documentation (make_techdocs).',
+  },
 };
 
 /**
@@ -336,6 +341,20 @@ export const RULE_ALIASES: Record<string, string> = {
   'archaeology': 'retro_requirements',
   'reconstruct': 'retro_requirements',
   'reconstruction': 'retro_requirements',
+
+  // techdocs.md aliases
+  'tech-docs': 'techdocs',
+  'technical-docs': 'techdocs',
+  'architecture': 'techdocs',
+  'architecture-docs': 'techdocs',
+  'arch-docs': 'techdocs',
+  'make_techdocs': 'techdocs',
+  'make-techdocs': 'techdocs',
+  'maketechdocs': 'techdocs',
+  'review_techdocs': 'techdocs',
+  'review-techdocs': 'techdocs',
+  'vitepress': 'techdocs',
+  'adr': 'techdocs',
 };
 
 /** Default number of search results to return */

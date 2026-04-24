@@ -198,6 +198,7 @@ Before planning:
 3. ✅ **Check for similar patterns** — Find reference implementations in the codebase
 4. ✅ **Note any technical debt** — Document existing issues that may affect the plan
 5. ✅ **Review project documentation** — Check specs, READMEs, `.clinerules/project.md`, etc.
+6. ✅ **Read technical architecture docs** — If `docs/index.md` exists with `techdocs: true` frontmatter, read relevant architecture sections (system overview, data model, API design) to understand existing patterns and constraints before planning changes (see `techdocs.md`)
 
 #### 1.3 Confirm Scope with User
 
@@ -655,7 +656,8 @@ For each task in order:
 1. Implement the task following technical specifications
 2. Run verification (project's verify command from `project.md`)
 3. Update `99-execution-plan.md` — mark task complete with `[x]`
-4. Continue until all tasks complete OR context window reaches 90%
+4. **Techdocs check (after each phase):** If `docs/index.md` exists with `techdocs: true` frontmatter and the just-completed phase introduced architectural changes (new components, data entities, API endpoints, integrations, or infrastructure), perform an incremental techdocs update (see `techdocs.md` Phase 6.1)
+5. Continue until all tasks complete OR context window reaches 90%
 
 #### Step 3: Session Wrap-Up
 
@@ -971,6 +973,7 @@ When creating and executing plans:
 - ✅ Follow **testing.md** for test commands and workflow
 - ✅ Follow **git-commands.md** for `gitcm`/`gitcmp` commit protocol
 - ✅ Follow **agents.md** for general AI agent behavior rules
+- ✅ Follow **techdocs.md** for technical architecture documentation updates after phases and plans
 - ✅ Read **`.clinerules/project.md`** for project-specific commands and conventions
 
 ---
@@ -1017,13 +1020,14 @@ After the final task is marked complete and all verification passes:
    - **Ask (default):** Present the end-of-plan commit prompt with options
    - **No-commit:** Note that changes are uncommitted
    - **Auto-commit:** Already committed per-task — no additional action needed
-2. ✅ **Ask the user:** *"The plan is complete. Would you like to re-analyze the project to update `.clinerules/project.md` with the latest project state?"*
-3. ✅ If user **confirms**:
+2. ✅ **Techdocs comprehensive update:** If `docs/index.md` exists with `techdocs: true` frontmatter, perform a comprehensive techdocs update — review all architecture sections against the current codebase, update diagrams, create ADRs for undocumented decisions, and update the VitePress sidebar if new pages were added (see `techdocs.md` Phase 6.2). If techdocs do NOT exist, ask: *"Would you like to create technical architecture documentation for this project?"* — if yes, run `make_techdocs`.
+3. ✅ **Ask the user:** *"The plan is complete. Would you like to re-analyze the project to update `.clinerules/project.md` with the latest project state?"*
+4. ✅ If user **confirms**:
    - Run `analyze_project` with the project root path
    - Save the generated output to `.clinerules/project.md`
    - Review and preserve any manual customizations (description, naming conventions, special rules) from the existing `project.md`
    - Commit the updated `project.md` using `gitcmp` (ask user first if in ask-commit or no-commit mode)
-4. ✅ If user **declines**: Skip — plan execution is complete
+5. ✅ If user **declines**: Skip — plan execution is complete
 
 ### Why This Matters
 
