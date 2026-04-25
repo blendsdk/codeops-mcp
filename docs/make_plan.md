@@ -1038,6 +1038,7 @@ When creating and executing plans:
 - ✅ Follow **agents.md** for general AI agent behavior rules
 - ✅ Follow **techdocs.md** for technical architecture documentation updates after phases and plans
 - ✅ Follow **upgrade_plan.md** for upgrading outdated plans and requirements
+- ✅ Reference **grill_me.md** for deep disambiguation before planning (`grill_me` → `make_plan`)
 - ✅ Read **`.clinerules/project.md`** for project-specific commands and conventions
 
 ---

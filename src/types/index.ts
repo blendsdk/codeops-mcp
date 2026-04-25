@@ -278,6 +278,11 @@ export const RULE_METADATA: Record<string, { title: string; category: RuleCatego
     category: 'workflow',
     description: 'Protocol for upgrading outdated plans and requirements to current standards (upgrade_plan, upgrade_requirements).',
   },
+  'grill_me': {
+    title: 'Deep Disambiguation Protocol',
+    category: 'workflow',
+    description: 'Relentless interview protocol for eliminating ambiguity before planning or requirements (grill_me).',
+  },
 };
 
 /**
@@ -370,6 +375,14 @@ export const RULE_ALIASES: Record<string, string> = {
   'upgraderequirements': 'upgrade_plan',
   'plan-upgrade': 'upgrade_plan',
   'requirements-upgrade': 'upgrade_plan',
+
+  // grill_me.md aliases
+  'grill-me': 'grill_me',
+  'grillme': 'grill_me',
+  'grill': 'grill_me',
+  'disambiguate': 'grill_me',
+  'deep-dive': 'grill_me',
+  'interview': 'grill_me',
 };
 
 /** Default number of search results to return */

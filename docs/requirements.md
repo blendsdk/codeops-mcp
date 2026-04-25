@@ -705,6 +705,7 @@ When gathering and documenting requirements:
 - ✅ Reference **retro_requirements.md** for reverse-engineering an existing codebase into requirements (`retro_requirements`)
 - ✅ Reference **techdocs.md** for updating technical architecture documentation with design decisions from requirements
 - ✅ See **upgrade_plan.md** for upgrading outdated requirements (`upgrade_requirements`)
+- ✅ Reference **grill_me.md** for deep disambiguation before requirements gathering (`grill_me` → `make_requirements`)
 - ✅ Read **`.clinerules/project.md`** for project-specific constraints (if it exists)
 
 ---
