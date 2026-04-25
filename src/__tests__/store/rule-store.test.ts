@@ -20,8 +20,8 @@ beforeAll(async () => {
 });
 
 describe('RuleStore loading', () => {
-  it('should load all 10 rule documents', () => {
-    expect(store.size).toBe(10);
+  it('should load all 11 rule documents', () => {
+    expect(store.size).toBe(11);
   });
 
   it('should load code.md', () => {
