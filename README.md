@@ -4,7 +4,7 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 
 ## What It Does
 
-**codeops-mcp** bundles 10 curated rule documents that teach AI agents how to code, test, plan, commit, gather requirements, reverse-engineer codebases, create technical documentation, upgrade outdated artifacts, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
+**codeops-mcp** bundles 11 curated rule documents that teach AI agents how to code, test, plan, commit, gather requirements, reverse-engineer codebases, create technical documentation, upgrade outdated artifacts, disambiguate designs, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
 
 ### Rule Documents
 
@@ -18,6 +18,7 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 | **retro_requirements**   | Reverse-engineer an existing codebase into structured requirements                   |
 | **techdocs**             | Technical architecture documentation protocol (`make_techdocs`)                      |
 | **upgrade_plan**         | Upgrade outdated plans and requirements to current standards                          |
+| **grill_me**             | Deep disambiguation protocol — relentless interview before planning or requirements  |
 | **agents**               | Mandatory AI agent behavior: compliance, context management, multi-session execution |
 | **project-template**     | Template for `.clinerules/project.md` — project-specific toolchain configuration     |
 
@@ -118,6 +119,7 @@ codeops-mcp defines **trigger keywords** — when you type these phrases, the AI
 | `review_techdocs` | Reviews and updates existing technical documentation |
 | `upgrade_plan [name]` | Upgrades an outdated plan to current CodeOps standards |
 | `upgrade_requirements` | Upgrades outdated requirements to current CodeOps standards |
+| `grill_me` | Relentless interview to eliminate ambiguity before planning or requirements |
 | `gitcm` | Stages all changes and commits with a detailed conventional commit message |
 | `gitcmp` | Same as `gitcm` plus rebase and push |
 
@@ -148,6 +150,14 @@ The protocols form a complete development pipeline:
 │  UPGRADE PATH (bring outdated artifacts to current standards)     │
 │                                                                  │
 │  upgrade_plan [feature] / upgrade_requirements                    │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│  DISAMBIGUATION PATH (eliminate ambiguity before any work)        │
+│                                                                  │
+│  grill_me → make_plan → exec_plan                                │
+│  grill_me → make_requirements → make_plan → exec_plan            │
+│  grill_me (standalone deep-dive)                                  │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -390,6 +400,54 @@ Agent: [Same as gitcm, plus rebase and push. Reports conflicts if any.]
 
 ---
 
+### Deep Disambiguation (`grill_me`)
+
+Eliminate ambiguity before planning or requirements gathering through a structured, relentless interview.
+
+**Example — standalone:**
+
+```
+User: grill_me
+
+I want to add a caching layer to my API
+
+Agent: [Identifies the design tree — major decision branches:]
+  1. What are you caching? (responses, queries, computed values)
+  2. Cache backend? (Redis, in-memory, CDN)
+  3. Invalidation strategy? (TTL, event-driven, manual)
+  4. Cache key design? (naming convention, namespacing)
+
+Agent: [Walks each branch one decision at a time:]
+  "For Branch 1, we need to decide: what exactly are you caching?"
+  → User answers
+  "You said database queries. That implies [consequence]. Is that OK?"
+  → Drills deeper into sub-decisions
+  → Surfaces assumptions: "I'm now assuming X, Y, Z. Correct?"
+  → Moves to next branch only when current one is fully resolved
+
+Output: A shared understanding summary with all decisions, assumptions,
+        constraints, and deferrals — ready for make_plan or make_requirements
+```
+
+**Example — as a prefix to planning:**
+
+```
+User: grill_me
+
+I want to add webhook support to our notification system.
+Once we're aligned, let's make_plan.
+
+Agent: [Runs full grill-me protocol on webhooks — retry strategy,
+        payload format, authentication, rate limiting, failure handling,
+        deduplication — resolving every ambiguity]
+
+Agent: [Transitions to make_plan with Phase 1.1 already complete]
+```
+
+**Aliases:** `grill-me`, `grill`, `disambiguate`, `deep-dive`, `interview`
+
+---
+
 ### Project Configuration (`analyze_project`)
 
 Auto-detect your project's toolchain and generate a configuration file:
@@ -448,7 +506,7 @@ src/
 └── __tests__/
     ├── store/            # Store & search engine tests
     └── tools/            # Tool integration tests
-docs/                     # 10 bundled rule markdown files
+docs/                     # 11 bundled rule markdown files
 ```
 
 ## License

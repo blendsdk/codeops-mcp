@@ -592,6 +592,7 @@ function formatProjectMd(analysis: ProjectAnalysis): string {
   parts.push('- **testing.md** — Uses test commands, test locations, test framework');
   parts.push('- **git-commands.md** — Uses commit scope, verify command');
   parts.push('- **agents.md** — Uses shell commands, verify command');
+  parts.push('- **grill_me.md** — Uses project context for deep disambiguation before planning or requirements');
 
   return parts.join('\n');
 }
