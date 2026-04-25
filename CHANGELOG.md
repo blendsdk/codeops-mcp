@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/blendsdk/codeops-mcp/compare/v1.8.2...v1.9.0) (2026-04-25)
+
+
+### Features
+
+* **docs:** add grill_me deep disambiguation protocol ([e8eff8a](https://github.com/blendsdk/codeops-mcp/commit/e8eff8a40245e386acb6abd75c45d4f5b545a7ec))
+
 ## [1.8.2](https://github.com/blendsdk/codeops-mcp/compare/v1.8.1...v1.8.2) (2026-04-24)
 
 
