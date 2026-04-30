@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/blendsdk/codeops-mcp/compare/v1.9.1...v1.10.0) (2026-04-30)
+
+
+### Features
+
+* **docs:** add Zero-Ambiguity Gate to make_plan, requirements, and upgrade protocols ([4c88ffb](https://github.com/blendsdk/codeops-mcp/commit/4c88ffb7e814f7162165a200646b3679987c98f7))
+
 ## [1.9.1](https://github.com/blendsdk/codeops-mcp/compare/v1.9.0...v1.9.1) (2026-04-25)
 
 # [1.9.0](https://github.com/blendsdk/codeops-mcp/compare/v1.8.2...v1.9.0) (2026-04-25)
