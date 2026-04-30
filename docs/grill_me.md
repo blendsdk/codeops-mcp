@@ -224,7 +224,8 @@ When the user runs `grill_me` followed by `make_plan`:
 1. The grill-me shared understanding summary **replaces Phase 1.1** (Ask Clarifying Questions)
 2. Phase 1.2 (Analyze Current Implementation) still runs — code analysis is always needed
 3. Phase 1.3 (Confirm Scope) uses the grill-me summary as the baseline
-4. The "Shared Understanding" document is saved alongside the plan documents as reference
+4. **🚨 Phase 1C (Zero-Ambiguity Gate) STILL FIRES** — grill-me feeds INTO the Ambiguity Register as pre-resolved context but does NOT replace the formal gate. The AI must still systematically scan all 12 categories and compile the register. Items already resolved by grill-me are recorded as `✅ Resolved` with a reference to the grill-me session.
+5. The "Shared Understanding" document is saved alongside the plan documents as reference
 
 ### With `make_requirements`
 
@@ -233,7 +234,8 @@ When the user runs `grill_me` followed by `make_requirements`:
 1. The grill-me output **enhances Phase 1** — the discovery interview is already deeply explored
 2. Phase 1.3 (Comparable Systems Analysis) still runs — domain knowledge adds value on top of shared understanding
 3. Phase 1.4-1.5 (User Journeys, Edge Cases) are streamlined — many edge cases already surfaced during grill-me
-4. The decisions and assumptions from grill-me feed directly into RD authoring
+4. **🚨 Phase 2B (Zero-Ambiguity Gate) STILL FIRES** — grill-me feeds INTO the Ambiguity Register as pre-resolved context but does NOT replace the formal gate. The AI must still systematically scan all 12 categories and compile the register.
+5. The decisions and assumptions from grill-me feed directly into RD authoring
 
 ### Standalone
 

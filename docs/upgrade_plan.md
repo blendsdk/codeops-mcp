@@ -91,6 +91,95 @@ Use `ask_followup_question` with options:
 2. **"Show me the details first"** — Display side-by-side comparison of changes
 3. **"No, keep as-is"** — Abort upgrade
 
+### Phase 2B: Content Quality Gate — 🚨 NON-NEGOTIABLE HARD GATE 🚨
+
+**Structural upgrades (Phase 3) are BLOCKED until this gate passes.** The purpose of this gate is to ensure upgraded plans don't just *look* current — they *are* current in quality. A plan with modern formatting but vague content is still a bad plan.
+
+#### Why This Gate Exists
+
+Older plans were often created without the Zero-Ambiguity Gate. They may contain vague decisions, unstated assumptions, undefined edge cases, missing error handling, and AI-guessed specifications. Upgrading the format without fixing the content produces a *polished but hollow* plan. This gate catches and resolves all content gaps.
+
+#### Content Scanning Protocol
+
+The agent MUST systematically scan ALL existing plan documents for content gaps across **all 12 ambiguity categories**:
+
+| Category | What to Scan For in Existing Plans |
+|----------|-----------------------------------|
+| **Feature gaps** | Features mentioned but not fully specified, incomplete component specs, undefined workflows |
+| **Behavioral gaps** | Missing "what happens when..." scenarios, undefined error handling, unspecified state transitions |
+| **Scope ambiguities** | Vague scope boundaries, items that could be interpreted multiple ways, undefined "out of scope" |
+| **Technical unknowns** | Architecture decisions stated without rationale, unresolved implementation approaches |
+| **Edge cases** | Missing boundary conditions, undefined failure modes, unaddressed concurrent access scenarios |
+| **Integration points** | Unclear interfaces between components, undefined API contracts, missing data flow specs |
+| **Data & state questions** | Undefined data models, missing validation rules, unspecified formats |
+| **Security & compliance** | Missing security section, unaddressed threat vectors, undefined auth flows |
+| **Non-functional gaps** | Missing performance targets, undefined scalability approach |
+| **UX & presentation** | Undefined user-facing text, missing error messages, unspecified display formats |
+| **Stakeholder conflicts** | Competing needs between user types, unresolved priority disputes |
+| **Naming & terminology** | Inconsistent naming, undefined terms, ambiguous labels |
+
+**Additionally, scan for vague language patterns — these are red flags for hidden ambiguity:**
+
+```
+Vague language to flag: "TBD", "to be determined", "something like", "we could",
+"probably", "might", "maybe", "a reasonable approach", "as needed", "if applicable",
+"similar to", "standard approach", "best practices", "etc.", "and so on"
+```
+
+Every instance of vague language MUST be flagged in the register and resolved with the user.
+
+#### Ambiguity Register Handling
+
+| Condition | Action |
+|-----------|--------|
+| `00-ambiguity-register.md` exists | **Append** new findings with `(upgrade)` tag in the Category column. Continue numbering from the last AR #. |
+| `00-ambiguity-register.md` does NOT exist | **Create** it. This plan predates the Zero-Ambiguity Gate — all findings go into a fresh register. |
+
+Register entries from the upgrade are tagged to distinguish them from original planning decisions:
+
+```markdown
+| 15 | Behavioral (upgrade) | Error handling for [X] was undefined in original plan | [Option A / B / C] | [User's answer] | ✅ Resolved |
+```
+
+#### Gate Enforcement Rules
+
+**🚫 ABSOLUTELY PROHIBITED while this gate is blocked:**
+
+- ❌ Proceed to Phase 3 (structural upgrades)
+- ❌ Update version stamps
+- ❌ Modify any plan document content
+- ❌ Accept vague language as "good enough"
+- ❌ Use phrases like "the existing approach seems reasonable"
+
+**✅ REQUIRED — The gate opens ONLY when ALL of these conditions are met:**
+
+1. ✅ Every content gap found has been added to the Ambiguity Register
+2. ✅ Every register entry has Status = "✅ Resolved" with the user's explicit decision
+3. ✅ The user has reviewed and confirmed the complete register (for >15 items, present in batches by category)
+4. ✅ Zero vague language patterns remain unresolved
+5. ✅ Zero deferred items — the user must decide NOW (no-deferral, no-delegation policy — see `make_plan.md` Phase 1C)
+
+#### Content Quality Register Template
+
+```markdown
+## Content Quality Upgrade: [Feature Name]
+
+> **Status**: ❌ GATE BLOCKED — [X] content gaps found
+> *(When all resolved, change to: ✅ GATE PASSED — all [X] content gaps resolved)*
+> **Last Updated**: [Date]
+> **Upgrade From**: [old version or "pre-versioning"]
+> **Upgrade To**: [current version]
+
+| # | Category | Gap / Ambiguity Found | Source Document | Options Presented | User Decision | Status |
+|---|----------|-----------------------|-----------------|-------------------|---------------|--------|
+| 1 | Behavioral (upgrade) | [Gap found in existing plan] | `03-component.md` | [Option A / B] | [User's answer] | ✅ Resolved |
+| 2 | Security (upgrade) | [Missing security consideration] | `01-requirements.md` | [Option A / B / C] | — | ❌ Open |
+```
+
+After the gate passes, Phase 3 applies structural upgrades AND incorporates the content fixes into the plan documents. Every resolved content gap must be written into the appropriate plan document with an `AR #` back-reference.
+
+---
+
 ### Phase 3: Apply Upgrades
 
 For each plan document, re-evaluate against current `make_plan.md` templates:
@@ -103,17 +192,27 @@ For each plan document, re-evaluate against current `make_plan.md` templates:
 - [ ] Navigation links to all plan documents?
 - [ ] Document count and overview accurate?
 
+**`00-ambiguity-register.md`:**
+- [ ] Exists? → If not, created during Phase 2B
+- [ ] All entries resolved with explicit user decisions?
+- [ ] Upgrade entries tagged with `(upgrade)` in Category column?
+- [ ] AR # back-references added to all plan documents for resolved content gaps?
+
 **`01-requirements.md`:**
 - [ ] Security requirements section present? (per `code.md` rules 32-34)
 - [ ] Acceptance criteria for each requirement?
 - [ ] Requirements numbered and categorized?
+- [ ] All scope decisions have AR # back-references?
+- [ ] No vague language remaining?
 
 **`02-current-state.md` (if exists):**
 - [ ] Gap analysis format follows current template?
 
 **`03-XX` technical specification documents:**
-- [ ] **Preserve verbatim** — these contain user-authored technical decisions
-- [ ] Only add missing structural sections (e.g., error handling table, testing requirements)
+- [ ] **Preserve user-authored technical decisions**
+- [ ] Add missing structural sections (e.g., error handling table, testing requirements)
+- [ ] Insert AR # back-references for content gaps resolved during Phase 2B
+- [ ] No vague language remaining?
 
 **`07-testing-strategy.md` (if exists):**
 - [ ] Follows current testing standards from `testing.md`?
@@ -127,6 +226,7 @@ For each plan document, re-evaluate against current `make_plan.md` templates:
 - [ ] Success criteria includes post-completion re-analysis step?
 - [ ] Success criteria includes security hardening check?
 - [ ] Success criteria includes dead code check?
+- [ ] Success criteria includes zero-ambiguity verification?
 - [ ] Techdocs update step present in success criteria?
 - [ ] Dependencies section present?
 
@@ -158,20 +258,26 @@ After applying upgrades:
 1. ✅ Confirm all documents updated
 2. ✅ Verify no user content was lost (compare document count, task count, technical specs)
 3. ✅ Verify version stamps updated to current version
-4. ✅ Present summary of changes to user
+4. ✅ Verify Ambiguity Register is complete and all entries resolved
+5. ✅ Verify zero vague language remaining in all plan documents
+6. ✅ Verify AR # back-references present for all content gaps resolved during upgrade
+7. ✅ Present summary of changes to user
 
 ```markdown
 ## Upgrade Complete: [feature-name]
 
 **Version:** [old] → [current]
 
-### Changes Applied:
+### Structural Changes Applied:
 - [Change 1]
 - [Change 2]
-- ...
+
+### Content Quality Gaps Resolved: [X] items
+- See `00-ambiguity-register.md` for full audit trail
 
 ### Documents Updated: X of Y
 ### User Content Preserved: ✅ All technical specs, task states, and custom content intact
+### Ambiguity Register: ✅ All entries resolved — zero vague language remaining
 ```
 
 ---
@@ -197,11 +303,73 @@ After applying upgrades:
 
 Same pattern as plan upgrade — present findings before making changes. Use `ask_followup_question` with the same three options.
 
+### Phase 2B: Content Quality Gate — 🚨 NON-NEGOTIABLE HARD GATE 🚨
+
+**Structural upgrades (Phase 3) are BLOCKED until this gate passes.** Same principle as the plan upgrade gate: requirements that look modern but contain vague content are still bad requirements.
+
+#### Why This Gate Exists
+
+Older requirements were often created without the Zero-Ambiguity Gate. They may contain vague feature descriptions, undefined edge cases, missing stakeholder considerations, ambiguous acceptance criteria, and AI-assumed specifications. Upgrading the format without fixing the content produces a *polished but hollow* requirements set.
+
+#### Content Scanning Protocol
+
+The agent MUST systematically scan ALL existing RD documents for content gaps across **all 12 ambiguity categories**:
+
+| Category | What to Scan For in Existing Requirements |
+|----------|------------------------------------------|
+| **Feature gaps** | Features mentioned but not fully specified, unclear feature interactions, undefined workflows |
+| **Scope ambiguities** | Vague MVP vs. future boundaries, conflicting stakeholder needs, unclear "out of scope" items |
+| **Behavioral unknowns** | Undefined "what happens when..." scenarios, missing error states, unspecified state transitions |
+| **Data model questions** | Undefined entity relationships, unclear ownership, missing validation rules, unspecified cardinality |
+| **Technical unknowns** | Architecture decisions stated without rationale, unresolved integration approaches |
+| **Edge cases** | Missing boundary conditions, undefined failure modes, unaddressed concurrent access scenarios |
+| **Integration points** | Unclear external system interfaces, undefined API contracts, missing data flow specs |
+| **Security & compliance** | Missing security section, unaddressed threat vectors, undefined auth models, regulatory gaps |
+| **Non-functional gaps** | Missing performance targets, undefined scalability approach, unspecified availability |
+| **UX & presentation** | Undefined user-facing text, missing error messages, unspecified display formats |
+| **Stakeholder conflicts** | Competing needs between user types, unresolved priority disputes, unclear permission boundaries |
+| **Naming & terminology** | Domain terms used inconsistently, undefined jargon, ambiguous labels |
+
+**Additionally, scan for vague language patterns — same red flags as plan upgrade:**
+
+```
+Vague language to flag: "TBD", "to be determined", "something like", "we could",
+"probably", "might", "maybe", "a reasonable approach", "as needed", "if applicable",
+"similar to", "standard approach", "best practices", "etc.", "and so on"
+```
+
+#### Ambiguity Register Handling
+
+| Condition | Action |
+|-----------|--------|
+| `requirements/00-ambiguity-register.md` exists | **Append** new findings with `(upgrade)` tag. Continue numbering from last AR #. |
+| `requirements/00-ambiguity-register.md` does NOT exist | **Create** it. These requirements predate the Zero-Ambiguity Gate. |
+
+#### Gate Enforcement Rules
+
+Same enforcement as plan upgrade gate:
+
+- 🚫 Phase 3 is BLOCKED until all content gaps resolved
+- ✅ Every gap added to register, every entry resolved with user's explicit decision
+- ✅ User reviewed and confirmed complete register
+- ✅ Zero vague language patterns remain
+- ✅ Zero deferred items (no-deferral, no-delegation — see `requirements.md` Phase 2B)
+
+After the gate passes, Phase 3 applies structural upgrades AND incorporates content fixes. Every resolved gap is written into the appropriate RD with an `AR #` back-reference.
+
+---
+
 ### Phase 3: Apply Upgrades
 
 For each requirements document, re-evaluate against current `requirements.md` templates:
 
 #### Re-evaluation Checklist
+
+**`00-ambiguity-register.md`:**
+- [ ] Exists? → If not, created during Phase 2B
+- [ ] All entries resolved with explicit user decisions?
+- [ ] Upgrade entries tagged with `(upgrade)` in Category column?
+- [ ] AR # back-references added to all RD documents for resolved content gaps?
 
 **`README.md`:**
 - [ ] Version stamp present? → Add `> **CodeOps Version**: [current]` if missing
@@ -209,12 +377,16 @@ For each requirements document, re-evaluate against current `requirements.md` te
 - [ ] Dependency graph present and accurate?
 - [ ] Domain glossary present and complete?
 - [ ] Document index lists all RD documents?
+- [ ] Ambiguity Register listed in document index?
 
 **Individual RD documents (`RD-XXX-*.md`):**
 - [ ] Version stamp present? → Add if missing
-- [ ] Security requirements addressed? (items 26-33 per `requirements.md`)
+- [ ] Security considerations section present and complete? (per `code.md` rules 32-34)
 - [ ] Acceptance criteria defined for each requirement?
 - [ ] Dependencies on other RDs documented?
+- [ ] Scope decisions have AR # back-references?
+- [ ] Integration points section present?
+- [ ] No vague language remaining?
 - [ ] Priority and status fields present?
 - [ ] Techdocs update section present?
 
@@ -235,10 +407,19 @@ Same rules as plan upgrade:
 | Template structural sections | **Update** if format changed |
 | Missing sections (security, techdocs) | **Add** new sections |
 | Cross-references | **Update** to current rule names |
+| Content gaps resolved in Phase 2B | **Insert** with AR # back-references |
 
 ### Phase 4: Verification
 
-Same pattern as plan upgrade — confirm changes, verify preservation, present summary.
+After applying upgrades:
+
+1. ✅ Confirm all documents updated
+2. ✅ Verify no user content was lost (compare document count, RD count, acceptance criteria)
+3. ✅ Verify version stamps updated to current version
+4. ✅ Verify Ambiguity Register is complete and all entries resolved
+5. ✅ Verify zero vague language remaining in all RD documents
+6. ✅ Verify AR # back-references present for all content gaps resolved during upgrade
+7. ✅ Present summary of changes to user
 
 ---
 
@@ -276,11 +457,14 @@ When upgrading plans and requirements:
 
 **Upgrade Flow:**
 ```
-upgrade_plan [feature] → Assessment → Report → User Confirmation → Apply → Verify
+upgrade_plan [feature] → Assessment → Report → 🚨 Content Quality Gate → Apply → Verify
+upgrade_requirements   → Assessment → Report → 🚨 Content Quality Gate → Apply → Verify
 ```
 
 **Key Principles:**
 - **Version-agnostic**: Full re-evaluation against current rules, not incremental patches
+- **Content-first**: Content quality gate catches ambiguities, gaps, and oversights BEFORE structural upgrades
 - **Non-destructive**: All user-authored content is preserved verbatim
 - **Transparent**: Changes presented for approval before being applied
 - **Resumable**: Partial upgrades can be detected and continued
+- **Zero-ambiguity**: No vague language, no deferred decisions, no AI guesswork survives the upgrade

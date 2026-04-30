@@ -28,7 +28,7 @@ This file contains **universal rules** that work for any software project. For p
 - Language and framework conventions
 - Commit scope conventions
 
-**If `.clinerules/project.md` does not exist**, detect project settings from manifest files (`package.json`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `Makefile`, `docker-compose.yml`, etc.) and use sensible defaults.
+**If `.clinerules/project.md` does not exist**, detect project settings from manifest files (`package.json`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `Makefile`, `docker-compose.yml`, `pom.xml`, `build.gradle`, `CMakeLists.txt`, `*.sln`, `*.csproj`). Use only facts detected from these files — do NOT invent or assume settings that cannot be read from the project's manifest files.
 
 ---
 
@@ -151,7 +151,7 @@ When a `requirements/` directory exists in the project and contains RD documents
 
 ### Plan Document Cross-Reference
 
-When a plan is based on an RD, the `01-requirements.md` plan document should reference the source:
+When a plan is based on an RD, the `01-requirements.md` plan document MUST reference the source:
 
 ```markdown
 > **Source**: [RD-XX](../../requirements/RD-XX-feature-name.md)
@@ -166,6 +166,12 @@ When a plan is based on an RD, the `01-requirements.md` plan document should ref
 **Before creating ANY plan documents, you MUST:**
 
 #### 1.1 Ask Clarifying Questions
+
+> **🚨 ZERO-AMBIGUITY RULE — ACTIVE FROM THE FIRST QUESTION 🚨**
+>
+> This rule applies to **ALL decisions without exception** — design choices, technical architecture, behavioral specifications, scope boundaries, edge case handling, error messages, naming conventions, file structure, document organization, wording, AND formatting. If the AI must choose between two or more options for ANYTHING, the user decides.
+>
+> Every question you ask MUST yield a **concrete, specific, unambiguous answer**. Do NOT accept vague responses. Do NOT fill gaps with your own assumptions. Do NOT infer intent. Do NOT proceed with "reasonable defaults" unless the user explicitly chose them. If the user's answer is unclear, ask again with sharper options. If the user says "I'm not sure," lay out the options with trade-offs and guide them to a decision — but the DECISION must be theirs, not yours. See **Phase 1C: Zero-Ambiguity Gate** below for the formal enforcement mechanism.
 
 Always ask the user about:
 
@@ -202,7 +208,7 @@ Before planning:
 
 #### 1.3 Confirm Scope with User
 
-Present findings and confirm before proceeding:
+Present findings and confirm before proceeding. During scope confirmation, begin compiling the **Ambiguity Register** — a formal inventory of every gap, ambiguity, unstated assumption, and open question discovered so far. This register will be finalized and enforced in **Phase 1C**.
 
 ```markdown
 ## Scope Confirmation
@@ -248,6 +254,147 @@ Please confirm or adjust before I create the plan.
 
 ---
 
+### **Phase 1C: Zero-Ambiguity Gate — 🚨 NON-NEGOTIABLE HARD GATE 🚨**
+
+**This gate MUST be passed before ANY plan document is created. There are NO exceptions, NO overrides, and NO "good enough" thresholds. This is the most important quality gate in the entire planning process.**
+
+#### Why This Gate Exists
+
+Plans built on ambiguity produce implementations built on guesswork. When the AI guesses, the user gets code they didn't ask for, behaviors they didn't expect, and architectures they didn't choose. Every single item in every plan document must trace back to an **explicit, user-confirmed decision**. If the AI cannot point to a specific user answer for any design choice, technical detail, behavioral specification, edge case handling, or scope boundary — it has failed this gate.
+
+#### The Ambiguity Register
+
+Before proceeding to Phase 2, the agent MUST compile and present an **Ambiguity Register** — a formal, numbered inventory of every identified gap, ambiguity, unstated assumption, undefined behavior, and open question.
+
+**The agent must systematically hunt for ambiguities across ALL of these categories:**
+
+| Category | What to Look For |
+|----------|-----------------|
+| **Feature gaps** | Features mentioned but not fully specified, unclear feature interactions, undefined workflows |
+| **Behavioral gaps** | Undefined "what happens when..." scenarios, missing error handling, unspecified state transitions |
+| **Scope ambiguities** | Features that could go either way, unclear boundaries between in-scope and out-of-scope |
+| **Technical unknowns** | Architecture or technology choices not yet decided, unresolved implementation approaches |
+| **Edge cases** | Boundary conditions, failure modes, concurrent access, empty/null states, overflow |
+| **Integration points** | Unclear interfaces between components, undefined API contracts, missing data flow specifications |
+| **Data & state questions** | Unclear data models, undefined ownership, missing validation rules, unspecified formats |
+| **Security & compliance** | Unaddressed threat vectors, undefined auth flows, missing data protection decisions |
+| **Non-functional gaps** | Missing performance targets, undefined scalability approach, unspecified availability requirements |
+| **UX & presentation** | Undefined user-facing text, missing error messages, unspecified display formats, unclear navigation flows |
+| **Stakeholder conflicts** | Competing needs between user types, unresolved priority disputes, unclear permission boundaries |
+| **Naming & terminology** | Unconfirmed file names, directory structures, class/function names, API endpoint paths, domain terms used inconsistently |
+
+**Ambiguity Register Template:**
+
+```markdown
+## Ambiguity Register: [Feature Name]
+
+> **Status**: ❌ GATE BLOCKED — [X] items unresolved
+> *(When all resolved, change to: ✅ GATE PASSED — all [X] items resolved)*
+> **Last Updated**: [Date]
+
+| # | Category | Ambiguity / Gap | Options Presented | User Decision | Status |
+|---|----------|----------------|-------------------|---------------|--------|
+| 1 | Behavioral | [Specific ambiguity] | [Option A / Option B / Option C] | [User's answer] | ✅ Resolved |
+| 2 | Scope | [Specific ambiguity] | [Option A / Option B] | — | ❌ Open |
+| 3 | Technical | [Specific ambiguity] | [Option A / Option B / Option C] | [User's answer] | ✅ Resolved |
+
+### Resolution Notes
+
+**AR-1:** [Expanded context for the decision if needed]
+**AR-2:** [Pending — presented to user, awaiting answer]
+```
+
+#### Gate Enforcement Rules
+
+**🚫 ABSOLUTELY PROHIBITED — The agent MUST NOT do any of the following while the gate is blocked:**
+
+- ❌ Create any plan document (`00-index.md`, `01-requirements.md`, etc.)
+- ❌ Write any technical specification
+- ❌ Define any task in an execution plan
+- ❌ Make any design decision on the user's behalf
+- ❌ Use phrases like "we'll assume...", "by default...", "a reasonable approach would be..."
+- ❌ Proceed with a partially resolved register
+
+**✅ REQUIRED — The gate opens ONLY when ALL of these conditions are met:**
+
+1. ✅ Every row in the Ambiguity Register has Status = "✅ Resolved"
+2. ✅ Every resolution contains the **user's explicit decision** (not the AI's recommendation accepted by silence)
+3. ✅ The user has reviewed and confirmed the complete register (for registers with >15 items, present in batches by category — user confirms each batch, then gives final confirmation: "I have reviewed and confirmed all [X] items")
+4. ✅ Zero items are deferred — every item has a concrete answer (the user must decide; "figure it out later" is NOT accepted — explain the consequences and guide the user to a decision NOW)
+5. ✅ The register header has been updated to `✅ GATE PASSED — all [X] items resolved`
+
+**User dismissals:** If the user says "that's not ambiguous, the answer is obviously X" — that IS a valid resolution. Record it as: `✅ Resolved — User: "[their stated answer]"`. The AI cannot dismiss items on its own; only the user can.
+
+**Zero-ambiguity register:** If the systematic review finds ZERO ambiguities, the register file is STILL created and saved to disk with header: `✅ GATE PASSED — 0 ambiguities identified (systematic review completed)`. This proves the gate was executed.
+
+#### No-Deferral Policy
+
+**Deferrals and delegations are NOT permitted.** Every ambiguity must be resolved with a concrete decision before the gate opens.
+
+**If the user says "I don't know" or "decide later":**
+
+1. **Explain** why the decision matters and what happens if it's wrong
+2. **Present** the available options with clear trade-offs and consequences
+3. **Recommend** an option with your rationale (you CAN recommend — you CANNOT decide)
+4. **Guide** the user to make an explicit choice
+5. **Record** the user's choice in the register — not your recommendation
+
+**If the user says "you decide" or "I trust you, just pick one":**
+
+1. **Refuse politely** — "I can recommend, but the decision must be yours"
+2. **Present** the options with your recommendation clearly marked
+3. **Wait** for the user to explicitly say "I choose [option]"
+4. **Record** the user's explicit choice — never record "AI decided" or "delegated to AI"
+
+The user MUST make the call. The AI MUST NOT make the call for them. Delegation to the AI is not permitted.
+
+#### Register Persistence
+
+The Ambiguity Register is saved as a permanent file alongside the plan documents:
+
+- **Location:** `plans/[feature-name]/00-ambiguity-register.md`
+- **Purpose:** Audit trail — every decision in every plan document is traceable to this register
+- **Survives crashes:** If the session crashes mid-planning, the register persists on disk
+
+#### Traceability Requirement
+
+Every decision in the final plan documents MUST include a back-reference to the Ambiguity Register entry that resolved it:
+
+```markdown
+> **Decision per AR #7:** User chose Option B — time-based cache invalidation with 5-minute TTL.
+```
+
+This creates an unbroken chain: **user question → user answer → register entry → plan document**.
+
+**The ONLY items exempt from AR # back-references are:**
+- **(a)** Universally obvious facts with exactly one possible interpretation (e.g., "TypeScript files use `.ts` extension")
+- **(b)** Formatting choices with zero semantic impact (markdown syntax, whitespace, line breaks)
+
+**When in doubt, it is NOT an exception — add it to the register.** The AI must NEVER classify a decision as "obvious" to avoid the register. If the AI hesitates even briefly about whether something is obvious, it goes in the register.
+
+#### Surface-During-Authoring Rule
+
+Even after the gate passes, if the agent discovers **NEW ambiguities** while writing plan documents in Phase 2:
+
+1. **STOP writing immediately** — do not finish the current paragraph, sentence, or bullet point
+2. **Add** the new ambiguity to the Ambiguity Register with the next sequential number
+3. **Present** it to the user with options and trade-offs
+4. **Wait** for the user's explicit decision
+5. **Record** the resolution in the register
+6. **Only then** resume writing
+
+This is NOT optional. The agent must NEVER "make a reasonable choice and move on." Every new ambiguity, no matter how small, goes through the register.
+
+#### Interaction with `grill_me`
+
+Phase 1C fires **regardless** of how Phase 1 was conducted — including when `grill_me` was used before `make_plan`. The grill-me shared understanding feeds INTO the register as pre-resolved context, but does NOT replace the formal gate. The AI must still systematically scan all 12 categories and compile the register. Many items may already be resolved thanks to grill-me — those get recorded as `✅ Resolved` with a note referencing the grill-me session.
+
+#### Interaction with `upgrade_plan`
+
+When plans are upgraded via `upgrade_plan`, the Zero-Ambiguity Gate applies to any **new decisions** introduced during the upgrade. Existing resolved decisions from the original register are preserved. Only new or changed items go through the register.
+
+---
+
 ### **Phase 2: Create Plan Documents**
 
 #### 2.1 Folder Structure
@@ -257,14 +404,15 @@ Create plans in: `plans/[feature-name]/`
 ```
 plans/
 └── [feature-name]/
-    ├── 00-index.md            # Overview and navigation
-    ├── 01-requirements.md     # Requirements and scope
-    ├── 02-current-state.md    # Current implementation analysis
-    ├── 03-[component-1].md    # Technical spec for component 1
-    ├── 04-[component-2].md    # Technical spec for component 2
-    ├── ...                    # Additional component docs as needed
-    ├── 07-testing-strategy.md # Test cases and verification
-    └── 99-execution-plan.md   # Phases, sessions, task checklist
+    ├── 00-ambiguity-register.md # Zero-Ambiguity Gate register (audit trail)
+    ├── 00-index.md              # Overview and navigation
+    ├── 01-requirements.md       # Requirements and scope
+    ├── 02-current-state.md      # Current implementation analysis
+    ├── 03-[component-1].md      # Technical spec for component 1
+    ├── 04-[component-2].md      # Technical spec for component 2
+    ├── ...                      # Additional component docs as needed
+    ├── 07-testing-strategy.md   # Test cases and verification
+    └── 99-execution-plan.md     # Phases, sessions, task checklist
 ```
 
 #### 2.2 Document Templates
@@ -287,15 +435,16 @@ plans/
 
 ## Document Index
 
-| #   | Document                                   | Description                             |
-| --- | ------------------------------------------ | --------------------------------------- |
-| 00  | [Index](00-index.md)                       | This document — overview and navigation |
-| 01  | [Requirements](01-requirements.md)         | Feature requirements and scope          |
-| 02  | [Current State](02-current-state.md)       | Analysis of current implementation      |
-| 03  | [Component Name](03-component.md)          | Technical specification                 |
-| ... | ...                                        | ...                                     |
-| 07  | [Testing Strategy](07-testing-strategy.md) | Test cases and verification             |
-| 99  | [Execution Plan](99-execution-plan.md)     | Phases, sessions, and task checklist    |
+| #   | Document                                                 | Description                                    |
+| --- | -------------------------------------------------------- | ---------------------------------------------- |
+| AR  | [Ambiguity Register](00-ambiguity-register.md)           | Zero-Ambiguity Gate decisions (audit trail)     |
+| 00  | [Index](00-index.md)                                     | This document — overview and navigation         |
+| 01  | [Requirements](01-requirements.md)                       | Feature requirements and scope                  |
+| 02  | [Current State](02-current-state.md)                     | Analysis of current implementation              |
+| 03  | [Component Name](03-component.md)                        | Technical specification                         |
+| ... | ...                                                      | ...                                             |
+| 07  | [Testing Strategy](07-testing-strategy.md)               | Test cases and verification                     |
+| 99  | [Execution Plan](99-execution-plan.md)                   | Phases, sessions, and task checklist            |
 
 ## Quick Reference
 
@@ -361,9 +510,11 @@ plans/
 
 ## Scope Decisions
 
-| Decision   | Options Considered | Chosen | Rationale |
-| ---------- | ------------------ | ------ | --------- |
-| [Decision] | A, B, C            | B      | [Why]     |
+| Decision   | Options Considered | Chosen | Rationale | AR Ref |
+| ---------- | ------------------ | ------ | --------- | ------ |
+| [Decision] | A, B, C            | B      | [Why]     | AR #X  |
+
+> **Traceability:** Every scope decision must reference the Ambiguity Register entry (AR #) that resolved it. See `00-ambiguity-register.md`.
 
 ## Acceptance Criteria
 
@@ -474,9 +625,11 @@ plans/
 
 ## Error Handling
 
-| Error Case | Handling Strategy |
-| ---------- | ----------------- |
-| [Error]    | [Strategy]        |
+| Error Case | Handling Strategy | AR Ref |
+| ---------- | ----------------- | ------ |
+| [Error]    | [Strategy]        | AR #X  |
+
+> **Traceability:** Every error handling strategy and design choice must reference the Ambiguity Register entry (AR #) that resolved it. See `00-ambiguity-register.md`. The only exceptions are universally obvious facts and formatting with zero semantic impact.
 
 ## Testing Requirements
 
@@ -593,6 +746,14 @@ Before finalizing plan documents, run this checklist:
 - [ ] Infrastructure hardened (non-root containers, minimal base images, no secrets in images/CI)
 - [ ] Security test cases included in testing strategy
 
+**✅ Zero-Ambiguity (per Phase 1C) — 🚨 NON-NEGOTIABLE**
+- [ ] Ambiguity Register (`00-ambiguity-register.md`) exists and is saved to disk
+- [ ] Every register entry has Status = "✅ Resolved" with explicit user decision
+- [ ] Zero deferred items — every ambiguity has a concrete answer
+- [ ] All decisions in plan documents have AR # back-references (only exceptions: universally obvious facts + zero-semantic-impact formatting)
+- [ ] No plan document contains AI-assumed defaults, inferred behaviors, or guessed specifications
+- [ ] Surface-during-authoring rule was followed — any new ambiguities discovered during writing were added to the register and resolved with the user
+
 **✅ Format**
 - [ ] All documents follow templates
 - [ ] Tables are properly formatted
@@ -611,6 +772,7 @@ After creating the plan, present:
 **Location:** `plans/[feature-name]/`
 
 **Documents Created:**
+- 00-ambiguity-register.md ✅ (Zero-Ambiguity Gate — all items resolved)
 - 00-index.md ✅
 - 01-requirements.md ✅
 - 02-current-state.md ✅
@@ -667,6 +829,20 @@ After successfully loading the plan, check the version stamp:
 This is a **suggestion only** — the user can choose to proceed without upgrading.
 
 #### Step 2: Execute Tasks
+
+> **🚨 ZERO-AMBIGUITY RULE — ACTIVE DURING EXECUTION 🚨**
+>
+> The Zero-Ambiguity Gate does not end at planning. During execution, if the agent encounters ANY implementation detail, behavioral question, edge case, or design choice that is not explicitly covered by the plan documents or the Ambiguity Register (`00-ambiguity-register.md`), the agent MUST:
+>
+> 1. **STOP implementation** — do not guess, do not infer, do not use "reasonable defaults"
+> 2. **Present** the ambiguity to the user with options and trade-offs
+> 3. **Wait** for the user's explicit decision
+> 4. **Record** the new decision in `00-ambiguity-register.md` with the next sequential AR number
+> 5. **Only then** resume implementation using the user's decision
+>
+> This applies to ALL ambiguities — architectural, behavioral, naming, formatting, UX, error handling, EVERYTHING. The agent must NEVER fill gaps by guessing during implementation.
+>
+> **Runtime register entries:** New AR entries added during execution are tagged with `(runtime)` in the Category column. The register header is updated to: `✅ GATE PASSED — [X] items resolved at planning / [Y] items added during execution`.
 
 For each task in order:
 
@@ -1009,7 +1185,7 @@ Run `exec_plan [feature-name]` in a new session after `/compact`
 
 ## **Adapting to Project Type**
 
-The AI should adapt document structure based on the project type:
+The AI MUST adapt document structure based on the project type:
 
 | Project Type       | Typical Components                                |
 | ------------------ | ------------------------------------------------- |

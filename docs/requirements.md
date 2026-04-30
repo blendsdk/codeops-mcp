@@ -87,6 +87,12 @@ I have some notes in docs/project-ideas.md
 
 This phase is a **multi-turn conversation**. The agent asks questions in batches, waits for answers, and iterates. It never tries to produce all requirements in one shot.
 
+> **🚨 ZERO-AMBIGUITY RULE — ACTIVE FROM THE FIRST QUESTION 🚨**
+>
+> This rule applies to **ALL decisions without exception** — feature specifications, behavioral definitions, scope boundaries, edge case handling, technical choices, data models, naming conventions, document organization, wording, AND formatting. If the AI must choose between two or more options for ANYTHING, the user decides.
+>
+> Every question you ask MUST yield a **concrete, specific, unambiguous answer**. Do NOT accept vague responses. Do NOT fill gaps with your own assumptions. Do NOT infer intent. Do NOT proceed with "reasonable defaults" unless the user explicitly chose them. If the user's answer is unclear, ask again with sharper options. If the user says "I'm not sure," lay out the options with trade-offs and guide them to a decision — but the DECISION must be theirs, not yours. Throughout discovery, compile an **Ambiguity Register** tracking every gap and its resolution. See **Phase 2B: Zero-Ambiguity Gate** below for the formal enforcement mechanism.
+
 ### 1.1 Project Vision Interview
 
 Start with broad understanding:
@@ -315,6 +321,147 @@ If external integrations exist, document them:
 
 ---
 
+## **Phase 2B: Zero-Ambiguity Gate — 🚨 NON-NEGOTIABLE HARD GATE 🚨**
+
+**This gate MUST be passed before ANY requirement document (RD) is written. There are NO exceptions, NO overrides, and NO "good enough" thresholds. This is the most important quality gate in the entire requirements process.**
+
+### Why This Gate Exists
+
+Requirements built on ambiguity produce plans built on guesswork, which produce implementations built on assumptions. When the AI guesses, the user gets requirements they didn't specify, behaviors they didn't define, and scope they didn't approve. Every single item in every RD must trace back to an **explicit, user-confirmed decision**. If the AI cannot point to a specific user answer for any feature specification, behavioral definition, scope boundary, edge case handling, or technical choice — it has failed this gate.
+
+### The Ambiguity Register
+
+Before proceeding to Phase 3, the agent MUST compile and present an **Ambiguity Register** — a formal, numbered inventory of every identified gap, ambiguity, unstated assumption, undefined behavior, and open question discovered during Phases 1-2.
+
+**The agent must systematically hunt for ambiguities across ALL of these categories:**
+
+| Category | What to Look For |
+|----------|-----------------|
+| **Feature gaps** | Features mentioned but not fully specified, unclear feature interactions, undefined workflows |
+| **Scope ambiguities** | Features that could go either way, unclear MVP vs. future boundaries, conflicting stakeholder needs |
+| **Behavioral unknowns** | Undefined "what happens when..." scenarios, missing error states, unspecified state transitions |
+| **Data model questions** | Undefined entity relationships, unclear ownership, missing validation rules, unspecified cardinality |
+| **Technical unknowns** | Architecture or technology choices not yet decided, unresolved integration approaches |
+| **Edge cases** | Boundary conditions, failure modes, concurrent access, empty/null states, data volume limits |
+| **Integration points** | Unclear external system interfaces, undefined API contracts, missing data flow specifications |
+| **Security & compliance** | Unaddressed threat vectors, undefined auth models, missing data protection decisions, regulatory gaps |
+| **Non-functional gaps** | Missing performance targets, undefined scalability approach, unspecified availability requirements |
+| **UX & presentation** | Undefined user-facing text, missing error messages, unspecified display formats, unclear navigation flows |
+| **Stakeholder conflicts** | Competing needs between user types, unresolved priority disputes, unclear permission boundaries |
+| **Naming & terminology** | Domain terms used inconsistently, undefined jargon, ambiguous labels |
+
+**Ambiguity Register Template:**
+
+```markdown
+## Ambiguity Register: [Project Name] Requirements
+
+> **Status**: ❌ GATE BLOCKED — [X] items unresolved
+> *(When all resolved, change to: ✅ GATE PASSED — all [X] items resolved)*
+> **Last Updated**: [Date]
+
+| # | Category | Ambiguity / Gap | Options Presented | User Decision | Status |
+|---|----------|----------------|-------------------|---------------|--------|
+| 1 | Feature | [Specific ambiguity] | [Option A / Option B / Option C] | [User's answer] | ✅ Resolved |
+| 2 | Scope | [Specific ambiguity] | [Option A / Option B] | — | ❌ Open |
+| 3 | Data Model | [Specific ambiguity] | [Option A / Option B / Option C] | [User's answer] | ✅ Resolved |
+
+### Resolution Notes
+
+**AR-1:** [Expanded context for the decision if needed]
+**AR-2:** [Pending — presented to user, awaiting answer]
+```
+
+### Gate Enforcement Rules
+
+**🚫 ABSOLUTELY PROHIBITED — The agent MUST NOT do any of the following while the gate is blocked:**
+
+- ❌ Create any requirement document (`RD-XX-*.md`)
+- ❌ Write the `requirements/README.md`
+- ❌ Define any requirement specification
+- ❌ Make any design decision on the user's behalf
+- ❌ Use phrases like "we'll assume...", "by default...", "a reasonable approach would be..."
+- ❌ Proceed with a partially resolved register
+
+**✅ REQUIRED — The gate opens ONLY when ALL of these conditions are met:**
+
+1. ✅ Every row in the Ambiguity Register has Status = "✅ Resolved"
+2. ✅ Every resolution contains the **user's explicit decision** (not the AI's recommendation accepted by silence)
+3. ✅ The user has reviewed and confirmed the complete register (for registers with >15 items, present in batches by category — user confirms each batch, then gives final confirmation: "I have reviewed and confirmed all [X] items")
+4. ✅ Zero items are deferred — every item has a concrete answer (the user must decide; "figure it out later" is NOT accepted — explain the consequences and guide the user to a decision NOW)
+5. ✅ The register header has been updated to `✅ GATE PASSED — all [X] items resolved`
+
+**User dismissals:** If the user says "that's not ambiguous, the answer is obviously X" — that IS a valid resolution. Record it as: `✅ Resolved — User: "[their stated answer]"`. The AI cannot dismiss items on its own; only the user can.
+
+**Zero-ambiguity register:** If the systematic review finds ZERO ambiguities, the register file is STILL created and saved to disk with header: `✅ GATE PASSED — 0 ambiguities identified (systematic review completed)`. This proves the gate was executed.
+
+### No-Deferral Policy
+
+**Deferrals and delegations are NOT permitted.** Every ambiguity must be resolved with a concrete decision before the gate opens.
+
+**If the user says "I don't know" or "decide later":**
+
+1. **Explain** why the decision matters and what happens if it's wrong
+2. **Present** the available options with clear trade-offs and consequences
+3. **Recommend** an option with your rationale (you CAN recommend — you CANNOT decide)
+4. **Guide** the user to make an explicit choice
+5. **Record** the user's choice in the register — not your recommendation
+
+**If the user says "you decide" or "I trust you, just pick one":**
+
+1. **Refuse politely** — "I can recommend, but the decision must be yours"
+2. **Present** the options with your recommendation clearly marked
+3. **Wait** for the user to explicitly say "I choose [option]"
+4. **Record** the user's explicit choice — never record "AI decided" or "delegated to AI"
+
+The user MUST make the call. The AI MUST NOT make the call for them. Delegation to the AI is not permitted.
+
+### Register Persistence
+
+The Ambiguity Register is saved as a permanent file alongside the requirement documents:
+
+- **Location:** `requirements/00-ambiguity-register.md`
+- **Purpose:** Audit trail — every decision in every RD is traceable to this register
+- **Survives crashes:** If the session crashes mid-authoring, the register persists on disk
+
+### Traceability Requirement
+
+Every decision in the final RD documents MUST include a back-reference to the Ambiguity Register entry that resolved it:
+
+```markdown
+> **Decision per AR #7:** User chose Option B — JWT-based authentication with 24-hour token expiry.
+```
+
+This creates an unbroken chain: **user question → user answer → register entry → RD document**.
+
+**The ONLY items exempt from AR # back-references are:**
+- **(a)** Universally obvious facts with exactly one possible interpretation (e.g., "TypeScript files use `.ts` extension")
+- **(b)** Formatting choices with zero semantic impact (markdown syntax, whitespace, line breaks)
+
+**When in doubt, it is NOT an exception — add it to the register.** The AI must NEVER classify a decision as "obvious" to avoid the register. If the AI hesitates even briefly about whether something is obvious, it goes in the register.
+
+### Surface-During-Authoring Rule
+
+Even after the gate passes, if the agent discovers **NEW ambiguities** while writing RD documents in Phase 3:
+
+1. **STOP writing immediately** — do not finish the current paragraph, sentence, or bullet point
+2. **Add** the new ambiguity to the Ambiguity Register with the next sequential number
+3. **Present** it to the user with options and trade-offs
+4. **Wait** for the user's explicit decision
+5. **Record** the resolution in the register
+6. **Only then** resume writing
+
+This is NOT optional. The agent must NEVER "make a reasonable choice and move on." Every new ambiguity, no matter how small, goes through the register.
+
+### Interaction with `grill_me`
+
+Phase 2B fires **regardless** of how Phase 1 was conducted — including when `grill_me` was used before `make_requirements`. The grill-me shared understanding feeds INTO the register as pre-resolved context, but does NOT replace the formal gate. The AI must still systematically scan all 12 categories and compile the register. Many items may already be resolved thanks to grill-me — those get recorded as `✅ Resolved` with a note referencing the grill-me session.
+
+### Interaction with `upgrade_requirements`
+
+When requirements are upgraded via `upgrade_requirements`, the Zero-Ambiguity Gate applies to any **new decisions** introduced during the upgrade. Existing resolved decisions from the original register are preserved. Only new or changed items go through the register.
+
+---
+
 ## **Phase 3: Authoring Requirement Documents**
 
 ### 3.1 Output Structure
@@ -323,6 +470,7 @@ Create all documents in the `requirements/` directory:
 
 ```
 requirements/
+├── 00-ambiguity-register.md    # Zero-Ambiguity Gate register (audit trail)
 ├── README.md                    # Index, glossary, dependency graph, implementation order
 ├── RD-01-[feature-name].md     # First requirement document
 ├── RD-02-[feature-name].md     # Second requirement document
@@ -357,6 +505,7 @@ requirements/
 
 | # | Document | Description | Depends On |
 |---|----------|-------------|------------|
+| **AR** | [Ambiguity Register](00-ambiguity-register.md) | Zero-Ambiguity Gate decisions (audit trail) | — |
 | **RD-01** | [Link to doc] | [Description] | — |
 | **RD-02** | [Link to doc] | [Description] | RD-01 |
 
@@ -450,9 +599,11 @@ Include tables for structured information (env vars, config keys, API endpoints)
 
 ## Scope Decisions
 
-| Decision | Options Considered | Chosen | Rationale |
-|----------|-------------------|--------|-----------|
-| [Decision] | [Option A, B, C] | [Chosen] | [Why] |
+| Decision | Options Considered | Chosen | Rationale | AR Ref |
+|----------|-------------------|--------|-----------|--------|
+| [Decision] | [Option A, B, C] | [Chosen] | [Why] | AR #X |
+
+> **Traceability:** Every scope decision must reference the Ambiguity Register entry (AR #) that resolved it. See `00-ambiguity-register.md`.
 
 ---
 
@@ -555,11 +706,23 @@ Before finalizing, run through commonly forgotten requirements:
 
 > **🚨 Items 26-33 are NON-NEGOTIABLE** — they must be addressed in every project. See `code.md` rules 32-34 for the full security standard.
 
+### 4.2B Zero-Ambiguity Final Verification — 🚨 NON-NEGOTIABLE
+
+Before finalizing, verify the Ambiguity Register and traceability:
+
+- [ ] Ambiguity Register (`00-ambiguity-register.md`) exists and is saved to disk
+- [ ] Every register entry has Status = "✅ Resolved" with explicit user decision
+- [ ] Zero deferred items — every ambiguity has a concrete answer
+- [ ] All decisions in RD documents have AR # back-references (only exceptions: universally obvious facts + zero-semantic-impact formatting)
+- [ ] No RD document contains AI-assumed defaults, inferred behaviors, or guessed specifications
+- [ ] Surface-during-authoring rule was followed — any new ambiguities discovered during writing were added to the register and resolved with the user
+- [ ] The user has reviewed and confirmed the complete register
+
 ### 4.3 Techdocs Update
 
 After all RDs are finalized and validated, check for technical architecture documentation:
 
-- **If `docs/index.md` exists with `techdocs: true` frontmatter:** Perform an incremental techdocs update — extract design decisions from the requirements documents, create ADRs for significant technology/architecture choices, and update architecture sections if the requirements imply architectural changes (see `techdocs.md` Phase 6.3).
+- **If `docs/index.md` exists with `techdocs: true` frontmatter:** Perform an incremental techdocs update — extract design decisions from the requirements documents, create ADRs for every technology/architecture choice that affects system behavior, performance, or maintainability, and update architecture sections if the requirements imply architectural changes (see `techdocs.md` Phase 6.3).
 - **If techdocs do NOT exist:** Ask the user: *"Would you like to create technical architecture documentation for this project?"* — if yes, run `make_techdocs` using the freshly created requirements as input.
 
 ### 4.4 Final Output Summary
@@ -572,6 +735,7 @@ After all validation, present the complete requirements set:
 **Location:** `requirements/`
 
 **Documents Created:**
+- requirements/00-ambiguity-register.md ✅ (Zero-Ambiguity Gate — all items resolved)
 - requirements/README.md ✅
 - requirements/RD-01-[name].md ✅
 - requirements/RD-02-[name].md ✅
@@ -599,14 +763,15 @@ When the user types `add_requirement`:
 1. Read `requirements/README.md` to understand the current set
 2. Ask: "What new capability or feature do you want to add?"
 3. Run through a condensed discovery (comparable analysis, edge cases) for just this feature
-4. Determine where in the dependency graph the new RD fits
-5. Assign the next available RD number
-6. Write the new RD following the universal template
-7. Update `requirements/README.md`:
+4. **🚨 Run the Zero-Ambiguity Gate** for this new RD — compile an Ambiguity Register for just this feature, resolve ALL items with the user, then proceed. Add new AR entries to the existing `requirements/00-ambiguity-register.md` (create it if it doesn't exist). All gate rules apply: no deferrals, no delegation, no guesswork.
+5. Determine where in the dependency graph the new RD fits
+6. Assign the next available RD number
+7. Write the new RD following the universal template (with AR # traceability)
+8. Update `requirements/README.md`:
    - Add to document index
    - Update dependency graph
    - Update implementation phases if affected
-8. Run cross-reference validation against existing RDs
+9. Run cross-reference validation against existing RDs
 
 ---
 
@@ -722,8 +887,8 @@ When gathering and documenting requirements:
 **Typical Session Flow:**
 ```
 make_requirements → discovery interview → comparable analysis → user journeys →
-  edge cases → scope confirmation → glossary → decomposition → RD authoring →
-  validation → final output
+  edge cases → scope confirmation → glossary → decomposition →
+  🚨 ZERO-AMBIGUITY GATE → RD authoring → validation → final output
 ```
 
 **Output:** `requirements/README.md` + `requirements/RD-XX-*.md` documents ready for `make_plan`.
