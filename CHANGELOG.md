@@ -1,3 +1,10 @@
+## [1.10.2](https://github.com/blendsdk/codeops-mcp/compare/v1.10.1...v1.10.2) (2026-05-03)
+
+
+### Bug Fixes
+
+* **package:** Added ignore files and update.sh ([9733583](https://github.com/blendsdk/codeops-mcp/commit/9733583300d340cd1e15e825fd0b92d896563c8d))
+
 ## [1.10.1](https://github.com/blendsdk/codeops-mcp/compare/v1.10.0...v1.10.1) (2026-05-03)
 
 # [1.10.0](https://github.com/blendsdk/codeops-mcp/compare/v1.9.1...v1.10.0) (2026-04-30)
