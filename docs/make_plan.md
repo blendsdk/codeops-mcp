@@ -754,6 +754,12 @@ Before finalizing plan documents, run this checklist:
 - [ ] No plan document contains AI-assumed defaults, inferred behaviors, or guessed specifications
 - [ ] Surface-during-authoring rule was followed — any new ambiguities discovered during writing were added to the register and resolved with the user
 
+**✅ Execution Plan Completeness — 🚨 NON-NEGOTIABLE**
+- [ ] `99-execution-plan.md` contains the `🚨 Master Progress Checklist (All Phases) — MANDATORY` section
+- [ ] Master Progress Checklist lists ALL tasks from ALL phases (no tasks omitted)
+- [ ] Master Progress Checklist includes the embedded execution rule block instructing agents to update it
+- [ ] Every task in the checklist matches the task tables in the phase sections (consistent numbering and descriptions)
+
 **✅ Format**
 - [ ] All documents follow templates
 - [ ] Tables are properly formatted
@@ -918,9 +924,19 @@ Implement task → 🚨 UPDATE EXECUTION PLAN → verify → commit → next tas
 
 For each completed task:
 
-1. ✅ Use `replace_in_file` on `99-execution-plan.md` to change `[ ]` to `[x]` with timestamp
+1. ✅ Use `replace_in_file` on `99-execution-plan.md` to change `[ ]` to `[x]` with timestamp **in the Master Progress Checklist section**
 2. ✅ Update the "Progress" counter in the document header (e.g., `3/12 tasks (25%)`)
 3. ✅ Update the "Last Updated" timestamp
+
+### Master Progress Checklist — Existence Gate
+
+The **Master Progress Checklist** section in `99-execution-plan.md` is **MANDATORY**. Before executing the first task:
+
+1. ✅ **Verify the checklist exists** — look for the `## 🚨 Master Progress Checklist (All Phases) — MANDATORY` section
+2. ✅ **If missing:** Reconstruct the checklist from the phase/session/task details in the document. List every task from every phase with `- [ ] X.X.X [Task description]` format, grouped by phase. Add the embedded execution rule block. This MUST be done before any task execution begins.
+3. ✅ **If incomplete:** Compare the checklist against all tasks in the phase sections. Add any missing tasks.
+
+The agent MUST NOT execute any task if the Master Progress Checklist does not exist or is incomplete.
 
 ### Task Completion Format
 
@@ -1065,7 +1081,20 @@ Every generated execution plan MUST follow this template:
 
 ---
 
-## Task Checklist (All Phases)
+## 🚨 Master Progress Checklist (All Phases) — MANDATORY
+
+> **⚠️ EXECUTION RULE — APPLIES TO EVERY AGENT EXECUTING THIS PLAN:**
+>
+> This checklist is the **single source of truth** for tracking progress across all phases.
+> The executing agent **MUST** follow these rules without exception:
+>
+> 1. **After completing each task:** Mark it `[x]` with a timestamp — e.g., `- [x] 1.1.1 Task description ✅ (completed: YYYY-MM-DD HH:MM)`
+> 2. **After completing each phase:** Review ALL tasks in that phase and confirm every completed task is marked `[x]` with a timestamp
+> 3. **Update the Progress header** (`> **Progress**: X/Y tasks (Z%)`) in this document's frontmatter after every update
+> 4. **This checklist MUST exist** — if it is missing or incomplete, the agent must reconstruct it from the phase details above before executing any task
+> 5. **Never batch updates** — update immediately after each task, not at the end of a session
+>
+> Failure to maintain this checklist means progress is invisible after crashes, context resets, or session handoffs.
 
 ### Phase 1: [Phase Name]
 - [ ] 1.1.1 [Task]
