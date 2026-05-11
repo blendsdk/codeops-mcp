@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/blendsdk/codeops-mcp/compare/v1.10.2...v1.11.0) (2026-05-11)
+
+
+### Features
+
+* add preflight and grill_me rule documents ([a5eac36](https://github.com/blendsdk/codeops-mcp/commit/a5eac3605095320e84ffc31899299419fae4fadb))
+
 ## [1.10.2](https://github.com/blendsdk/codeops-mcp/compare/v1.10.1...v1.10.2) (2026-05-03)
 
 
