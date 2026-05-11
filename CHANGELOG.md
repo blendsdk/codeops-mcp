@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/blendsdk/codeops-mcp/compare/v1.11.1...v1.12.0) (2026-05-11)
+
+
+### Features
+
+* add preflight quality audit rule document ([58b24b9](https://github.com/blendsdk/codeops-mcp/commit/58b24b9a1b60c54c699a6461f688e9e7d21f6744))
+
 ## [1.11.1](https://github.com/blendsdk/codeops-mcp/compare/v1.11.0...v1.11.1) (2026-05-11)
 
 # [1.11.0](https://github.com/blendsdk/codeops-mcp/compare/v1.10.2...v1.11.0) (2026-05-11)
