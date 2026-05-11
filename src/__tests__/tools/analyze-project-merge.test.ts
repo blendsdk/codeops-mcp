@@ -152,12 +152,17 @@ No special rules — this is an MCP server project.
 
 The generic rule files that read this \`project.md\`:
 
-- **make_plan.md** — Uses verify command, file paths, commit scope
+- **make_plan.md** — Uses verify command, file paths, commit scope, task file path patterns
 - **code.md** — Uses language conventions, architecture rules
 - **testing.md** — Uses test commands, test locations, test framework
 - **git-commands.md** — Uses commit scope, verify command
 - **agents.md** — Uses shell commands, verify command
-- **plans.md** — Uses task file path patterns`;
+- **requirements.md** — Uses project type, tech stack, and conventions for requirements discovery
+- **retro_requirements.md** — Uses project type, tech stack for codebase analysis adaptation
+- **techdocs.md** — Uses project type, tech stack for documentation generation
+- **upgrade_plan.md** — Uses project context for upgrade compatibility checks
+- **grill_me.md** — Uses project context for deep disambiguation before planning or requirements
+- **preflight.md** — Uses project type, tech stack, and conventions for grounded quality audits`;
 
 /** A project.md with user-customized description */
 const FIXTURE_WITH_CUSTOM_DESCRIPTION = FIXTURE_FULL_PROJECT_MD.replace(

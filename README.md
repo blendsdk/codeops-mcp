@@ -4,7 +4,7 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 
 ## What It Does
 
-**codeops-mcp** bundles 11 curated rule documents that teach AI agents how to code, test, plan, commit, gather requirements, reverse-engineer codebases, create technical documentation, upgrade outdated artifacts, disambiguate designs, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
+**codeops-mcp** bundles 12 curated rule documents that teach AI agents how to code, test, plan, commit, gather requirements, reverse-engineer codebases, create technical documentation, upgrade outdated artifacts, disambiguate designs, run preflight reviews, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
 
 ### Rule Documents
 
@@ -19,6 +19,7 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 | **techdocs**             | Technical architecture documentation protocol (`make_techdocs`)                      |
 | **upgrade_plan**         | Upgrade outdated plans and requirements to current standards                          |
 | **grill_me**             | Deep disambiguation protocol — relentless interview before planning or requirements  |
+| **preflight**            | Multi-dimensional quality audit for plans, requirements, and artifacts (`preflight`)  |
 | **agents**               | Mandatory AI agent behavior: compliance, context management, multi-session execution |
 | **project-template**     | Template for `.clinerules/project.md` — project-specific toolchain configuration     |
 
@@ -120,6 +121,7 @@ codeops-mcp defines **trigger keywords** — when you type these phrases, the AI
 | `upgrade_plan [name]` | Upgrades an outdated plan to current CodeOps standards |
 | `upgrade_requirements` | Upgrades outdated requirements to current CodeOps standards |
 | `grill_me` | Relentless interview to eliminate ambiguity before planning or requirements |
+| `preflight <artifact>` | Multi-dimensional quality audit — iterates until artifact passes clean |
 | `gitcm` | Stages all changes and commits with a detailed conventional commit message |
 | `gitcmp` | Same as `gitcm` plus rebase and push |
 
@@ -158,6 +160,14 @@ The protocols form a complete development pipeline:
 │  grill_me → make_plan → exec_plan                                │
 │  grill_me → make_requirements → make_plan → exec_plan            │
 │  grill_me (standalone deep-dive)                                  │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│  QUALITY GATE (review artifacts before execution)                 │
+│                                                                  │
+│  make_plan → preflight [feature] → exec_plan                     │
+│  make_requirements → preflight requirements → make_plan           │
+│  preflight (standalone audit of any artifact)                     │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -448,6 +458,51 @@ Agent: [Transitions to make_plan with Phase 1.1 already complete]
 
 ---
 
+### Preflight Review (`preflight`)
+
+Run a rigorous multi-dimensional quality audit on any plan, requirement set, or artifact — grounded in the actual codebase.
+
+**Example:**
+
+```
+User: preflight jwt-auth
+
+Agent: [Reads all plan documents in plans/jwt-auth/, then systematically audits:]
+
+  Dimension 1: Codebase Grounding
+    — Verifies every file reference, import, and component actually exists
+    — Checks that assumed patterns match what the code actually uses
+
+  Dimension 2: Completeness & Coverage
+    — Finds missing error handling, edge cases, rollback steps
+
+  Dimension 3: Internal Consistency
+    — Cross-checks claims between documents for contradictions
+
+  Dimension 4: Feasibility & Risk
+    — Identifies technical risks, dependency conflicts, performance concerns
+
+  Dimension 5: Clarity & Actionability
+    — Flags vague language, ambiguous terms, missing acceptance criteria
+
+Output: Findings report with severity ratings, options analysis for each
+        finding, and recommendations. Iterates until clean pass.
+```
+
+**Scope variants:**
+
+```
+preflight requirements              # Audit all requirement documents
+preflight requirements RD-03        # Audit a specific requirement document
+preflight jwt-auth 03-api-design    # Audit a specific plan document
+preflight src/auth/                 # Audit any file or directory
+preflight --continue                # Resume an interrupted session
+```
+
+**Aliases:** `pre-flight`, `pre_flight`, `flight-check`, `quality-audit`, `review-gate`, `audit`
+
+---
+
 ### Project Configuration (`analyze_project`)
 
 Auto-detect your project's toolchain and generate a configuration file:
@@ -506,7 +561,7 @@ src/
 └── __tests__/
     ├── store/            # Store & search engine tests
     └── tools/            # Tool integration tests
-docs/                     # 11 bundled rule markdown files
+docs/                     # 12 bundled rule markdown files
 ```
 
 ## License

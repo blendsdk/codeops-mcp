@@ -592,7 +592,12 @@ function formatProjectMd(analysis: ProjectAnalysis): string {
   parts.push('- **testing.md** — Uses test commands, test locations, test framework');
   parts.push('- **git-commands.md** — Uses commit scope, verify command');
   parts.push('- **agents.md** — Uses shell commands, verify command');
+  parts.push('- **requirements.md** — Uses project type, tech stack, and conventions for requirements discovery');
+  parts.push('- **retro_requirements.md** — Uses project type, tech stack for codebase analysis adaptation');
+  parts.push('- **techdocs.md** — Uses project type, tech stack for documentation generation');
+  parts.push('- **upgrade_plan.md** — Uses project context for upgrade compatibility checks');
   parts.push('- **grill_me.md** — Uses project context for deep disambiguation before planning or requirements');
+  parts.push('- **preflight.md** — Uses project type, tech stack, and conventions for grounded quality audits');
 
   return parts.join('\n');
 }
