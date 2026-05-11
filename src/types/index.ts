@@ -283,6 +283,11 @@ export const RULE_METADATA: Record<string, { title: string; category: RuleCatego
     category: 'workflow',
     description: 'Relentless interview protocol for eliminating ambiguity before planning or requirements (grill_me).',
   },
+  'preflight': {
+    title: 'Preflight Review Protocol',
+    category: 'workflow',
+    description: 'Multi-dimensional quality audit for plans, requirements, and artifacts — iterative review until clean pass (preflight).',
+  },
 };
 
 /**
@@ -383,6 +388,14 @@ export const RULE_ALIASES: Record<string, string> = {
   'disambiguate': 'grill_me',
   'deep-dive': 'grill_me',
   'interview': 'grill_me',
+
+  // preflight.md aliases
+  'pre-flight': 'preflight',
+  'pre_flight': 'preflight',
+  'flight-check': 'preflight',
+  'quality-audit': 'preflight',
+  'review-gate': 'preflight',
+  'audit': 'preflight',
 };
 
 /** Default number of search results to return */
