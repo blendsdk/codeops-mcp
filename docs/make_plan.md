@@ -662,13 +662,60 @@ Choose based on estimated size — each document should be manageable within AI 
 - Integration tests: Key workflows covered
 - E2E tests: Complete feature verification
 
+## 🚨 Specification Test Cases (MANDATORY — NON-NEGOTIABLE)
+
+> **These test cases are derived EXCLUSIVELY from requirements (`01-requirements.md`),
+> component specifications (`03-XX-*.md`), API contracts, RFCs, and the Ambiguity Register
+> (`00-ambiguity-register.md`). They define the expected behavior BEFORE any
+> implementation exists.**
+>
+> **IMMUTABLE ORACLE RULE:** The agent MUST NOT modify these expectations to match the
+> implementation. If the implementation does not match a spec test case, the implementation
+> is wrong — not the test. See `testing.md` Rule 10 for the full protocol.
+>
+> **Every spec test case MUST include a source reference** tracing it to the requirement,
+> spec document, or AR entry that defines the expected behavior.
+
+### [Component/Feature 1]
+
+| # | Input / Scenario | Expected Output / Behavior | Source |
+|---|-----------------|---------------------------|--------|
+| ST-1 | [Concrete input or action] | [Concrete expected output or behavior] | [Req X.X / AR #X / RFC §X] |
+| ST-2 | [Concrete input or action] | [Concrete expected output or behavior] | [Req X.X / AR #X] |
+| ST-3 | [Error/edge scenario] | [Expected error type and message] | [Req X.X / AR #X] |
+
+### [Component/Feature 2]
+
+| # | Input / Scenario | Expected Output / Behavior | Source |
+|---|-----------------|---------------------------|--------|
+| ST-4 | [Concrete input or action] | [Concrete expected output or behavior] | [Req X.X / AR #X] |
+| ST-5 | [Concrete input or action] | [Concrete expected output or behavior] | [Req X.X / AR #X] |
+
+> **⚠️ AUTHORING RULE:** When writing spec test cases, the plan author MUST derive
+> expectations from the specification documents listed above. The author MUST NOT
+> imagine or infer what the implementation will produce. If the expected output cannot
+> be determined from the specification, this is an ambiguity — add it to the Ambiguity
+> Register and resolve with the user before defining the test case.
+
 ## Test Categories
 
-### Unit Tests
+### Specification Tests (from ST-cases above)
 
-| Test        | Description      | Priority     |
-| ----------- | ---------------- | ------------ |
-| [Test name] | [What it tests]  | High/Med/Low |
+> Written BEFORE implementation. Filed as `[feature].spec.test.[ext]`.
+> See `testing.md` Rule 10 and `code.md` Rule 31.
+
+| Test File | ST Cases Covered | Component |
+| --------- | ---------------- | --------- |
+| `[feature].spec.test.[ext]` | ST-1, ST-2, ST-3 | [Component 1] |
+| `[feature].spec.test.[ext]` | ST-4, ST-5 | [Component 2] |
+
+### Implementation Tests (edge cases, internals)
+
+> Written AFTER implementation. Filed as `[feature].impl.test.[ext]`.
+
+| Test File | Description | Priority |
+| --------- | ----------- | -------- |
+| `[feature].impl.test.[ext]` | [Edge cases, boundary conditions, internal logic] | High/Med/Low |
 
 ### Integration Tests
 
@@ -694,6 +741,12 @@ Choose based on estimated size — each document should be manageable within AI 
 
 ## Verification Checklist
 
+- [ ] All specification test cases (ST-*) defined with concrete input/output pairs
+- [ ] Every ST case traces to a requirement, spec doc, or AR entry
+- [ ] Specification tests written BEFORE implementation
+- [ ] Specification tests verified to FAIL before implementation (red phase)
+- [ ] All specification tests pass after implementation (green phase)
+- [ ] Implementation tests written for edge cases and internals
 - [ ] All unit tests pass
 - [ ] All integration tests pass
 - [ ] All E2E tests pass
@@ -728,6 +781,16 @@ Before finalizing plan documents, run this checklist:
 - [ ] Every component has test requirements
 - [ ] E2E tests planned
 - [ ] Test coverage goals defined
+
+**✅ Specification-First Testing (per `testing.md` Rule 10, `code.md` Rule 31) — 🚨 NON-NEGOTIABLE**
+- [ ] `07-testing-strategy.md` contains the `🚨 Specification Test Cases` section with concrete ST-cases
+- [ ] Every ST-case has concrete input → expected output pairs (not just test names/descriptions)
+- [ ] Every ST-case traces to a requirement, spec document, RFC, or AR entry
+- [ ] ST-case expectations are derived from specification documents, NOT from imagined implementation behavior
+- [ ] `99-execution-plan.md` follows the three-phase task ordering: spec tests → implementation → impl tests
+- [ ] Spec test tasks reference ST-cases from `07-testing-strategy.md`
+- [ ] Spec test and impl test files use separate naming convention (`*.spec.test.*` and `*.impl.test.*`)
+- [ ] Red-phase verification task exists in execution plan (verify spec tests fail before implementation)
 
 **✅ No Dead Code (per `code.md` rule 4)**
 - [ ] No unused parameters (except interface contracts, overrides, and framework-required signatures)
@@ -857,6 +920,87 @@ For each task in order:
 3. Run verification (project's verify command from `project.md`)
 4. **Techdocs check (after each phase):** If `docs/index.md` exists with `techdocs: true` frontmatter and the just-completed phase introduced architectural changes (new components, data entities, API endpoints, integrations, or infrastructure), perform an incremental techdocs update (see `techdocs.md` Phase 6.1)
 5. Continue until all tasks complete OR context window reaches 90%
+
+> **🚨 SPECIFICATION-FIRST TASK ORDERING — NON-NEGOTIABLE 🚨**
+>
+> When executing implementation tasks for any feature, the agent MUST follow the three-phase task ordering defined below. This is enforced at the execution plan level — every generated `99-execution-plan.md` MUST structure feature phases in this order. See `testing.md` Rule 10 for the full Specification-First Testing Protocol.
+
+---
+
+## **🚨 CRITICAL: Specification-First Task Ordering in Execution Plans (NON-NEGOTIABLE) 🚨**
+
+**Every feature implementation phase in `99-execution-plan.md` MUST follow this three-phase task structure.** This prevents tautological testing — where tests mirror the implementation instead of independently verifying it against the specification. See `testing.md` Rule 10 and `code.md` Rule 31.
+
+### Mandatory Task Ordering Per Feature
+
+```
+Phase N: [Feature Name]
+
+  Session N.1: Specification Tests (BEFORE implementation)
+    N.1.1  Write specification tests from 07-testing-strategy.md ST-cases
+           → File: [feature].spec.test.[ext]
+           → Source: 07-testing-strategy.md ST-1 through ST-X
+           → Agent MUST NOT read implementation logic when writing these tests
+    N.1.2  Run spec tests — verify they FAIL (red phase)
+           → Document any that pass pre-implementation with justification
+
+  Session N.2: Implementation
+    N.2.1  Implement [feature/component] per technical specification
+           → File: [implementation files]
+           → Reference: 03-XX-[component].md
+    N.2.2  Run spec tests — verify they PASS (green phase)
+           → If any spec test fails: STOP, fix implementation (NOT the test)
+
+  Session N.3: Implementation Tests & Hardening
+    N.3.1  Write implementation tests (edge cases, internals, error paths)
+           → File: [feature].impl.test.[ext]
+    N.3.2  Full verification (project's verify command)
+```
+
+### Why This Ordering Is Non-Negotiable
+
+| Step | What It Prevents |
+|------|-----------------|
+| **Spec tests BEFORE implementation** | Prevents agent from deriving test expectations from the code it just wrote |
+| **Red phase verification** | Proves spec tests are meaningful (they test something that doesn't exist yet) |
+| **Spec tests PASS after implementation** | Proves the implementation satisfies the specification |
+| **Impl tests AFTER implementation** | These tests CAN be derived from the code (edge cases, internals) — but spec tests cannot |
+
+### Enforcement Rules
+
+**🚫 PROHIBITED — The agent MUST NOT:**
+
+- ❌ Write implementation code before specification tests exist for that feature
+- ❌ Skip the spec test phase ("we'll write tests after")
+- ❌ Combine spec tests and implementation in the same task
+- ❌ Write spec tests and implementation simultaneously
+- ❌ Generate an execution plan where implementation tasks come before spec test tasks for the same feature
+
+**✅ REQUIRED — Every generated `99-execution-plan.md` MUST:**
+
+- ✅ Structure each feature phase with the three-session ordering above
+- ✅ Include explicit spec test file references (`[feature].spec.test.[ext]`)
+- ✅ Include explicit impl test file references (`[feature].impl.test.[ext]`)
+- ✅ Reference the ST-cases from `07-testing-strategy.md` in spec test tasks
+- ✅ Include red-phase verification as a distinct task
+
+### Adaptation for Small Features
+
+For small features where three separate sessions would be excessive, the agent MAY compress into a single session — but the **task ordering is still mandatory**:
+
+```
+Session N.1: [Feature Name]
+  N.1.1  Write specification tests (from ST-cases)
+  N.1.2  Verify spec tests fail (red phase)
+  N.1.3  Implement feature
+  N.1.4  Verify spec tests pass (green phase)
+  N.1.5  Write implementation tests
+  N.1.6  Full verification
+```
+
+The order `spec tests → red phase → implement → green phase → impl tests → verify` is NEVER negotiable, regardless of feature size.
+
+---
 
 #### Step 3: Session Wrap-Up
 

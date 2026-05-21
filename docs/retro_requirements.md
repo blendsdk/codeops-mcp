@@ -76,6 +76,7 @@ requirements/
     ├── 06-cross-cutting.md          # Auth, errors, logging, caching, config
     ├── 07-integrations.md           # External APIs, databases, third-party services
     ├── 08-gaps-and-debt.md          # TODOs, missing tests, incomplete features, debt
+    ├── 08b-triage-register.md       # Bug-or-Feature Triage Gate (audit trail)
     ├── 09-reconstruction-brief.md   # THE KEY FILE — make_requirements input
     └── _progress.md                 # Session tracking (which phases are complete)
 ```
@@ -457,7 +458,26 @@ Every extracted feature must be written in this format:
   - Result: [What changes in the system]
   - Edge cases: [What the code handles]
   - Related: [Other features this connects to]
+  - Confidence: [✅ Confirmed | ⚠️ Inferred | 🔴 Suspicious]
 ```
+
+### 4.2B 🚨 Confidence Classification — NON-NEGOTIABLE
+
+Every extracted feature MUST be classified with a confidence level. This is a structural safeguard against the **code-as-truth tautology** — the risk that bugs in the original code are documented as intended behavior and faithfully reproduced in a rebuild.
+
+| Confidence | Icon | Meaning | Evidence Required |
+|------------|------|---------|-------------------|
+| **Confirmed** | ✅ | Behavior is clearly intentional | Tests exist that assert this behavior, OR documentation/comments describe it, OR it follows an obvious domain convention |
+| **Inferred** | ⚠️ | Behavior appears intentional but has no supporting evidence | No tests, no comments, no documentation — but the code is well-structured and the behavior is plausible |
+| **Suspicious** | 🔴 | Behavior may be a bug masquerading as a feature | Code has error-handling gaps, TODOs near it, inconsistency with other parts, violates common patterns/standards, or produces results that seem wrong for the domain |
+
+**Rules for confidence classification:**
+
+1. **Default is ⚠️ Inferred** — A feature starts as Inferred unless evidence promotes it to Confirmed or red flags demote it to Suspicious
+2. **Tests promote confidence** — If a test explicitly asserts the behavior, it is ✅ Confirmed (the original developer intended it)
+3. **Missing tests do NOT confirm** — Untested behavior is NEVER ✅ Confirmed, regardless of how clean the code looks
+4. **Domain violations flag suspicion** — If the behavior violates a well-known standard (RFC, industry convention, common protocol), it is 🔴 Suspicious even if the code is clean
+5. **Every 🔴 Suspicious item becomes a mandatory user question** — See Phase 8B below
 
 ### 4.3 Feature Categories
 
@@ -807,18 +827,119 @@ Look for:
 
 ---
 
+## **Phase 8B: Bug-or-Feature Triage Gate — 🚨 NON-NEGOTIABLE HARD GATE 🚨**
+
+**This gate MUST be passed before Phase 9 (Synthesis). There are NO exceptions. This is the structural safeguard against the code-as-truth tautology — the single most dangerous pattern in reverse requirements engineering.**
+
+### Why This Gate Exists
+
+When an AI agent reads code and writes requirements from it, **every bug becomes a requirement**. The agent has no way to distinguish intentional behavior from accidental behavior — it can only observe what the code does. Without this gate, bugs are faithfully documented as features, passed through `make_requirements`, planned via `make_plan`, implemented via `exec_plan`, and tested with spec tests that validate the buggy behavior. The entire forward pipeline passes clean, and the bugs are reproduced with full confidence.
+
+**This gate breaks the tautology** by forcing every uncertain or suspicious behavior to be presented to the user — the only entity that has external domain knowledge and can distinguish bugs from features.
+
+### 8B.1 Compile the Triage Register
+
+After Phases 4-8 are complete, the agent MUST compile a **Triage Register** — a formal inventory of ALL items that are NOT ✅ Confirmed:
+
+```markdown
+# Bug-or-Feature Triage Register: [Project Name]
+
+> **Status**: ❌ GATE BLOCKED — [X] items unresolved
+> **Last Updated**: [Date]
+
+## 🔴 Suspicious Items (MANDATORY — Must be resolved before synthesis)
+
+| # | Source | Item | What the Code Does | Why It's Suspicious | User Decision | Status |
+|---|--------|------|-------------------|--------------------|--------------| --------|
+| T-001 | Phase 4: [CAT]-03 | [Feature title] | [Observed behavior] | [Why this might be a bug] | — | ❌ Open |
+| T-002 | Phase 5: BR-DOM-02 | [Rule title] | [What the rule enforces] | [Why this might be wrong] | — | ❌ Open |
+
+## ⚠️ Inferred Items (RECOMMENDED — User should confirm or flag)
+
+| # | Source | Item | What the Code Does | Confidence Notes | User Decision | Status |
+|---|--------|------|-------------------|-----------------|---------------|--------|
+| T-010 | Phase 4: [CAT]-07 | [Feature title] | [Observed behavior] | [Why confidence is only Inferred] | — | ❌ Open |
+```
+
+### 8B.2 Present to User for Triage
+
+**🔴 Suspicious items** — present each one with:
+
+1. **What the code does** — factual description of observed behavior
+2. **Why it's suspicious** — what standard, convention, or domain expectation it violates
+3. **Options:**
+   - **(A) It's a bug** — Do NOT include in the reconstruction brief. Add to "Known Gaps" instead.
+   - **(B) It's intentional** — Include in the reconstruction brief as a confirmed requirement. Record the user's explanation.
+   - **(C) I'm not sure** — Include in the reconstruction brief with a prominent ⚠️ flag AND add to "Open Questions for Discovery" so `make_requirements` will re-examine it.
+
+**⚠️ Inferred items** — present in batches (5-10 at a time) for a quicker confirmation:
+
+- *"These behaviors appear intentional but have no test coverage or documentation. Please scan and flag any that look wrong."*
+- User can confirm the batch ("all look fine") or flag individual items for deeper review
+
+### 8B.3 Gate Rules
+
+**🚫 ABSOLUTELY PROHIBITED while the gate is blocked:**
+
+- ❌ Write the reconstruction brief (`09-reconstruction-brief.md`)
+- ❌ Proceed to Phase 9
+- ❌ Include any 🔴 Suspicious item as a confirmed requirement
+- ❌ Assume a suspicious behavior is intentional because the code is "clean"
+
+**✅ REQUIRED — The gate opens ONLY when ALL of these conditions are met:**
+
+1. ✅ Every 🔴 Suspicious item has a user decision (A, B, or C)
+2. ✅ All ⚠️ Inferred items have been presented to the user (batch confirmation is acceptable)
+3. ✅ Items decided as **(A) Bug** have been moved to `08-gaps-and-debt.md` → "Known Bugs" section
+4. ✅ Items decided as **(C) Unsure** have been flagged in the reconstruction brief AND added to Open Questions
+5. ✅ The register header has been updated to `✅ GATE PASSED`
+
+### 8B.4 Register Persistence
+
+The Triage Register is saved as a permanent file:
+
+- **Location:** `requirements/_retro/08b-triage-register.md`
+- **Purpose:** Audit trail — every behavior classification is traceable to a user decision
+- **Survives crashes:** Saved to disk before presenting to user
+
+### 8B.5 Real-World Example
+
+```
+T-003 | Phase 6: Auth | OIDC Discovery Endpoint
+
+What the code does:
+  The OIDC discovery endpoint returns { issuer: "https://example.com" }
+  without including the organization path segment.
+
+Why it's suspicious:
+  RFC 8414 §2 requires the issuer value to exactly match the URL the client
+  used to retrieve the discovery document. If clients access the endpoint at
+  https://example.com/org-slug/.well-known/openid-configuration, the issuer
+  MUST be https://example.com/org-slug — not the bare base URL.
+
+Options:
+  (A) Bug — omit from requirements, add to gaps
+  (B) Intentional — single-tenant deployment, no org path needed
+  (C) Unsure — flag for make_requirements discovery
+```
+
+---
+
 ## **Phase 9: Synthesis — The Reconstruction Brief**
 
 **Goal:** Combine all phase outputs into a single document that `make_requirements` can consume.
 
+**🚨 PREREQUISITE:** Phase 8B (Bug-or-Feature Triage Gate) MUST have passed before this phase begins. If the triage register contains any unresolved items, STOP and complete Phase 8B first.
+
 ### 9.1 Process
 
-1. Review all phase outputs (`00` through `08`)
-2. Translate code-level observations into requirement-level statements
-3. Organize by domain area (not by code structure)
-4. Identify implicit requirements that were never documented but the code satisfies
-5. Flag areas where the code's behavior might be unintentional (bugs masquerading as features)
+1. **Verify Phase 8B gate status** — Confirm the triage register shows `✅ GATE PASSED`
+2. Review all phase outputs (`00` through `08`)
+3. Translate code-level observations into requirement-level statements
+4. Organize by domain area (not by code structure)
+5. **Apply triage decisions** — Items marked (A) Bug are EXCLUDED; items marked (C) Unsure are included with ⚠️ flags
 6. Write the reconstruction brief in `make_requirements` Mode 3 format
+7. **Include confidence levels** — The Feature Catalog and Business Rules tables MUST include the Confidence column from Phase 4/5 annotations
 
 ### 9.2 Output: `09-reconstruction-brief.md`
 

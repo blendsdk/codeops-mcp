@@ -402,6 +402,47 @@ These rules are **mandatory** and must be applied **strictly and consistently** 
     - api.errors.test.go
     ```
 
+31. **🚨 Specification-Implementation Test Separation (🚨 NON-NEGOTIABLE)**
+
+    Every feature MUST have two distinct categories of tests, physically separated into different files. This rule prevents **tautological testing** — where tests mirror the implementation instead of independently verifying it against the specification, causing bugs to ship to production undetected.
+
+    **Two mandatory test categories:**
+
+    | Category | Source of Truth | File Convention | Purpose |
+    |----------|----------------|-----------------|---------|
+    | **Specification Tests** | Requirements, acceptance criteria, API contracts, RFCs | `[feature].spec.test.[ext]` | Verify the code does what the **specification** says |
+    | **Implementation Tests** | The code itself | `[feature].impl.test.[ext]` | Verify internals, edge cases, error paths, boundary conditions |
+
+    **Specification test rules:**
+    - Spec test expectations MUST be derived from specification documents (requirements, acceptance criteria, API contracts) — NEVER from reading the implementation code
+    - Spec tests are **immutable oracles** — if a spec test fails after implementation, the **implementation is wrong**, not the test
+    - The agent MUST NOT modify spec test expectations to make them match the implementation without explicit user approval
+    - When writing spec tests, the agent MAY read type definitions and function signatures (public API surface) but MUST NOT read implementation logic (function bodies, internal algorithms)
+    - Every spec test MUST include a traceability comment linking it to its source requirement or AR entry
+
+    **File organization:**
+    ```
+    tests/
+    ├── auth/
+    │   ├── auth.login.spec.test.[ext]       # Specification tests — from requirements
+    │   ├── auth.login.impl.test.[ext]       # Implementation tests — edge cases, internals
+    ├── user/
+    │   ├── user.creation.spec.test.[ext]    # Specification tests
+    │   └── user.creation.impl.test.[ext]    # Implementation tests
+    ```
+
+    **Describe block labeling:** Within spec test files, use `describe('Specification: [Feature]', ...)` to make the test category unmistakable in test output.
+
+    **🚫 PROHIBITED — The agent MUST NOT:**
+    - ❌ Write only implementation tests without specification tests
+    - ❌ Combine spec and impl tests in the same file
+    - ❌ Derive spec test expectations from running the code and observing output
+    - ❌ Modify spec test assertions to match a broken implementation
+    - ❌ Skip, disable, or weaken spec tests that fail after implementation
+    - ❌ Rationalize spec test failures as "the spec was wrong" without user approval
+
+    > **📖 See `testing.md` Rule 10 (Specification-First Testing Protocol)** for the full protocol including the red-phase verification, escalation procedures, and interaction with `make_plan`.
+
 ---
 
 ## 10. Security-First Development

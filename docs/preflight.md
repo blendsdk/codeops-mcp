@@ -524,6 +524,33 @@ For any finding in dimensions 2, 4, 5, 6, 11, or 13 — and for any finding that
 
 Codebase reconnaissance (Step 2) should be thorough but proportional. For a plan that modifies 3 files, read those 3 files deeply plus their direct dependents. For a requirements document about a new subsystem, understand the overall architecture and the integration points. Do NOT attempt to read the entire codebase for a small, scoped artifact — that wastes context window. Focus on the code that the artifact actually touches or depends on.
 
+### Rule 10: Same-Agent Bias Awareness — 🚨 NON-NEGOTIABLE
+
+**The agent performing preflight MUST explicitly acknowledge and counteract the risk of same-agent bias.** When the same AI model created the artifact and reviews it, systematic blind spots are likely — the agent shares the same training biases, the same knowledge gaps, and the same reasoning patterns. A bug the agent missed during creation is exactly the kind of bug it will miss during review.
+
+**Structural safeguards:**
+
+1. **Fresh context required** — If the agent created the artifact in the CURRENT session, it MUST note this at the top of the preflight report:
+   ```
+   ⚠️ SAME-SESSION REVIEW: This artifact was created in the current session.
+   Same-agent bias risk is elevated. Consider running preflight in a new session
+   for maximum review independence.
+   ```
+
+2. **Standard-first checking** — For any behavior that must conform to an external standard (RFC, protocol, specification, regulation), the agent MUST verify conformance by **citing the specific standard text**, not by reasoning from memory. If the agent cannot cite the standard, it MUST flag this as a limitation:
+   ```
+   ⚠️ Unable to verify conformance with [standard] — agent does not have
+   access to the full standard text. Flag for human review.
+   ```
+
+3. **Adversarial question checklist** — Before concluding the 13-dimension scan, the agent MUST ask itself:
+   - "What assumption did I make during creation that I might be unconsciously confirming now?"
+   - "What external standard or convention might this violate that I'm not aware of?"
+   - "What would a domain expert who disagrees with my approach flag as wrong?"
+   If any of these questions surface concerns, add them as 🔵 OBSERVATION findings.
+
+4. **User recommendation** — If the artifact is high-stakes (security-related, compliance-related, or architecturally foundational), the agent SHOULD recommend: *"Consider having a human domain expert review this artifact in addition to the automated preflight."*
+
 ---
 
 ## **Cross-References**

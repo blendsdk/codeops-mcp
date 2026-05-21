@@ -1009,10 +1009,11 @@ When all tasks in an `exec_plan` are complete and techdocs exist:
 1. **Review every section** against the current codebase
 2. **Update all diagrams** to reflect the current architecture
 3. **Verify all links** are working
-4. **Check for stale content** — anything that no longer reflects reality
-5. **Update the VitePress sidebar** if new pages were added
-6. **Update "Last Updated"** dates on all modified documents
-7. **Create ADRs** for any undocumented decisions from the plan execution
+4. **🚨 Check for design intent divergence** — see 6.4 below
+5. **Check for stale content** — anything that no longer reflects reality
+6. **Update the VitePress sidebar** if new pages were added
+7. **Update "Last Updated"** dates on all modified documents
+8. **Create ADRs** for any undocumented decisions from the plan execution
 
 ### 6.3 After `make_requirements` Completion (Incremental)
 
@@ -1022,6 +1023,44 @@ When `make_requirements` completes and techdocs exist:
 2. **Create ADRs** for each significant decision (technology choices, architecture patterns, integration decisions)
 3. **Update architecture sections** if the requirements imply architectural changes
 4. **Update the decision log** in `decisions/index.md`
+
+### 6.4 🚨 Design Intent Preservation — NON-NEGOTIABLE
+
+**Auto-updates MUST NOT silently overwrite design intent with observed code behavior.** This rule prevents the documentation tautology — where code changes (including bugs, regressions, and architectural violations) are automatically documented as the new "intended architecture," erasing the original design rationale.
+
+**The problem this solves:** If `exec_plan` introduces an architectural violation (e.g., a service that should call through an API layer instead directly accesses the database), a naive auto-update would change the architecture diagram and component description to match the violation. The next `make_plan` would then read the updated techdocs and treat the violation as the established architecture. The original design intent is permanently lost.
+
+**During every comprehensive update (6.2), the agent MUST:**
+
+1. **Read all existing ADRs** — These represent the documented design decisions
+2. **Compare the current codebase against ADR decisions** — Does the code still follow the decisions?
+3. **If code MATCHES the ADR decisions** → Update documentation normally (describe what exists)
+4. **If code DIVERGES from an ADR decision** → DO NOT silently update. Instead:
+
+   a. **Flag the divergence** to the user:
+   ```
+   ⚠️ Design Intent Divergence Detected
+   
+   ADR-003 decided: "All database access goes through the repository layer"
+   Current code: UserController directly queries the database in src/controllers/user.ts:47
+   
+   Options:
+   (A) Code is wrong — this is a violation that should be fixed
+   (B) Decision changed — create a new ADR superseding ADR-003
+   (C) Partial exception — document the exception with rationale
+   ```
+   
+   b. **Wait for user decision** before updating the affected documentation section
+   c. **If option (B)** → Create a new ADR with status "Supersedes ADR-XXX" and update docs accordingly
+   d. **If option (A)** → Do NOT update the architecture docs to match the violation. Note the violation in a `⚠️ Known Violations` section for the next `exec_plan` to fix.
+
+**For incremental updates (6.1):** Check new/changed code against the ADRs that cover the affected area. Apply the same divergence check for any relevant ADR.
+
+**Rules:**
+- ❌ NEVER silently change an architecture description to match code that contradicts an existing ADR
+- ❌ NEVER delete or modify an ADR's Decision/Rationale section during auto-update
+- ✅ ADR status can be changed to "Deprecated" or "Superseded" ONLY with user approval
+- ✅ New ADRs can be created to document evolved decisions, with explicit supersession references
 
 ---
 

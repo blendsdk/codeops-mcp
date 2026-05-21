@@ -638,6 +638,44 @@ When writing each RD:
 - **Complexity Estimates**: Tag each requirement section with estimated complexity (S/M/L/XL) to aid planning
 - **Non-Functional RD**: Always create one dedicated RD for non-functional requirements (performance targets, security, scalability, accessibility, availability, backup/recovery). Users frequently forget these.
 
+### 3.4B 🚨 Acceptance Criteria Specificity — NON-NEGOTIABLE
+
+**Acceptance criteria MUST be specific enough that a developer who has never spoken to the user can write a correct test from the criterion alone.** This rule prevents the acceptance criteria tautology — where the agent writes vague criteria, then later writes tests that interpret the criteria however the implementation happens to work, creating a self-validating loop.
+
+**Every acceptance criterion MUST meet ALL of these requirements:**
+
+1. **Measurable outcome** — States a concrete, observable result (not "works correctly" or "handles errors properly")
+2. **Specific values** — Includes exact numbers, formats, status codes, or field names where applicable
+3. **Standard references** — When the behavior must conform to a standard (RFC, protocol, specification), the criterion MUST cite the specific standard and section (e.g., "per RFC 8414 §2" not "follows the OIDC spec")
+4. **Boundary conditions** — States what happens at the edges (empty input, maximum length, zero items, expired tokens)
+5. **Negative cases** — States what should NOT happen or what should be rejected
+
+**Examples:**
+
+```
+❌ BAD: "The API returns a valid OIDC discovery document"
+✅ GOOD: "GET /.well-known/openid-configuration returns a JSON document where
+   the 'issuer' field exactly matches the URL used to access the endpoint
+   (per RFC 8414 §2), and includes all REQUIRED fields: issuer,
+   authorization_endpoint, token_endpoint, jwks_uri,
+   response_types_supported, subject_types_supported,
+   id_token_signing_alg_values_supported"
+
+❌ BAD: "Users can reset their password"
+✅ GOOD: "POST /auth/reset-password with a valid email returns 202 Accepted,
+   sends an email with a one-time reset link that expires after 60 minutes,
+   and the link cannot be reused after the password is changed"
+
+❌ BAD: "The system handles invalid input gracefully"
+✅ GOOD: "POST /api/users with a missing 'email' field returns 400 with
+   { error: 'VALIDATION_ERROR', details: [{ field: 'email', message: '...' }] }.
+   POST /api/users with an email longer than 254 characters returns 400."
+```
+
+**If the user provides vague acceptance criteria** during review (Step 3.5), the agent MUST ask for specifics: *"This criterion says 'handles errors properly' — what specific error conditions should be handled, and what should the response look like for each?"*
+
+**Traceability to tests:** When `make_plan` later derives test cases from these criteria, each spec test expectation MUST map directly to a specific acceptance criterion. If a criterion is too vague to produce a concrete test assertion, the criterion is defective — not the test.
+
 ### 3.5 Authoring Workflow
 
 Write RDs one at a time, presenting each to the user for review:
