@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/blendsdk/codeops-mcp/compare/v1.12.0...v1.13.0) (2026-05-21)
+
+
+### Features
+
+* **code-ops:** add specification-implementation test separation rules ([c01e210](https://github.com/blendsdk/codeops-mcp/commit/c01e210b57649570dfac8c270f4a13073ce05886))
+
 # [1.12.0](https://github.com/blendsdk/codeops-mcp/compare/v1.11.1...v1.12.0) (2026-05-11)
 
 
