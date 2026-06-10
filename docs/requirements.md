@@ -763,9 +763,22 @@ After all RDs are finalized and validated, check for technical architecture docu
 - **If `docs/index.md` exists with `techdocs: true` frontmatter:** Perform an incremental techdocs update — extract design decisions from the requirements documents, create ADRs for every technology/architecture choice that affects system behavior, performance, or maintainability, and update architecture sections if the requirements imply architectural changes (see `techdocs.md` Phase 6.3).
 - **If techdocs do NOT exist:** Ask the user: *"Would you like to create technical architecture documentation for this project?"* — if yes, run `make_techdocs` using the freshly created requirements as input.
 
-### 4.4 Final Output Summary
+### 4.4 Roadmap Sync (RD Drafted)
+
+After each RD is authored (and again at the end of the set), sync the roadmap if one is in play:
+
+- **If `plans/00-roadmap.md` exists:** add or sync a row for each newly drafted RD at stage `RD Drafted`
+  (✏️). Update the row's `Stage`, `Status`, and `Last Updated`, and the header `Progress` counter —
+  following the update-first mandate.
+- **If `plans/00-roadmap.md` does NOT exist:** ask the user whether to create a roadmap
+  (`make_roadmap`). Never auto-create it silently.
+
+See `get_rule("roadmap")` for the full Roadmap Keeper protocol and the stage-transition map.
+
+### 4.5 Final Output Summary
 
 After all validation, present the complete requirements set:
+
 
 ```markdown
 ## Requirements Complete: [Project Name]
@@ -909,7 +922,9 @@ When gathering and documenting requirements:
 - ✅ Reference **techdocs.md** for updating technical architecture documentation with design decisions from requirements
 - ✅ See **upgrade_plan.md** for upgrading outdated requirements (`upgrade_requirements`)
 - ✅ Reference **grill_me.md** for deep disambiguation before requirements gathering (`grill_me` → `make_requirements`)
+- ✅ Reference **roadmap.md** for the Roadmap Keeper — sync each newly drafted RD to stage `RD Drafted` if a roadmap exists (`make_roadmap`)
 - ✅ Read **`.clinerules/project.md`** for project-specific constraints (if it exists)
+
 
 ---
 
@@ -921,6 +936,8 @@ When gathering and documenting requirements:
 | `make_requirements --continue` | Resume an interrupted requirements session |
 | `add_requirement` | Add a new RD to an existing requirements set |
 | `review_requirements` | Health check and gap analysis on existing requirements |
+| `make_roadmap` | Create a roadmap to track this RD set across its lifecycle (see `roadmap.md`) |
+
 
 **Typical Session Flow:**
 ```

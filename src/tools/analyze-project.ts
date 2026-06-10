@@ -457,7 +457,12 @@ function formatProjectMd(analysis: ProjectAnalysis): string {
   parts.push('3. `get_rule("testing")` — Load testing workflows');
   parts.push('4. `get_rule("git-commands")` — Load git commit protocols');
   parts.push('');
+  // Roadmap directive — MUST stay byte-for-byte identical to the same line in
+  // docs/project-template.md (verified by the template↔generator sync test, PF-001).
+  parts.push('**Roadmap directive:** If `plans/00-roadmap.md` exists, you MUST read it at the start of every task and update it at every lifecycle stage transition. See `get_rule("roadmap")`.');
+  parts.push('');
   parts.push('These rules are **mandatory** and must be consulted before every task.');
+
   parts.push('**Do NOT skip this step. Do NOT proceed without reading these documents.**');
   parts.push('');
   parts.push('---');
@@ -598,8 +603,10 @@ function formatProjectMd(analysis: ProjectAnalysis): string {
   parts.push('- **upgrade_plan.md** — Uses project context for upgrade compatibility checks');
   parts.push('- **grill_me.md** — Uses project context for deep disambiguation before planning or requirements');
   parts.push('- **preflight.md** — Uses project type, tech stack, and conventions for grounded quality audits');
+  parts.push('- **roadmap.md** — Tracks RDs/plans across the feature-set lifecycle if a roadmap exists (make_roadmap)');
 
   return parts.join('\n');
+
 }
 
 // ============================================================================

@@ -15,7 +15,8 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { join } from 'path';
-import { mkdtemp, mkdir, writeFile, rm } from 'fs/promises';
+import { mkdtemp, mkdir, writeFile, rm, readFile } from 'fs/promises';
+
 import { tmpdir } from 'os';
 import type { ParsedSection, MergeChange, ProjectAnalysis } from '../../types/index.js';
 import {
@@ -57,7 +58,10 @@ using the codeops-mcp tools:**
 3. \`get_rule("testing")\` — Load testing workflows
 4. \`get_rule("git-commands")\` — Load git commit protocols
 
+**Roadmap directive:** If \`plans/00-roadmap.md\` exists, you MUST read it at the start of every task and update it at every lifecycle stage transition. See \`get_rule("roadmap")\`.
+
 These rules are **mandatory** and must be consulted before every task.
+
 **Do NOT skip this step. Do NOT proceed without reading these documents.**
 
 ---
@@ -754,3 +758,74 @@ describe('analyzeProject fresh path (regression)', () => {
     expect(result).toContain('## Cross-References');
   });
 });
+
+// ============================================================================
+// Specification: Roadmap Keeper — generated project.md prime directive
+// (ST-13 → ST-16)
+//
+// Derived from 03-03-prime-directive.md Part A (AR #10), 03-03 Part C (AR #12),
+// 02-current-state constraint, and PF-001. Expectations defined BEFORE
+// implementation.
+// ============================================================================
+
+/**
+ * The exact roadmap directive line that MUST appear byte-for-byte identical in
+ * BOTH docs/project-template.md and the analyze_project generator output.
+ * Source: 03-03-prime-directive.md Part A, AR #10.
+ */
+const ROADMAP_DIRECTIVE_LINE =
+  '**Roadmap directive:** If `plans/00-roadmap.md` exists, you MUST read it at the start of every task and update it at every lifecycle stage transition. See `get_rule("roadmap")`.';
+
+describe('Specification: Roadmap Keeper — generated project.md', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = await mkdtemp(join(tmpdir(), 'codeops-roadmap-gen-'));
+    await writeFile(
+      join(tempDir, 'package.json'),
+      JSON.stringify({ name: 'roadmap-gen-test', devDependencies: { typescript: '^5.0.0' } }),
+    );
+    await writeFile(join(tempDir, 'tsconfig.json'), '{}');
+  });
+
+  afterEach(async () => {
+    await rm(tempDir, { recursive: true, force: true });
+  });
+
+  // Source: 07-testing-strategy.md ST-13 — 03-03 Part A, AR #10
+  it('should include the exact roadmap directive line in fresh output (ST-13)', async () => {
+    const result = await analyzeProject({ projectPath: tempDir });
+    expect(result).toContain(ROADMAP_DIRECTIVE_LINE);
+  });
+
+  // Source: 07-testing-strategy.md ST-14 — 03-03 Part C, AR #12
+  it('should include a roadmap.md line in the Cross-References section (ST-14)', async () => {
+    const result = await analyzeProject({ projectPath: tempDir });
+    // The Cross-References section must reference roadmap.md
+    const crossRefIndex = result.indexOf('## Cross-References');
+    expect(crossRefIndex).toBeGreaterThanOrEqual(0);
+    const crossRefSection = result.slice(crossRefIndex);
+    expect(crossRefSection).toContain('roadmap.md');
+  });
+
+  // Source: 07-testing-strategy.md ST-15 — 02-current-state constraint
+  it('should leave the MANDATORY section header unchanged (ST-15)', async () => {
+    const result = await analyzeProject({ projectPath: tempDir });
+    expect(result).toContain('## 🚨 MANDATORY: Load CodeOps Rules Before Any Work');
+  });
+
+  // Source: 07-testing-strategy.md ST-16, PF-001 — template↔generator sync
+  it('should keep the directive line byte-identical between template and generator (ST-16)', async () => {
+    // Read the on-disk template that ships with the package
+    const templatePath = join(process.cwd(), 'docs', 'project-template.md');
+    const templateContent = await readFile(templatePath, 'utf-8');
+
+    // Generate fresh project.md via the generator
+    const generated = await analyzeProject({ projectPath: tempDir });
+
+    // BOTH must contain the byte-identical roadmap directive line — drift fails here
+    expect(templateContent).toContain(ROADMAP_DIRECTIVE_LINE);
+    expect(generated).toContain(ROADMAP_DIRECTIVE_LINE);
+  });
+});
+

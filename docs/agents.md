@@ -30,6 +30,8 @@ This file contains **universal agent rules** that work for any software project.
 | 📦 | **Script-First** | NEVER use inline scripts (`node -e`, `python -c`). Create files in `scripts/`. |
 | 🔒 | **Git Protocol** | NEVER use `git commit -m`. Always `gitcm`/`gitcmp` with file-based messages. |
 | 📜 | **No Complex Chains** | No `&&` + pipes/redirects combos. Use script files instead. |
+| 🗺️ | **Roadmap Source of Truth** | If `plans/00-roadmap.md` exists, read it at task start and update it on every stage transition (update-first). |
+
 
 ---
 
@@ -603,7 +605,29 @@ Examples:
 
 ---
 
+### **Rule 13: Roadmap Is a Source of Truth — Read-If-Exists, Update-First**
+
+**🚨 If `plans/00-roadmap.md` exists, it is a SOURCE OF TRUTH at the RD/plan altitude. You MUST read it at task start and update it on every lifecycle stage transition — BEFORE verification, commit, or the next action.**
+
+The roadmap (`plans/00-roadmap.md`) tracks an entire large feature-set — every requirement (RD) and plan, and the lifecycle stage each one is in. It sits above any single `99-execution-plan.md`. This rule mirrors Rule 5 (the execution-plan mandate) at a higher altitude.
+
+#### Required Behavior
+
+1. **Read-if-exists:** At the start of every task, if `plans/00-roadmap.md` exists, read it before planning or acting. It tells you what is done, in flight, blocked, or in the backlog across the whole feature-set.
+2. **Update-first ordering:** On any lifecycle stage transition (RD drafted, RD/plan preflighted, plan created, executing, done, blocked, deferred), update the roadmap **BEFORE** verify/commit/next — the same update-first discipline as the execution plan:
+   ```
+   complete stage transition → 🚨 UPDATE plans/00-roadmap.md → verify → commit → next
+   ```
+3. **Ask-if-missing / sync-if-exists:** NEVER auto-create the roadmap silently when it is missing — ask the user first (`make_roadmap`). But when it already exists, sync it from disk state automatically without asking.
+4. **Blocks `attempt_completion`:** If a lifecycle stage transition occurred during the task, `attempt_completion` is **BLOCKED** until `plans/00-roadmap.md` reflects that transition (stage, status, `Last Updated`, and the header `Progress` counter).
+5. **Crash-resilience rationale:** The roadmap is the user's cross-session lifeline at the RD/plan altitude. If it is stale, the user has no high-level view of what was accomplished after a crash or context reset.
+
+> **📖 See `get_rule("roadmap")`** for the full Roadmap Keeper protocol — triggers (`make_roadmap`, `update_roadmap`, `review_roadmap`, `archive_roadmap`), the lifecycle state machine, the `plans/00-roadmap.md` template, and the stage-transition map.
+
+---
+
 ## **Summary: Applying These Rules**
+
 
 **Every Single Time You Respond:**
 
@@ -620,7 +644,9 @@ Examples:
 10. ⚙️ **Act Mode ONLY:** Execute agent.sh if available (Rule 10 — start/finish settings)
 11. 🔒 **Mandatory `gitcm`/`gitcmp`** — NEVER use loose git commands (Rule 11)
 12. 📜 **No complex command chaining** — Use script files for pipes/redirects (Rule 12)
-13. 📊 **Context management:** Continue until 90%, then wrap + commit + `/compact`
+13. 🗺️ **Roadmap source of truth** — If `plans/00-roadmap.md` exists, read it at task start and update it on every stage transition, update-first (Rule 13)
+14. 📊 **Context management:** Continue until 90%, then wrap + commit + `/compact`
+
 
 ---
 
@@ -631,5 +657,7 @@ Examples:
 - See **make_plan.md** for plan creation/execution triggers, session rules, and implementation plan formatting
 - See **requirements.md** for requirements gathering and documentation protocol (`make_requirements`, `add_requirement`, `review_requirements`)
 - See **retro_requirements.md** for reverse-engineering an existing codebase into structured requirements (`retro_requirements`)
+- See **roadmap.md** for the Roadmap Keeper protocol (`make_roadmap`, `update_roadmap`, `review_roadmap`, `archive_roadmap`)
 - See **git-commands.md** for git workflow instructions (`gitcm`, `gitcmp`)
 - See **`.clinerules/project.md`** for project-specific commands, toolchain, and conventions
+

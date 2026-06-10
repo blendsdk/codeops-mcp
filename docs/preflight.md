@@ -341,7 +341,21 @@ After all decisions are collected, the user may ask the agent to apply the fixes
 
 The agent MUST NOT apply fixes without explicit user instruction. The preflight protocol is a **review** protocol, not a **modification** protocol. Finding issues and fixing issues are separate steps.
 
+### Step 8: Roadmap Sync (RD Preflighted / Plan Preflighted)
+
+After a preflight **pass**, sync the roadmap if one is in play:
+
+- **If `plans/00-roadmap.md` exists:** advance the audited target's row —
+  - an **RD** that passed preflight → stage `RD Preflighted` (🔎)
+  - a **plan** that passed preflight → stage `Plan Preflighted` (🔬)
+
+  Update the row's `Stage`, `Status`, and `Last Updated` following the update-first mandate.
+- **If `plans/00-roadmap.md` does NOT exist:** these hooks are inert — no error, no auto-creation.
+
+A `❌ BLOCKED` outcome does NOT advance the roadmap. See `get_rule("roadmap")` for the full protocol.
+
 ---
+
 
 ## **Iterative Re-scanning**
 
@@ -563,7 +577,9 @@ When conducting a preflight review:
 - ✅ Reference **testing.md** for testing standards that plans/requirements should address
 - ✅ Reference **agents.md** for context window management during long reviews
 - ✅ Reference **grill_me.md** if pre-creation disambiguation was done
+- ✅ Reference **roadmap.md** for the Roadmap Keeper — a passing preflight advances the target's row to `RD Preflighted` / `Plan Preflighted` if a roadmap exists
 - ✅ Read **`.clinerules/project.md`** for project-specific constraints (if it exists)
+
 - ✅ Read **the actual codebase** — source files, tests, configs, manifests — for grounding every claim in reality
 
 ---

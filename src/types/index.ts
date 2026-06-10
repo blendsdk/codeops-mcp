@@ -47,9 +47,10 @@ export interface RuleDocument {
  */
 export type RuleCategory =
   | 'standards'    // code.md, testing.md
-  | 'workflow'     // git-commands.md, make_plan.md, requirements.md, retro_requirements.md
+  | 'workflow'     // git-commands.md, make_plan.md, requirements.md, retro_requirements.md, techdocs.md, upgrade_plan.md, grill_me.md, preflight.md, roadmap.md
   | 'behavior'     // agents.md
   | 'setup';       // project-template.md
+
 
 // ============================================================================
 // Search Types
@@ -288,7 +289,13 @@ export const RULE_METADATA: Record<string, { title: string; category: RuleCatego
     category: 'workflow',
     description: 'Multi-dimensional quality audit for plans, requirements, and artifacts — iterative review until clean pass (preflight).',
   },
+  'roadmap': {
+    title: 'Roadmap Keeper',
+    category: 'workflow',
+    description: 'Live roadmap tracking every RD/plan across a large feature-set through its lifecycle (make_roadmap, update_roadmap, review_roadmap, archive_roadmap).',
+  },
 };
+
 
 /**
  * Aliases for rule names — allows users to use shorthand names.
@@ -396,7 +403,22 @@ export const RULE_ALIASES: Record<string, string> = {
   'quality-audit': 'preflight',
   'review-gate': 'preflight',
   'audit': 'preflight',
+
+  // roadmap.md aliases
+  'roadmaps': 'roadmap',
+  'make_roadmap': 'roadmap',
+  'make-roadmap': 'roadmap',
+  'makeroadmap': 'roadmap',
+  'update_roadmap': 'roadmap',
+  'update-roadmap': 'roadmap',
+  'review_roadmap': 'roadmap',
+  'review-roadmap': 'roadmap',
+  'archive_roadmap': 'roadmap',
+  'archive-roadmap': 'roadmap',
+  'track': 'roadmap',
+  'tracker': 'roadmap',
 };
+
 
 /** Default number of search results to return */
 export const DEFAULT_SEARCH_LIMIT = 5;

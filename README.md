@@ -4,7 +4,8 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 
 ## What It Does
 
-**codeops-mcp** bundles 12 curated rule documents that teach AI agents how to code, test, plan, commit, gather requirements, reverse-engineer codebases, create technical documentation, upgrade outdated artifacts, disambiguate designs, run preflight reviews, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
+**codeops-mcp** bundles 13 curated rule documents that teach AI agents how to code, test, plan, commit, gather requirements, reverse-engineer codebases, create technical documentation, upgrade outdated artifacts, disambiguate designs, run preflight reviews, track feature-set roadmaps, and behave — across any programming language and project type. It exposes these rules via 5 MCP tools.
+
 
 ### Rule Documents
 
@@ -20,8 +21,10 @@ MCP (Model Context Protocol) server providing AI coding agents with universal, l
 | **upgrade_plan**         | Upgrade outdated plans and requirements to current standards                          |
 | **grill_me**             | Deep disambiguation protocol — relentless interview before planning or requirements  |
 | **preflight**            | Multi-dimensional quality audit for plans, requirements, and artifacts (`preflight`)  |
+| **roadmap**              | Live roadmap tracking every RD/plan across a feature-set lifecycle (`make_roadmap`)   |
 | **agents**               | Mandatory AI agent behavior: compliance, context management, multi-session execution |
 | **project-template**     | Template for `.clinerules/project.md` — project-specific toolchain configuration     |
+
 
 ### MCP Tools
 
@@ -561,7 +564,8 @@ src/
 └── __tests__/
     ├── store/            # Store & search engine tests
     └── tools/            # Tool integration tests
-docs/                     # 12 bundled rule markdown files
+docs/                     # 13 bundled rule markdown files
+
 ```
 
 ## License

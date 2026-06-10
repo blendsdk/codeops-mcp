@@ -7,9 +7,12 @@
  */
 
 import { describe, it, expect, beforeAll } from 'vitest';
+import { join } from 'path';
+import { readFile } from 'fs/promises';
 import type { RuleStore } from '../../store/rule-store.js';
 import type { SearchEngine } from '../../store/search-engine.js';
 import { getTestIndex } from './tools-setup.js';
+
 
 import { getRule } from '../../tools/get-rule.js';
 import { listRules } from '../../tools/list-rules.js';
@@ -109,7 +112,7 @@ describe('listRules', () => {
     expect(result).toContain('Total rules');
   });
 
-  it('should show all 7 rule documents', () => {
+  it('should show all rule documents including roadmap', () => {
     const result = listRules(store);
     expect(result).toContain('code');
     expect(result).toContain('testing');
@@ -118,7 +121,9 @@ describe('listRules', () => {
     expect(result).toContain('agents');
     expect(result).toContain('project-template');
     expect(result).toContain('requirements');
+    expect(result).toContain('roadmap');
   });
+
 
   it('should group rules by category', () => {
     const result = listRules(store);
@@ -218,3 +223,43 @@ describe('getSetupGuide', () => {
     expect(result).toContain('testing');
   });
 });
+
+// ============================================================================
+// Specification: Roadmap Keeper — enforcement keyword presence (ST-18, ST-19)
+//
+// Derived from PF-008 (folded keyword-presence checks) and 03-03 Parts B & C.
+// These read the on-disk docs to verify the enforcement text is present —
+// the only testable nugget of the documentation-only stage hooks.
+// ============================================================================
+
+const DOCS_DIR = join(process.cwd(), 'docs');
+
+describe('Specification: Roadmap Keeper — agents.md enforcement (ST-18)', () => {
+  // Source: 07-testing-strategy.md ST-18 — PF-008, 03-03 Part B
+  it('should add a roadmap rule heading and attempt_completion blocking language to agents.md (ST-18)', async () => {
+    const content = await readFile(join(DOCS_DIR, 'agents.md'), 'utf-8');
+    // New numbered rule references the roadmap as a source of truth
+    expect(content.toLowerCase()).toContain('roadmap');
+    // attempt_completion blocking language (mirrors the execution-plan mandate)
+    expect(content).toContain('attempt_completion');
+  });
+});
+
+describe('Specification: Roadmap Keeper — workflow doc cross-references (ST-19)', () => {
+  // Source: 07-testing-strategy.md ST-19 — PF-008, 03-03 Part C
+  it('should reference roadmap in requirements.md (ST-19)', async () => {
+    const content = await readFile(join(DOCS_DIR, 'requirements.md'), 'utf-8');
+    expect(content).toContain('roadmap');
+  });
+
+  it('should reference roadmap in make_plan.md (ST-19)', async () => {
+    const content = await readFile(join(DOCS_DIR, 'make_plan.md'), 'utf-8');
+    expect(content).toContain('roadmap');
+  });
+
+  it('should reference roadmap in preflight.md (ST-19)', async () => {
+    const content = await readFile(join(DOCS_DIR, 'preflight.md'), 'utf-8');
+    expect(content).toContain('roadmap');
+  });
+});
+

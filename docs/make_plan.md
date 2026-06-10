@@ -860,7 +860,24 @@ Run `exec_plan [feature-name]` to start executing the plan.
 
 ---
 
+### **Phase 5: Roadmap Sync (Plan Created)**
+
+After the plan is created, sync the roadmap if one is in play:
+
+- **If `plans/00-roadmap.md` exists:** set the implemented RD's row to stage `Plan Created` (📋) and link
+  the new plan. The link is deterministic — the plan declares the requirement it implements as an
+  `> **Implements**: RD-NN` line in its `00-index.md`, and this hook reads that line to find the matching
+  RD row. A plan with no declared RD is linked only when the user explicitly states which RD (or `DEF-n`)
+  it belongs to. Follow the update-first mandate (update the roadmap BEFORE moving on).
+- **If `plans/00-roadmap.md` does NOT exist:** ask the user whether to create a roadmap (`make_roadmap`).
+  Never auto-create it silently.
+
+See `get_rule("roadmap")` for the full Roadmap Keeper protocol.
+
+---
+
 ## **Part 2: Executing Plans (`exec_plan [feature-name]`)**
+
 
 ### **Execution Protocol**
 
@@ -1013,9 +1030,25 @@ The order `spec tests → red phase → implement → green phase → impl tests
    - **Auto-commit:** Commit and push via `gitcmp` protocol
 5. ✅ Report session summary (must include "Execution Plan Updated: ✅")
 
+#### Roadmap Sync During Execution (Executing / Done / Blocked + DEF)
+
+If `plans/00-roadmap.md` exists, keep the roadmap in sync as execution progresses (update-first — the
+roadmap is updated BEFORE verification/commit/next, exactly like the execution plan):
+
+- **On start (`exec_plan` begins):** set the RD's row to stage `Executing` (🔄).
+- **On completion (all tasks done):** set the RD's row to stage `Done` (✅) and update the header
+  `Progress` counter.
+- **Blocking dependency discovered mid-execution:** add a nested `↳ DEF-n` sub-row to the roadmap for
+  the discovered dependency, set the parent RD's row to `Blocked` (⛔) with a `Notes / Blocker` entry
+  naming the `DEF-n`, and keep it `Blocked` until the `DEF-n` reaches `Done` — then the parent resumes
+  its prior stage.
+
+If no roadmap exists, these hooks are inert (no error). See `get_rule("roadmap")` for the full protocol.
+
 ---
 
 ## **🚨 CRITICAL: Session Execution Rules (AUTO-INCLUDED IN EVERY PHASE) 🚨**
+
 
 **These rules are AUTOMATICALLY APPLIED to every execution session. They do NOT need to be manually injected into plan templates.**
 
@@ -1388,7 +1421,9 @@ When creating and executing plans:
 - ✅ Follow **techdocs.md** for technical architecture documentation updates after phases and plans
 - ✅ Follow **upgrade_plan.md** for upgrading outdated plans and requirements
 - ✅ Reference **grill_me.md** for deep disambiguation before planning (`grill_me` → `make_plan`)
+- ✅ Reference **roadmap.md** for the Roadmap Keeper — `make_plan` sets `Plan Created`; `exec_plan` sets `Executing`/`Done`/`Blocked`+`DEF` (`make_roadmap`)
 - ✅ Read **`.clinerules/project.md`** for project-specific commands and conventions
+
 
 ---
 
@@ -1406,6 +1441,8 @@ When creating and executing plans:
 | `gitcmp` | Commit and push after successful verification |
 | `upgrade_plan [feature]` | Upgrade an outdated plan to current standards |
 | `upgrade_requirements` | Upgrade outdated requirements to current standards |
+| `make_roadmap` | Create/track a roadmap; `make_plan` → `Plan Created`, `exec_plan` → `Executing`/`Done` (see `roadmap.md`) |
+
 
 **Session Flow (default — ask-commit):**
 ```

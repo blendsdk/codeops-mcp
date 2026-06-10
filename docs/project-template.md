@@ -19,8 +19,11 @@ using the codeops-mcp tools:**
 3. `get_rule("testing")` — Load testing workflows
 4. `get_rule("git-commands")` — Load git commit protocols
 
+**Roadmap directive:** If `plans/00-roadmap.md` exists, you MUST read it at the start of every task and update it at every lifecycle stage transition. See `get_rule("roadmap")`.
+
 These rules are **mandatory** and must be consulted before every task.
 **Do NOT skip this step. Do NOT proceed without reading these documents.**
+
 
 ---
 
@@ -312,3 +315,5 @@ The generic rule files that read this `project.md`:
 - **agents.md** — Uses shell commands, verify command
 - **requirements.md** — Uses project type, tech stack, and conventions for requirements discovery
 - **retro_requirements.md** — Uses project type, tech stack for codebase analysis adaptation
+- **roadmap.md** — Reads the roadmap directive; tracks RDs/plans across the feature-set lifecycle (`make_roadmap`)
+
