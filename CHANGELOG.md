@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/blendsdk/codeops-mcp/compare/v1.13.0...v1.14.0) (2026-06-10)
+
+
+### Features
+
+* **roadmap:** add Roadmap Keeper rule, registration, and stage hooks ([cb5bb29](https://github.com/blendsdk/codeops-mcp/commit/cb5bb2955f3bb4ae8a0a46228f09f70036aa7bd2))
+
 # [1.13.0](https://github.com/blendsdk/codeops-mcp/compare/v1.12.0...v1.13.0) (2026-05-21)
 
 
